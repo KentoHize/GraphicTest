@@ -39,9 +39,9 @@
             // pibMain
             // 
             pibMain.Dock = DockStyle.Fill;
-            pibMain.Location = new Point(0, 28);
+            pibMain.Location = new Point(0, 27);
             pibMain.Name = "pibMain";
-            pibMain.Size = new Size(800, 422);
+            pibMain.Size = new Size(800, 423);
             pibMain.TabIndex = 0;
             pibMain.TabStop = false;
             // 
@@ -51,7 +51,7 @@
             menuStrip1.Items.AddRange(new ToolStripItem[] { 測試ToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(800, 28);
+            menuStrip1.Size = new Size(800, 27);
             menuStrip1.TabIndex = 1;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -59,7 +59,7 @@
             // 
             測試ToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { tsiRun });
             測試ToolStripMenuItem.Name = "測試ToolStripMenuItem";
-            測試ToolStripMenuItem.Size = new Size(53, 24);
+            測試ToolStripMenuItem.Size = new Size(53, 23);
             測試ToolStripMenuItem.Text = "測試";
             // 
             // tsiRun

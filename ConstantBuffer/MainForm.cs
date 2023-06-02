@@ -12,13 +12,12 @@ namespace ConstantBuffer
             InitializeComponent();
             StartPosition = FormStartPosition.CenterScreen;
             Size = new Size(1000, 1000);
-
         }
 
         private void tsiRun_Click(object sender, EventArgs e)
         {
             sde.Update();
-            //sde.Render();
+            sde.Render();
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -36,21 +35,21 @@ namespace ConstantBuffer
                 }
             });
 
+            //Vertex[] triangle = new Vertex[]
+            //{
+            //    new Vertex{ pos = new SharpDX.Vector3(0, 0.25f, 0), color = new SharpDX.Vector4(0, 1, 0, 1)},
+            //    new Vertex{ pos = new SharpDX.Vector3(0.25f, -0.25f, 0), color = new SharpDX.Vector4(1, 0, 0, 1)},
+            //    new Vertex{ pos = new SharpDX.Vector3(-0.25f, -0.25f, 0), color = new SharpDX.Vector4(0, 0, 1, 1)},
+            //};
+
+            //triangle = new Vertex[]
+            //{
+            //    new Vertex{ pos = new SharpDX.Vector3(0, 0, 0), color = new SharpDX.Vector4(0, 1, 0, 1)},
+            //    new Vertex{ pos = new SharpDX.Vector3(0, 1, 0), color = new SharpDX.Vector4(1, 0, 0, 1)},
+            //    new Vertex{ pos = new SharpDX.Vector3(1, 0, 0), color = new SharpDX.Vector4(0, 0, 1, 1)},
+            //};
+
             Vertex[] triangle = new Vertex[]
-            {
-                new Vertex{ pos = new SharpDX.Vector3(0, 0.25f, 0), color = new SharpDX.Vector4(0, 1, 0, 1)},
-                new Vertex{ pos = new SharpDX.Vector3(0.25f, -0.25f, 0), color = new SharpDX.Vector4(1, 0, 0, 1)},
-                new Vertex{ pos = new SharpDX.Vector3(-0.25f, -0.25f, 0), color = new SharpDX.Vector4(0, 0, 1, 1)},
-            };
-
-            triangle = new Vertex[]
-            {
-                new Vertex{ pos = new SharpDX.Vector3(0, 0, 0), color = new SharpDX.Vector4(0, 1, 0, 1)},
-                new Vertex{ pos = new SharpDX.Vector3(0, 1, 0), color = new SharpDX.Vector4(1, 0, 0, 1)},
-                new Vertex{ pos = new SharpDX.Vector3(1, 0, 0), color = new SharpDX.Vector4(0, 0, 1, 1)},
-            };
-
-            triangle = new Vertex[]
             {
                 new Vertex{ pos = new SharpDX.Vector3(1, 0, 0), color = new SharpDX.Vector4(0, 1, 0, 1)},
                 new Vertex{ pos = new SharpDX.Vector3(0, 1, 0), color = new SharpDX.Vector4(1, 0, 0, 1)},

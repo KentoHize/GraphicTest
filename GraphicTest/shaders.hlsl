@@ -7,19 +7,8 @@ struct PSInput
 };
 
 PSInput VSMain(float4 position : POSITION, float4 color : COLOR)
-{	
-    
-    
+{   
 	PSInput result;
-    //float op = position[0];
-    //for (int i = 0; i < 10000000; i++)
-    //{
-    //    if(i % 2 == 0)
-    //        position[0] += i;
-    //    else
-    //        position[0] -= i;
-    //}
-    //position[0] = op;
     result.position = position;
 	result.color = color;
 	
