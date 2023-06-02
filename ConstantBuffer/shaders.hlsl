@@ -12,6 +12,13 @@ struct CB2
 };
 ConstantBuffer<CB2> cb2 : register(b1);
 
+struct CB3
+{
+    float4 position3;
+    float4 color3;
+};
+ConstantBuffer<CB3> cb3 : register(b2);
+
 struct PSInput
 {
 	float4 position : SV_POSITION;
@@ -21,7 +28,7 @@ struct PSInput
 PSInput VSMain(float4 position : POSITION, float4 color : COLOR)
 {
 	PSInput result;   
-    result.position = position + cb1.position1;
+    result.position = position + cb3.position3;
 	result.color = color;
 	return result;
 }
@@ -29,7 +36,7 @@ PSInput VSMain(float4 position : POSITION, float4 color : COLOR)
 float4 PSMain(PSInput input) : SV_TARGET
 {
     //return cb1.color1;
-    return cb2.color2;
+    return cb3.color3;
     //return color1;
     //return input.color;
     //return float4(1.0f, 0, 0, 1.0f);

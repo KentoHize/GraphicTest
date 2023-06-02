@@ -78,5 +78,14 @@ namespace ConstantBuffer
             });
             sde.Render();
         }
+
+        private void t1ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            sde.UpdateConstantBuffer(new SharpDXEngine.CB1
+            {
+                Position = new Vector4(0, 0, 0, 0),
+                Color = new Vector4(1.0f, 1.0f, 1.0f, 1.0f)
+            });
+        }
     }
 }

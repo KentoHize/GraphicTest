@@ -32,6 +32,9 @@
             menuStrip1 = new MenuStrip();
             測試ToolStripMenuItem = new ToolStripMenuItem();
             tsiRun = new ToolStripMenuItem();
+            t1ToolStripMenuItem = new ToolStripMenuItem();
+            t2ToolStripMenuItem = new ToolStripMenuItem();
+            t3ToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)pibMain).BeginInit();
             menuStrip1.SuspendLayout();
             SuspendLayout();
@@ -39,9 +42,9 @@
             // pibMain
             // 
             pibMain.Dock = DockStyle.Fill;
-            pibMain.Location = new Point(0, 27);
+            pibMain.Location = new Point(0, 28);
             pibMain.Name = "pibMain";
-            pibMain.Size = new Size(800, 423);
+            pibMain.Size = new Size(800, 422);
             pibMain.TabIndex = 0;
             pibMain.TabStop = false;
             // 
@@ -51,15 +54,15 @@
             menuStrip1.Items.AddRange(new ToolStripItem[] { 測試ToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(800, 27);
+            menuStrip1.Size = new Size(800, 28);
             menuStrip1.TabIndex = 1;
             menuStrip1.Text = "menuStrip1";
             // 
             // 測試ToolStripMenuItem
             // 
-            測試ToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { tsiRun });
+            測試ToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { tsiRun, t1ToolStripMenuItem, t2ToolStripMenuItem, t3ToolStripMenuItem });
             測試ToolStripMenuItem.Name = "測試ToolStripMenuItem";
-            測試ToolStripMenuItem.Size = new Size(53, 23);
+            測試ToolStripMenuItem.Size = new Size(53, 24);
             測試ToolStripMenuItem.Text = "測試";
             // 
             // tsiRun
@@ -68,6 +71,25 @@
             tsiRun.Size = new Size(224, 26);
             tsiRun.Text = "跑";
             tsiRun.Click += tsiRun_Click;
+            // 
+            // t1ToolStripMenuItem
+            // 
+            t1ToolStripMenuItem.Name = "t1ToolStripMenuItem";
+            t1ToolStripMenuItem.Size = new Size(224, 26);
+            t1ToolStripMenuItem.Text = "T1";
+            t1ToolStripMenuItem.Click += t1ToolStripMenuItem_Click;
+            // 
+            // t2ToolStripMenuItem
+            // 
+            t2ToolStripMenuItem.Name = "t2ToolStripMenuItem";
+            t2ToolStripMenuItem.Size = new Size(224, 26);
+            t2ToolStripMenuItem.Text = "T2";
+            // 
+            // t3ToolStripMenuItem
+            // 
+            t3ToolStripMenuItem.Name = "t3ToolStripMenuItem";
+            t3ToolStripMenuItem.Size = new Size(224, 26);
+            t3ToolStripMenuItem.Text = "T3";
             // 
             // MainForm
             // 
@@ -93,5 +115,8 @@
         private MenuStrip menuStrip1;
         private ToolStripMenuItem 測試ToolStripMenuItem;
         private ToolStripMenuItem tsiRun;
+        private ToolStripMenuItem t1ToolStripMenuItem;
+        private ToolStripMenuItem t2ToolStripMenuItem;
+        private ToolStripMenuItem t3ToolStripMenuItem;
     }
 }

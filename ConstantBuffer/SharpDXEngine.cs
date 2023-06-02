@@ -36,7 +36,7 @@ namespace ConstantBuffer
         VertexBufferView vertexBufferView;
         //BufferView constantBufferView;
         Resource vertexBuffer;
-        Resource constantBuffer;
+        Resource[] constantBuffer = new Resource[3];
         IntPtr constantBufferPointer;
         int rtvDescriptorSize;
         int cruDescriptorSize;
@@ -102,7 +102,7 @@ namespace ConstantBuffer
             //Init Constant Buffer Heap
             var cbvHeapDesc = new DescriptorHeapDescription()
             {
-                DescriptorCount = 2,
+                DescriptorCount = 3,
                 Flags = DescriptorHeapFlags.ShaderVisible,
                 Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView
             };
@@ -122,22 +122,28 @@ namespace ConstantBuffer
                     {
                         Position = new Vector4(0.25f, 0, 0, 0),
                         Color = new Vector4(1.0f, 0.0f, 0, 1.0f),
+                    },
+                    new CB1
+                    {
+                        Position = new Vector4(0.25f, 0, 0, 0),
+                        Color = new Vector4(0, 0.0f,1.0f, 1.0f),
                     }
              };
 
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < 3; i++)
             {
-                constantBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.GenericRead);
+                constantBuffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.GenericRead);
                 var cbvDesc = new ConstantBufferViewDescription()
                 {
-                    BufferLocation = constantBuffer.GPUVirtualAddress,
+                    BufferLocation = constantBuffer[i].GPUVirtualAddress,
                     SizeInBytes = (Utilities.SizeOf<CB1>() + 255) & ~255
                 };
+                
                 device.CreateConstantBufferView(cbvDesc, cruHandle);
                 cruHandle += cruDescriptorSize;
-                constantBufferPointer = constantBuffer.Map(0);
+                constantBufferPointer = constantBuffer[i].Map(0);
                 Utilities.Write(constantBufferPointer, ref cbDataArray[i]);
-                constantBuffer.Unmap(0);
+                //constantBuffer[i].Unmap(0);
             }
             LoadAssets();
         }
@@ -154,12 +160,10 @@ namespace ConstantBuffer
                             BaseShaderRegister = 0,
                             RegisterSpace = 0,
                             OffsetInDescriptorsFromTableStart = 0,
-                            DescriptorCount = 2
+                            DescriptorCount = 3
                         })
                });
             rootSignature = device.CreateRootSignature(rootSignatureDesc.Serialize());
-            //rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout);
-            //rootSignature = device.CreateRootSignature(rootSignatureDesc.Serialize());
         }
 
         public struct CB1
@@ -226,29 +230,6 @@ namespace ConstantBuffer
             commandList = device.CreateCommandList(CommandListType.Direct, commandAllocator, pipelineState);
             commandList.Close();
 
-            // const buffer
-            //constantBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(Utilities.SizeOf<CB1>()), ResourceStates.GenericRead);
-
-
-
-            //int incrementSize = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
-            //device.CreateConstantBufferView(cbvDesc, new CpuDescriptorHandle { Ptr = cbvh.Ptr + incrementSize });
-            //Utilities.Write(constantBufferPointer + incrementSize, ref cbData2);
-            //var constantBuffer2 = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.GenericRead);
-            //cbvDesc = new ConstantBufferViewDescription()
-            //{
-            //    BufferLocation = constantBuffer.GPUVirtualAddress,
-            //    //SizeInBytes = 512                
-            //    SizeInBytes = (Utilities.SizeOf<CB1>() + 255) & ~255
-            //};
-            //device.CreateConstantBufferView(cbvDesc, constantBufferViewHeap.CPUDescriptorHandleForHeapStart);
-            //constantBufferPointer = constantBuffer.Map(0);
-            //Utilities.Write(constantBufferPointer, ref cbData2);
-
-            //constantBufferPointer = constantBuffer.Map(1);
-            //Utilities.Write(constantBufferPointer + 256, ref cbData2);
-            //Utilities.Write(constantBufferPointer, ref constantBufferData);
-
             // Create synchronization objects.
             fence = device.CreateFence(0, FenceFlags.None);
             fenceValue = 1;
@@ -258,7 +239,15 @@ namespace ConstantBuffer
         }
         public void Update()
         {
+            //constantBufferPointer = constantBuffer[i].Map(0);
+            //Utilities.Write(constantBufferPointer, ref cbDataArray[i]);
+        }
 
+        public void UpdateConstantBuffer(CB1 cb)
+        {   
+            constantBufferPointer = constantBuffer[2].Map(0);
+            Utilities.Write(constantBufferPointer, ref cb);
+            Render();
         }
 
         public void Render()
@@ -271,8 +260,9 @@ namespace ConstantBuffer
             commandList.SetScissorRectangles(new SharpDX.Mathematics.Interop.RawRectangle(0, 0, (int)viewport.Width, (int)viewport.Height));
 
             commandList.SetDescriptorHeaps(new DescriptorHeap[] { constantBufferViewHeap });
-            GpuDescriptorHandle gdh = constantBufferViewHeap.GPUDescriptorHandleForHeapStart;
-            commandList.SetGraphicsRootDescriptorTable(0, gdh);
+            commandList.SetGraphicsRootDescriptorTable(0, constantBufferViewHeap.GPUDescriptorHandleForHeapStart);
+            //GpuDescriptorHandle gdh = constantBufferViewHeap.GPUDescriptorHandleForHeapStart;
+            //commandList.SetGraphicsRootDescriptorTable(0, gdh);
             //gdh += cruDescriptorSize;
             //commandList.SetGraphicsRootDescriptorTable(1, gdh);
             commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
