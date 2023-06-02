@@ -1,4 +1,4 @@
-﻿using SharpDX.Direct3D12;
+﻿using SharpDX;
 using SharpDX.DXGI;
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace ConstantBuffer
     {
         public IntPtr Handle { get; set; }
         public SwapEffect SwapEffect { get; set; } = SwapEffect.FlipDiscard;
-        public Viewport Viewport { get; set; }
+        public ViewportF Viewport { get; set; }
         public bool CullTwoFace { get; set; } = false;
     }
 }

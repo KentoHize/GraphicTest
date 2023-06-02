@@ -4,6 +4,7 @@ namespace ConstantBuffer
 {
     public partial class MainForm : Form
     {
+
         public MainForm()
         {
             InitializeComponent();
@@ -31,6 +32,24 @@ namespace ConstantBuffer
                 }
             });
 
+            Vertex[] triangle = new Vertex[]
+            {
+                new Vertex{ pos = new SharpDX.Vector3(1, 1, 0), color = new SharpDX.Vector4(1, 0, 0, 1)},
+                new Vertex{ pos = new SharpDX.Vector3(1, 0, 0), color = new SharpDX.Vector4(0, 1, 0, 1)},
+                new Vertex{ pos = new SharpDX.Vector3(0, 1, 0), color = new SharpDX.Vector4(0, 0, 1, 1)},
+            };
+            sde.Load(new SharpDXData
+            {
+                BackgroundColor = Color.White,
+                GraphicData = new SharpDXBundleData[]
+                {
+                    new SharpDXBundleData
+                    {
+                        Data = triangle,
+                        PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList
+                    }
+                }
+            });
             sde.Render();
         }
     }

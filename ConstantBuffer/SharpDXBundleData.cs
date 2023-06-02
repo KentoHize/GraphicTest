@@ -10,8 +10,8 @@ namespace ConstantBuffer
 {
     public class Vertex
     {
-        public Vector3 pos {get;set;}
-        public Vector3 color { get; set; }
+        public Vector3 pos { get; set;}
+        public Vector4 color { get; set; }
     }
 
     public class SharpDXBundleData
