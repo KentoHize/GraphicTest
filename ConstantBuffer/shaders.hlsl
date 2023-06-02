@@ -1,7 +1,7 @@
 ﻿cbuffer CB1
 {
-    float4 position : p1;
-    float4 color : c1;
+    float4 position1 : p1;
+    float4 color1 : c1;
 };
 
 cbuffer CB2
@@ -26,6 +26,6 @@ PSInput VSMain(float4 position : POSITION, float4 color : COLOR)
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
-    //return input.color;
-    return float4(1.0f, 0, 0, 1.0f);
+    return input.color;
+    //return float4(1.0f, 0, 0, 1.0f);
 }

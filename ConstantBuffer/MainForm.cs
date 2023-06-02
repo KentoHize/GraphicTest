@@ -32,15 +32,39 @@ namespace ConstantBuffer
                 {
                     Width = pibMain.ClientSize.Width,
                     Height = pibMain.ClientSize.Height,
+                    MaxDepth = 20,
                 }
             });
 
             Vertex[] triangle = new Vertex[]
             {
-                new Vertex{ pos = new SharpDX.Vector3(1, 0, 0), color = new SharpDX.Vector4(0, 1, 0, 1)},
-                new Vertex{ pos = new SharpDX.Vector3(1, 1, 0), color = new SharpDX.Vector4(1, 0, 0, 1)},
-                new Vertex{ pos = new SharpDX.Vector3(0, 1, 0), color = new SharpDX.Vector4(0, 0, 1, 1)},
+                new Vertex{ pos = new SharpDX.Vector3(0, 0.25f, 0), color = new SharpDX.Vector4(0, 1, 0, 1)},
+                new Vertex{ pos = new SharpDX.Vector3(0.25f, -0.25f, 0), color = new SharpDX.Vector4(1, 0, 0, 1)},
+                new Vertex{ pos = new SharpDX.Vector3(-0.25f, -0.25f, 0), color = new SharpDX.Vector4(0, 0, 1, 1)},
             };
+
+            triangle = new Vertex[]
+            {
+                new Vertex{ pos = new SharpDX.Vector3(0, 0, 0), color = new SharpDX.Vector4(0, 1, 0, 1)},
+                new Vertex{ pos = new SharpDX.Vector3(0, 1, 0), color = new SharpDX.Vector4(1, 0, 0, 1)},
+                new Vertex{ pos = new SharpDX.Vector3(1, 0, 0), color = new SharpDX.Vector4(0, 0, 1, 1)},
+            };
+
+            triangle = new Vertex[]
+            {
+                new Vertex{ pos = new SharpDX.Vector3(1, 0, 0), color = new SharpDX.Vector4(0, 1, 0, 1)},
+                new Vertex{ pos = new SharpDX.Vector3(0, 1, 0), color = new SharpDX.Vector4(1, 0, 0, 1)},
+                new Vertex{ pos = new SharpDX.Vector3(0, 0, 0), color = new SharpDX.Vector4(0, 0, 1, 1)},
+            };
+            triangle = triangle.Reverse().ToArray();
+
+            //triangle = new Vertex[]
+            //{
+            //        new Vertex() {pos=new Vector3(0.0f, 0.25f, 0.0f ),color=new Vector4(1.0f, 0.0f, 0.0f, 1.0f ) },
+            //        new Vertex() {pos=new Vector3(0.25f, -0.25f, 0.0f),color=new Vector4(0.0f, 1.0f, 0.0f, 1.0f) },
+            //        new Vertex() {pos=new Vector3(-0.25f, -0.25f, 0.0f),color=new Vector4(0.0f, 0.0f, 1.0f, 1.0f ) },
+            //};
+            //triangle.Reverse();
             sde.Load(new SharpDXData
             {
                 BackgroundColor = System.Drawing.Color.Black,

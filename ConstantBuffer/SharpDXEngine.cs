@@ -47,8 +47,6 @@ namespace ConstantBuffer
         public void Initialize(SharpDXSetting setting)
         {
             viewport = setting.Viewport;
-            
-            
 #if DEBUG   
             DebugInterface.Get().EnableDebugLayer();
 #endif
@@ -96,13 +94,13 @@ namespace ConstantBuffer
             }
 
             //Init Constant Buffer Heap
-            var cbvHeapDesc = new DescriptorHeapDescription()
-            {
-                DescriptorCount = 2,
-                Flags = DescriptorHeapFlags.ShaderVisible,
-                Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView
-            };
-            constantBufferViewHeap = device.CreateDescriptorHeap(cbvHeapDesc);
+            //var cbvHeapDesc = new DescriptorHeapDescription()
+            //{
+            //    DescriptorCount = 2,
+            //    Flags = DescriptorHeapFlags.ShaderVisible,
+            //    Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView
+            //};
+            //constantBufferViewHeap = device.CreateDescriptorHeap(cbvHeapDesc);
             LoadAssets();
         }
 
@@ -118,23 +116,29 @@ namespace ConstantBuffer
                             BaseShaderRegister = 0,
                             OffsetInDescriptorsFromTableStart = -1,
                             DescriptorCount = 1
-                        },
-                         new DescriptorRange()
-                        {
-                            RangeType = DescriptorRangeType.ConstantBufferView,
-                            BaseShaderRegister = 1,
-                            OffsetInDescriptorsFromTableStart = -1,
-                            DescriptorCount = 1
-                        })
+                        }
+                        // new DescriptorRange()
+                        //{
+                        //    RangeType = DescriptorRangeType.ConstantBufferView,
+                        //    BaseShaderRegister = 1,
+                        //    OffsetInDescriptorsFromTableStart = -1,
+                        //    DescriptorCount = 1
+                        //}
+                        )
                });
+            //rootSignature = device.CreateRootSignature(rootSignatureDesc.Serialize());
+            rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout);
             rootSignature = device.CreateRootSignature(rootSignatureDesc.Serialize());
+
+
         }
 
         public void Load(SharpDXData data)
         {
             backgroundColor = new Color4(new Vector4(data.BackgroundColor.R,
                 data.BackgroundColor.G, data.BackgroundColor.B,
-                data.BackgroundColor.A));           
+                data.BackgroundColor.A));
+
 #if DEBUG
             var vertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(shaderFile, "VSMain", "vs_5_0", SharpDX.D3DCompiler.ShaderFlags.Debug));
 #else
@@ -146,6 +150,7 @@ namespace ConstantBuffer
 #else
             var pixelShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile("shaders.hlsl", "PSMain", "ps_5_0"));
 #endif
+
             var inputElementDescs = new[]
            {
                     new InputElement("POSITION",0,Format.R32G32B32_Float,0,0),
@@ -172,7 +177,7 @@ namespace ConstantBuffer
             psoDesc.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
             pipelineState = device.CreateGraphicsPipelineState(psoDesc);
 
-            gd = data.GraphicData[0].Data;
+            var gd = data.GraphicData[0].Data;
             int vertexBufferSize = Utilities.SizeOf(gd);
             vertexBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(vertexBufferSize), ResourceStates.GenericRead);
             IntPtr pVertexDataBegin = vertexBuffer.Map(0);
@@ -185,7 +190,6 @@ namespace ConstantBuffer
 
             commandList = device.CreateCommandList(CommandListType.Direct, commandAllocator, pipelineState);
             commandList.Close();
-
             // const buffer
 
             // Create synchronization objects.
@@ -201,11 +205,12 @@ namespace ConstantBuffer
         }
         public void Render()
         {
+            
             commandAllocator.Reset();
             commandList.Reset(commandAllocator, pipelineState);
             commandList.SetGraphicsRootSignature(rootSignature);
 
-            commandList.SetViewport(viewport);
+            commandList.SetViewport(viewport);            
             commandList.SetScissorRectangles(new SharpDX.Mathematics.Interop.RawRectangle(0, 0, (int)viewport.Width, (int)viewport.Height));
 
             //commandList.SetDescriptorHeaps(1, new DescriptorHeap[] { constantBufferViewHeap });
@@ -214,6 +219,7 @@ namespace ConstantBuffer
             commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
             CpuDescriptorHandle rtvHandle = renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
             rtvHandle += frameIndex * rtvDescriptorSize;
+            commandList.SetRenderTargets(rtvHandle, null);
             commandList.ClearRenderTargetView(rtvHandle,  backgroundColor, 0, null);
             commandList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
             commandList.SetVertexBuffer(0, vertexBufferView);
