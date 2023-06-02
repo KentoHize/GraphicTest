@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using Device = SharpDX.Direct3D12.Device;
 using InfoQueue = SharpDX.Direct3D12.InfoQueue;
 using Resource = SharpDX.Direct3D12.Resource;
@@ -15,14 +16,13 @@ namespace ConstantBuffer
 {
     public class SharpDXEngine
     {
-        public const string shaderFile = @"C:\Programs\GraphicTest\ConstantBuffer";
+        public const string shaderFile = @"C:\Programs\GraphicTest\ConstantBuffer\shaders.hlsl";
 
         Device device;
         CommandQueue commandQueue;
         SwapChain3 swapChain;
         PipelineState pipelineState;
-        InfoQueue iq;
-        int frameIndex;
+        InfoQueue iq;        
 
         readonly Resource[] renderTargets = new Resource[2];
         GraphicsCommandList commandList;
@@ -37,6 +37,13 @@ namespace ConstantBuffer
 
         ViewportF viewport;
         Color4 backgroundColor;
+        Vertex[] gd;
+
+        int frameIndex;
+        AutoResetEvent fenceEvent;
+
+        Fence fence;
+        int fenceValue;
         public void Initialize(SharpDXSetting setting)
         {
             viewport = setting.Viewport;
@@ -127,15 +134,15 @@ namespace ConstantBuffer
         {
             backgroundColor = new Color4(new Vector4(data.BackgroundColor.R,
                 data.BackgroundColor.G, data.BackgroundColor.B,
-                data.BackgroundColor.A));
+                data.BackgroundColor.A));           
 #if DEBUG
-            var vertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile("shaders.hlsl", "VSMain", "vs_5_0", SharpDX.D3DCompiler.ShaderFlags.Debug));
+            var vertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(shaderFile, "VSMain", "vs_5_0", SharpDX.D3DCompiler.ShaderFlags.Debug));
 #else
             var vertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile("shaders.hlsl", "VSMain", "vs_5_0"));
 #endif
 
 #if DEBUG
-            var pixelShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile("shaders.hlsl", "PSMain", "ps_5_0", SharpDX.D3DCompiler.ShaderFlags.Debug));
+            var pixelShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(shaderFile, "PSMain", "ps_5_0", SharpDX.D3DCompiler.ShaderFlags.Debug));
 #else
             var pixelShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile("shaders.hlsl", "PSMain", "ps_5_0"));
 #endif
@@ -162,13 +169,14 @@ namespace ConstantBuffer
                 SampleDescription = new SampleDescription(1, 0),
                 StreamOutput = new StreamOutputDescription()
             };
-            psoDesc.RenderTargetFormats[0] = SharpDX.DXGI.Format.R8G8B8A8_UNorm;
+            psoDesc.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
             pipelineState = device.CreateGraphicsPipelineState(psoDesc);
 
-            int vertexBufferSize = Utilities.SizeOf(triangleVertices);
+            gd = data.GraphicData[0].Data;
+            int vertexBufferSize = Utilities.SizeOf(gd);
             vertexBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(vertexBufferSize), ResourceStates.GenericRead);
             IntPtr pVertexDataBegin = vertexBuffer.Map(0);
-            Utilities.Write(pVertexDataBegin, triangleVertices, 0, triangleVertices.Length);
+            Utilities.Write(pVertexDataBegin, gd, 0, gd.Length);
             vertexBuffer.Unmap(0);
             vertexBufferView = new VertexBufferView();
             vertexBufferView.BufferLocation = vertexBuffer.GPUVirtualAddress;
@@ -179,10 +187,17 @@ namespace ConstantBuffer
             commandList.Close();
 
             // const buffer
+
+            // Create synchronization objects.
+            fence = device.CreateFence(0, FenceFlags.None);
+            fenceValue = 1;
+
+            // Create an event handle to use for frame synchronization.
+            fenceEvent = new AutoResetEvent(false);
         }
         public void Update()
         {
-
+            Render();
         }
         public void Render()
         {
@@ -190,12 +205,13 @@ namespace ConstantBuffer
             commandList.Reset(commandAllocator, pipelineState);
             commandList.SetGraphicsRootSignature(rootSignature);
 
-
             commandList.SetViewport(viewport);
             commandList.SetScissorRectangles(new SharpDX.Mathematics.Interop.RawRectangle(0, 0, (int)viewport.Width, (int)viewport.Height));
 
-            commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
+            //commandList.SetDescriptorHeaps(1, new DescriptorHeap[] { constantBufferViewHeap });
+            //commandList.SetGraphicsRootDescriptorTable(0, constantBufferViewHeap.GPUDescriptorHandleForHeapStart);
 
+            commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
             CpuDescriptorHandle rtvHandle = renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
             rtvHandle += frameIndex * rtvDescriptorSize;
             commandList.ClearRenderTargetView(rtvHandle,  backgroundColor, 0, null);
@@ -204,6 +220,24 @@ namespace ConstantBuffer
             commandList.DrawInstanced(3, 1, 0, 0);
             commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
             commandList.Close();
+
+            commandQueue.ExecuteCommandList(commandList);
+
+            // Present the frame.
+            swapChain.Present(1, 0);
+
+            int localFence = fenceValue;
+            commandQueue.Signal(this.fence, localFence);
+            fenceValue++;
+
+            // Wait until the previous frame is finished.
+            if (this.fence.CompletedValue < localFence)
+            {
+                this.fence.SetEventOnCompletion(localFence, fenceEvent.SafeWaitHandle.DangerousGetHandle());
+                fenceEvent.WaitOne();
+            }
+
+            frameIndex = swapChain.CurrentBackBufferIndex;
         }
     }
 }

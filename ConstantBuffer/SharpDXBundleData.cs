@@ -8,7 +8,7 @@ using SharpDX.Direct3D;
 
 namespace ConstantBuffer
 {
-    public class Vertex
+    public struct Vertex
     {
         public Vector3 pos { get; set;}
         public Vector4 color { get; set; }
