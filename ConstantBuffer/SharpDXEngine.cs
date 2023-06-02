@@ -53,6 +53,7 @@ namespace ConstantBuffer
         public void Initialize(SharpDXSetting setting)
         {
             viewport = setting.Viewport;
+            
 #if DEBUG   
             DebugInterface.Get().EnableDebugLayer();
 #endif
@@ -77,27 +78,28 @@ namespace ConstantBuffer
                 var tempSwapChain = new SwapChain(factory, commandQueue, swapChainDesc);
                 swapChain = tempSwapChain.QueryInterface<SwapChain3>();
                 tempSwapChain.Dispose();
-                iq = device.QueryInterface<InfoQueue>();
-                frameIndex = swapChain.CurrentBackBufferIndex;
-
-                var rtvHeapDesc = new DescriptorHeapDescription()
-                {
-                    DescriptorCount = 2,
-                    Flags = DescriptorHeapFlags.None,
-                    Type = DescriptorHeapType.RenderTargetView
-                };
-                renderTargetViewHeap = device.CreateDescriptorHeap(rtvHeapDesc);
-
-                rtvDescriptorSize = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.RenderTargetView);
-                var rtvHandle = renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
-                for (int n = 0; n < 2; n++)
-                {
-                    renderTargets[n] = swapChain.GetBackBuffer<Resource>(n);
-                    device.CreateRenderTargetView(renderTargets[n], null, rtvHandle);
-                    rtvHandle += rtvDescriptorSize;
-                }
-                commandAllocator = device.CreateCommandAllocator(CommandListType.Direct);
             }
+            iq = device.QueryInterface<InfoQueue>();
+            frameIndex = swapChain.CurrentBackBufferIndex;
+
+            var rtvHeapDesc = new DescriptorHeapDescription()
+            {
+                DescriptorCount = 2,
+                Flags = DescriptorHeapFlags.None,
+                Type = DescriptorHeapType.RenderTargetView
+            };
+            renderTargetViewHeap = device.CreateDescriptorHeap(rtvHeapDesc);
+
+            rtvDescriptorSize = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.RenderTargetView);
+            var rtvHandle = renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
+            for (int n = 0; n < 2; n++)
+            {
+                renderTargets[n] = swapChain.GetBackBuffer<Resource>(n);
+                device.CreateRenderTargetView(renderTargets[n], null, rtvHandle);
+                rtvHandle += rtvDescriptorSize;
+            }
+            commandAllocator = device.CreateCommandAllocator(CommandListType.Direct);
+
 
             //Init Constant Buffer Heap
             var cbvHeapDesc = new DescriptorHeapDescription()
@@ -138,7 +140,7 @@ namespace ConstantBuffer
                     BufferLocation = constantBuffer[i].GPUVirtualAddress,
                     SizeInBytes = (Utilities.SizeOf<CB1>() + 255) & ~255
                 };
-                
+
                 device.CreateConstantBufferView(cbvDesc, cruHandle);
                 cruHandle += cruDescriptorSize;
                 constantBufferPointer = constantBuffer[i].Map(0);
@@ -244,7 +246,7 @@ namespace ConstantBuffer
         }
 
         public void UpdateConstantBuffer(CB1 cb)
-        {   
+        {
             constantBufferPointer = constantBuffer[2].Map(0);
             Utilities.Write(constantBufferPointer, ref cb);
             Render();

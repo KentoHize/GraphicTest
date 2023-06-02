@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using SharpDX;
 using SharpDX.Direct3D;
 
-namespace ConstantBuffer
+namespace GraphicLibrary
 {
     public struct Vertex
     {

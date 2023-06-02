@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConstantBuffer
+namespace GraphicLibrary
 {
     public class SharpDXSetting
     {
@@ -14,5 +14,6 @@ namespace ConstantBuffer
         public SwapEffect SwapEffect { get; set; } = SwapEffect.FlipDiscard;
         public ViewportF Viewport { get; set; }
         public bool CullTwoFace { get; set; } = false;
+        public int FrameCount { get; set; } = 2;
     }
 }

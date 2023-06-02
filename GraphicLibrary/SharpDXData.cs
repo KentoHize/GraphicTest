@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 
-namespace ConstantBuffer
+namespace GraphicLibrary
 {
     public class SharpDXData
     {
