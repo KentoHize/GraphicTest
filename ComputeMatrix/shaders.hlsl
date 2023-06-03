@@ -15,7 +15,7 @@ PSInput VSMain(int3 position : POSITION, float4 color : COLOR)
 	PSInput result;   
     int4 p = int4(position[0], position[1], position[2], 1);    
     float4 p2 = mul(p, tm.transformMatrix);
-    result.position = float4((float) p2[0] / 1024, (float) p2[1] / 1024, (float) p2[2] / 1024, 1);
+    result.position = p2;
 	result.color = color;
 	return result;
 }

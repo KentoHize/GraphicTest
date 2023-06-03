@@ -1,5 +1,6 @@
 using GraphicLibrary;
 using GraphicLibrary.Items;
+using System.Diagnostics;
 
 namespace ComputeMatrix
 {
@@ -22,7 +23,6 @@ namespace ComputeMatrix
             };
             return area;
         }
-
 
         public MainForm()
         {
@@ -65,12 +65,22 @@ namespace ComputeMatrix
                         Indices = new int[]
                         {
                             0, 1, 2, 1, 2, 3
-                        }
+                        },
+                        TransformMartrix = Ar3DMachine.ProduceTransformMatrix(
+                            new ArIntVector3(-200, 0, 0),
+                            new ArFloatVector3(0, 0, 0),
+                            new ArFloatVector3(1, 1, 1))
                     }
-                },
+                }
+                
             };
+            Stopwatch sw = Stopwatch.StartNew();
             sde.Load(data);
+            sw.Stop();
+            Debug.WriteLine($"Load Data:{sw.ElapsedMilliseconds}");
+            sw.Restart();
             sde.Render();
+            Debug.WriteLine($"Render:{sw.ElapsedMilliseconds}");
         }
     }
 }

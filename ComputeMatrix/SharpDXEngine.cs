@@ -26,8 +26,6 @@ namespace GraphicLibrary
         PipelineState computePLState;
         InfoQueue infoQueue;
 
-        
-
         GraphicsCommandList commandList;
         CommandAllocator commandAllocator;
         Resource[] renderTargets;
@@ -46,10 +44,9 @@ namespace GraphicLibrary
         AutoResetEvent fenceEvent;
         Fence fence;
         int fenceValue;
-
-        //ArVertex[][] verticesData;
-        //int[][] indicesData;
+        
         ArFloatVector4 backgroundColor;
+        ArFloatMatrix44[] transformMatrix;
 
         VertexBufferView[] verticesBufferView;
         IndexBufferView[] indicesBufferView;
@@ -75,46 +72,6 @@ namespace GraphicLibrary
         public void Initialize(SharpDXSetting setting)
         {
             LoadSetting(setting);
-        }
-
-        struct Matrix44
-        {
-            public Matrix44(float n11, float n12, float n13, float n14, float n21, float n22, float n23, float n24, float n31, float n32, float n33, float n34, float n41, float n42, float n43, float n44)
-            {
-                this.n11 = n11;
-                this.n12 = n12;
-                this.n13 = n13;
-                this.n14 = n14;
-                this.n21 = n21;
-                this.n22 = n22;
-                this.n23 = n23;
-                this.n24 = n24;
-                this.n31 = n31;
-                this.n32 = n32;
-                this.n33 = n33;
-                this.n34 = n34;
-                this.n41 = n41;
-                this.n42 = n42;
-                this.n43 = n43;
-                this.n44 = n44;
-            }
-
-            public float n11 { get; set; }
-            public float n12 { get; set; }
-            public float n13 { get; set; }
-            public float n14 { get; set; }
-            public float n21 { get; set; }
-            public float n22 { get; set; }
-            public float n23 { get; set; }
-            public float n24 { get; set; }
-            public float n31 { get; set; }
-            public float n32 { get; set; }
-            public float n33 { get; set; }
-            public float n34 { get; set; }
-            public float n41 { get; set; }
-            public float n42 { get; set; }
-            public float n43 { get; set; }
-            public float n44 { get; set; }
         }
 
         /// <summary>
@@ -185,11 +142,6 @@ namespace GraphicLibrary
 
             cruDescriptorSize = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
             var cruHandle = constantBufferViewHeap.CPUDescriptorHandleForHeapStart;
-            Matrix44 m44 = new Matrix44();
-            m44.n11 = 2;
-            m44.n22 = 2;
-            m44.n33 = 2;
-            m44.n44 = 1;
 
             constantBuffer = new Resource[ConstantBufferViewCount];
             for (int i = 0; i < ConstantBufferViewCount; i++)
@@ -198,14 +150,11 @@ namespace GraphicLibrary
                 var cbvDesc = new ConstantBufferViewDescription()
                 {
                     BufferLocation = constantBuffer[i].GPUVirtualAddress,
-                    SizeInBytes = (Utilities.SizeOf<Matrix44>() + 255) & ~255
+                    SizeInBytes = (Utilities.SizeOf<ArFloatMatrix44>() + 255) & ~255
                 };
 
                 device.CreateConstantBufferView(cbvDesc, cruHandle);
                 cruHandle += cruDescriptorSize;
-                ptr = constantBuffer[i].Map(0);
-                Utilities.Write(ptr, ref m44);
-                constantBuffer[i].Unmap(0);
             }
 
             var rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout,
@@ -221,8 +170,7 @@ namespace GraphicLibrary
                             DescriptorCount = ConstantBufferViewCount
                         })
             });
-            graphicRootSignature = device.CreateRootSignature(rootSignatureDesc.Serialize());
-            //graphicRootSignature = device.CreateRootSignature(new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout).Serialize());
+            graphicRootSignature = device.CreateRootSignature(rootSignatureDesc.Serialize());            
 
             InputElement[] inputElementDescs = new InputElement[]
               {
@@ -280,12 +228,18 @@ namespace GraphicLibrary
         public void Load(SharpDXData data)
         {
             backgroundColor = data.BackgroundColor;
+            
             verticesBufferView = new VertexBufferView[data.VerteicesData.Length];
             verticesBuffer = new Resource[data.VerteicesData.Length];
             indicesBufferView = new IndexBufferView[data.VerteicesData.Length];
             indicesBuffer = new Resource[data.VerteicesData.Length];
+            transformMatrix = new ArFloatMatrix44[data.VerteicesData.Length];
             for (int i = 0; i < data.VerteicesData.Length; i++)
-            {
+            {   
+                ptr = constantBuffer[i].Map(0);
+                Utilities.Write(ptr, new ArFloatMatrix44[] { data.VerteicesData[i].TransformMartrix }, 0, 1);
+                constantBuffer[i].Unmap(0);
+
                 int verticesBufferSize = Utilities.SizeOf(data.VerteicesData[i].Verteices);
                 verticesBuffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(verticesBufferSize), ResourceStates.GenericRead);
                 IntPtr pVertexDataBegin = verticesBuffer[i].Map(0);
@@ -346,15 +300,13 @@ namespace GraphicLibrary
             commandList.Close();
 
             commandQueue.ExecuteCommandList(commandList);
-
-            // Present the frame.
+            
             swapChain.Present(1, 0);
 
             int localFence = fenceValue;
             commandQueue.Signal(fence, localFence);
             fenceValue++;
-
-            // Wait until the previous frame is finished.
+            
             if (fence.CompletedValue < localFence)
             {
                 fence.SetEventOnCompletion(localFence, fenceEvent.SafeWaitHandle.DangerousGetHandle());

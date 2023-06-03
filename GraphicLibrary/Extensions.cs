@@ -12,5 +12,7 @@ namespace GraphicLibrary
     {
         public static ArFloatVector4 ToArFloatVector4(this Color a)
             => new ArFloatVector4((float)a.R / 255, (float)a.G / 255, (float)a.B / 255, (float)a.A / 255);
+
+        
     }
 }
