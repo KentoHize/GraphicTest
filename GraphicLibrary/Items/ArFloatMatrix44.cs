@@ -14,8 +14,135 @@ namespace GraphicLibrary.Items
         public static ArFloatMatrix44 Zero { get => new ArFloatMatrix44(); }
         public static ArFloatMatrix44 One { get => new ArFloatMatrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
 
+        public float this[int x, int y]
+        {
+            get
+            {
+                return x switch
+                {
+                    0 => y switch
+                    {
+                        0 => _11,
+                        1 => _12,
+                        2 => _13,
+                        3 => _14,
+                        _ => throw new IndexOutOfRangeException(nameof(y))
+                    },
+                    1 => y switch
+                    {
+                        0 => _21,
+                        1 => _22,
+                        2 => _23,
+                        3 => _24,
+                        _ => throw new IndexOutOfRangeException(nameof(y))
+                    },
+                    2 => y switch
+                    {
+                        0 => _31,
+                        1 => _32,
+                        2 => _33,
+                        3 => _34,
+                        _ => throw new IndexOutOfRangeException(nameof(y))
+                    },
+                    3 => y switch
+                    {
+                        0 => _41,
+                        1 => _42,
+                        2 => _43,
+                        3 => _44,
+                        _ => throw new IndexOutOfRangeException(nameof(y))
+                    },
+                    _ => throw new IndexOutOfRangeException(nameof(x))
+                };
+            }
+            set
+            {
+                switch (x)
+                {
+                    case 0:
+                        switch (y)
+                        {
+                            case 0:
+                                _11 = value;
+                                break;
+                            case 1:
+                                _12 = value;
+                                break;
+                            case 2:
+                                _13 = value;
+                                break;
+                            case 3:
+                                _14 = value;
+                                break;
+                            default:
+                                throw new IndexOutOfRangeException(nameof(y));
+                        }
+                        break;
+                    case 1:
+                        switch (y)
+                        {
+                            case 0:
+                                _21 = value;
+                                break;
+                            case 1:
+                                _22 = value;
+                                break;
+                            case 2:
+                                _23 = value;
+                                break;
+                            case 3:
+                                _24 = value;
+                                break;
+                            default:
+                                throw new IndexOutOfRangeException(nameof(y));
+                        }
+                        break;
+                    case 2:
+                        switch (y)
+                        {
+                            case 0:
+                                _31 = value;
+                                break;
+                            case 1:
+                                _32 = value;
+                                break;
+                            case 2:
+                                _33 = value;
+                                break;
+                            case 3:
+                                _34 = value;
+                                break;
+                            default:
+                                throw new IndexOutOfRangeException(nameof(y));
+                        }
+                        break;
+                    case 3:
+                        switch (y)
+                        {
+                            case 0:
+                                _41 = value;
+                                break;
+                            case 1:
+                                _42 = value;
+                                break;
+                            case 2:
+                                _43 = value;
+                                break;
+                            case 3:
+                                _44 = value;
+                                break;
+                            default:
+                                throw new IndexOutOfRangeException(nameof(y));
+                        }
+                        break;
+                    default:
+                        throw new IndexOutOfRangeException(nameof(x));
+                }
+            }
+        }
+
         public ArFloatMatrix44()
-            : this(0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0)
+            : this(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
         { }
 
         public ArFloatMatrix44(float _11, float _12, float _13, float _14, float _21, float _22, float _23, float _24, float _31, float _32, float _33, float _34, float _41, float _42, float _43, float _44)
@@ -58,6 +185,30 @@ namespace GraphicLibrary.Items
             _42 = matrix[3, 1];
             _43 = matrix[3, 2];
             _44 = matrix[3, 3];
+        }
+
+        public static ArFloatVector4 operator *(ArFloatMatrix44 a, ArFloatVector4 b)
+        {
+            return new ArFloatVector4(
+                a[0, 0] * b[0] + a[0, 1] * b[1] + a[0, 2] * b[2] + a[0, 3] * b[3],
+                a[1, 0] * b[0] + a[1, 1] * b[1] + a[1, 2] * b[2] + a[1, 3] * b[3],
+                a[2, 0] * b[0] + a[2, 1] * b[1] + a[2, 2] * b[2] + a[2, 3] * b[3],
+                a[3, 0] * b[0] + a[3, 1] * b[1] + a[3, 2] * b[2] + a[3, 3] * b[3]);
+        }
+
+        public static ArFloatMatrix44 operator *(ArFloatMatrix44 a, ArFloatMatrix44 b)
+        {
+            ArFloatMatrix44 result = new ArFloatMatrix44();
+            //result[0, 0] = a[0, 0] * b[0, 0] + a[0, 1] * b[1, 0] + a[0, 2] * b[2, 0] + a[0, 3] * b[3, 0];
+            //result[0, 1] = a[0, 0] * b[0, 1] + a[0, 1] * b[1, 1] + a[0, 2] * b[2, 1] + a[0, 3] * b[3, 1];
+            //result[0, 2] = a[0, 0] * b[0, 2] + a[0, 1] * b[1, 2] + a[0, 2] * b[2, 2] + a[0, 3] * b[3, 2];
+            //result[0, 3] = a[0, 0] * b[0, 3] + a[0, 1] * b[1, 3] + a[0, 2] * b[2, 3] + a[0, 3] * b[3, 3];
+            //result[1, 0] = a[1, 0] * b[0, 0] + a[1, 1] * b[1, 0] + a[1, 2] * b[2, 0] + a[1, 3] * b[3, 0];
+            //result[1, 1] = a[1, 0] * b[0, 1] + a[1, 1] * b[1, 1] + a[1, 2] * b[2, 1] + a[1, 3] * b[3, 1];
+            for (int i = 0; i < 4; i++)
+                for (int j = 0; j < 4; j++)
+                    result[i, j] = a[i, 0] * b[0, j] + a[i, 1] * b[1, j] + a[i, 2] * b[2, j] + a[i, 3] * b[3, j];
+            return result;
         }
 
         public static bool operator ==(ArFloatMatrix44 a, ArFloatMatrix44 b)
