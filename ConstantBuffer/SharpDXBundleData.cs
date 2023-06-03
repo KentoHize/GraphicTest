@@ -16,7 +16,7 @@ namespace ConstantBuffer
 
     public class SharpDXBundleData
     {
-        public Vertex[] Data { get; set; }
         public PrimitiveTopology PrimitiveTopology { get; set; }
+        public Vertex[] Data { get; set; }
     }
 }

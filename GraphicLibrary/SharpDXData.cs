@@ -11,7 +11,7 @@ namespace GraphicLibrary
 {
     public class SharpDXData
     {
-        public SharpDXBundleData[] GraphicData { get; set; }        
+        public SharpDXBundleData[] VerteicesData { get; set; }        
         public ArFloatVector4 BackgroundColor { get; set; }            
     }
 }

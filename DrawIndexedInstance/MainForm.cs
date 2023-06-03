@@ -18,6 +18,23 @@ namespace DrawIndexedInstance
             Program.Exit = true;
         }
 
+        private Ar3DArea GetArea()
+        {
+            Ar3DArea area = new Ar3DArea();
+            //Ar3DModelGroup modelGroup = new Ar3DModelGroup();
+            area.ModelGroups = new Ar3DModelGroup[] { new Ar3DModelGroup() };
+            area.ModelGroups[0].Models = new Ar3DModel[] { new Ar3DModel() };
+            area.ModelGroups[0].Models[0].Planes = new ArPlane[] {
+                new ArPlane(new ArVertex[]
+                {
+                    new ArVertex(1000, 1000, 0),
+                    new ArVertex(1000, 0, 0),
+                    new ArVertex(0, 1000, 0),
+                })             
+            };
+            return area;
+        }
+
         private void MainForm_Paint(object sender, PaintEventArgs e)
         {
             if (sde != null)
@@ -38,9 +55,25 @@ namespace DrawIndexedInstance
 
             SharpDXData data = new SharpDXData
             {
-                BackgroundColor =  Color.Wheat.ToArFloatVector4()
-            };
-            //
+                BackgroundColor = Color.Wheat.ToArFloatVector4(),
+                VerteicesData = new SharpDXBundleData[]
+                {
+                    new SharpDXBundleData
+                    {
+                        PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
+                        Verteices = new ArVertex[]
+                        {
+                            new ArVertex(0, 0, 0, Color.White),
+                            new ArVertex(1, 0, 0, Color.White),
+                            new ArVertex(0, 1, 0, Color.White)
+                        },
+                        Indices = new int[]
+                        {
+                            0, 1, 2
+                        }
+                    }
+                },                
+            };            
             sde.Load(data);
             sde.Render();
         }

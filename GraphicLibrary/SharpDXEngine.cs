@@ -41,9 +41,14 @@ namespace GraphicLibrary
         Fence fence;
         int fenceValue;
 
-        ArIntVector3[] data;
+        //ArVertex[][] verticesData;
+        //int[][] indicesData;
         ArFloatVector4 backgroundColor;
-        
+
+        VertexBufferView[] verticesBufferView;
+        IndexBufferView[] indicesBufferView;
+        Resource[] verticesBuffer;
+        Resource[] indicesBuffer;
 
         internal Dictionary<ShaderType, ShaderFileInfo> ShaderFiles { get; set; }
 
@@ -150,7 +155,7 @@ namespace GraphicLibrary
 
             InputElement[] inputElementDescs = new InputElement[]
               {
-                    new InputElement("POSITION",0,Format.R32G32B32_Float,0,0),
+                    new InputElement("POSITION",0,Format.R32G32B32_SInt,0,0),
                     new InputElement("COLOR",0,Format.R32G32B32A32_Float,12,0)
               };
 
@@ -203,18 +208,34 @@ namespace GraphicLibrary
         public void Load(SharpDXData data)
         {
             backgroundColor = data.BackgroundColor;
+            verticesBufferView = new VertexBufferView[data.VerteicesData.Length];
+            verticesBuffer = new Resource[data.VerteicesData.Length];
+            indicesBufferView = new IndexBufferView[data.VerteicesData.Length];
+            indicesBuffer = new Resource[data.VerteicesData.Length];
+            for (int i = 0; i < data.VerteicesData.Length; i++)
+            {
 
-            //gd = data.GraphicData[0].Data;
-            //int vertexBufferSize = Utilities.SizeOf(gd);
-            //vertexBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(vertexBufferSize), ResourceStates.GenericRead);
-            //IntPtr pVertexDataBegin = vertexBuffer.Map(0);
-            //Utilities.Write(pVertexDataBegin, gd, 0, gd.Length);
-            //vertexBuffer.Unmap(0);
-            //vertexBufferView = new VertexBufferView();
-            //vertexBufferView.BufferLocation = vertexBuffer.GPUVirtualAddress;
-            //vertexBufferView.StrideInBytes = Utilities.SizeOf<Vertex>();
-            //vertexBufferView.SizeInBytes = vertexBufferSize;
+                int verticesBufferSize = Utilities.SizeOf(data.VerteicesData[i].Verteices);
+                verticesBuffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(verticesBufferSize), ResourceStates.GenericRead);
+                IntPtr pVertexDataBegin = verticesBuffer[i].Map(0);
+                Utilities.Write(pVertexDataBegin, data.VerteicesData[i].Verteices, 0, data.VerteicesData[i].Verteices.Length);
+                verticesBuffer[i].Unmap(0);
 
+                verticesBufferView[i] = new VertexBufferView
+                {
+                    BufferLocation = verticesBuffer[i].GPUVirtualAddress,
+                    StrideInBytes = Utilities.SizeOf<ArVertex>(),
+                    SizeInBytes = verticesBufferSize
+                };
+
+                int indicesBufferSize = Utilities.SizeOf(data.VerteicesData[i].Indices);
+                indicesBuffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(indicesBufferSize), ResourceStates.GenericRead);
+                indicesBufferView[i] = new IndexBufferView
+                {
+                    BufferLocation = indicesBuffer[i].GPUVirtualAddress,
+                    SizeInBytes = indicesBufferSize
+                };
+            }
         }
 
         public void Update()
@@ -240,8 +261,12 @@ namespace GraphicLibrary
             commandList.SetRenderTargets(rtvHandle, null);
             commandList.ClearRenderTargetView(rtvHandle, new Color4(backgroundColor.W, backgroundColor.X, backgroundColor.Y, backgroundColor.Z), 0, null);
             commandList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
-            //commandList.SetVertexBuffer(0, vertexBufferView);
+
+            commandList.SetVertexBuffer(0, verticesBufferView[0]);
+            commandList.SetIndexBuffer(indicesBufferView[0]);
+            commandList.DrawIndexedInstanced(3, 1, 0, 0, 0);
             //commandList.DrawInstanced(3, 1, 0, 0);
+
             commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
             commandList.Close();
 
@@ -251,13 +276,13 @@ namespace GraphicLibrary
             swapChain.Present(1, 0);
 
             int localFence = fenceValue;
-            commandQueue.Signal(this.fence, localFence);
+            commandQueue.Signal(fence, localFence);
             fenceValue++;
 
             // Wait until the previous frame is finished.
-            if (this.fence.CompletedValue < localFence)
+            if (fence.CompletedValue < localFence)
             {
-                this.fence.SetEventOnCompletion(localFence, fenceEvent.SafeWaitHandle.DangerousGetHandle());
+                fence.SetEventOnCompletion(localFence, fenceEvent.SafeWaitHandle.DangerousGetHandle());
                 fenceEvent.WaitOne();
             }
 

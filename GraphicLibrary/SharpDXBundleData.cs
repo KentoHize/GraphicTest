@@ -11,7 +11,8 @@ namespace GraphicLibrary
 {  
     public class SharpDXBundleData
     {
-        public ArVertex[] Data { get; set; }
+        public ArVertex[] Verteices { get; set; }        
+        public int[] Indices { get; set; }
         public PrimitiveTopology PrimitiveTopology { get; set; }
     }
 }
