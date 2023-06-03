@@ -7,7 +7,6 @@ using System.Numerics;
 
 namespace GraphicLibrary.Items
 {
-{
     public class Ar3DModel : ICloneable
     {
         ArPlane[] m_planes;

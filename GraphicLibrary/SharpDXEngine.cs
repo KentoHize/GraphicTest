@@ -10,6 +10,7 @@ using SharpDX.DXGI;
 using Device = SharpDX.Direct3D12.Device;
 using InfoQueue = SharpDX.Direct3D12.InfoQueue;
 using Resource = SharpDX.Direct3D12.Resource;
+using GraphicLibrary.Items;
 
 namespace GraphicLibrary
 {
@@ -39,6 +40,10 @@ namespace GraphicLibrary
         AutoResetEvent fenceEvent;
         Fence fence;
         int fenceValue;
+
+        ArIntVector3[] data;
+        ArFloatVector4 backgroundColor;
+        
 
         internal Dictionary<ShaderType, ShaderFileInfo> ShaderFiles { get; set; }
 
@@ -197,6 +202,18 @@ namespace GraphicLibrary
 
         public void Load(SharpDXData data)
         {
+            backgroundColor = data.BackgroundColor;
+
+            //gd = data.GraphicData[0].Data;
+            //int vertexBufferSize = Utilities.SizeOf(gd);
+            //vertexBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(vertexBufferSize), ResourceStates.GenericRead);
+            //IntPtr pVertexDataBegin = vertexBuffer.Map(0);
+            //Utilities.Write(pVertexDataBegin, gd, 0, gd.Length);
+            //vertexBuffer.Unmap(0);
+            //vertexBufferView = new VertexBufferView();
+            //vertexBufferView.BufferLocation = vertexBuffer.GPUVirtualAddress;
+            //vertexBufferView.StrideInBytes = Utilities.SizeOf<Vertex>();
+            //vertexBufferView.SizeInBytes = vertexBufferSize;
 
         }
 
@@ -207,7 +224,44 @@ namespace GraphicLibrary
 
         public void Render()
         {
+            commandAllocator.Reset();
+            commandList.Reset(commandAllocator, graphicPLState);
+            commandList.SetGraphicsRootSignature(graphicRootSignature);
 
+            commandList.SetViewport(viewport);
+            commandList.SetScissorRectangles(new SharpDX.Mathematics.Interop.RawRectangle(0, 0, (int)viewport.Width, (int)viewport.Height));
+
+            //commandList.SetDescriptorHeaps(new DescriptorHeap[] { constantBufferViewHeap });
+            //commandList.SetGraphicsRootDescriptorTable(0, constantBufferViewHeap.GPUDescriptorHandleForHeapStart);
+
+            commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
+            CpuDescriptorHandle rtvHandle = renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
+            rtvHandle += frameIndex * rtvDescriptorSize;
+            commandList.SetRenderTargets(rtvHandle, null);
+            commandList.ClearRenderTargetView(rtvHandle, new Color4(backgroundColor.W, backgroundColor.X, backgroundColor.Y, backgroundColor.Z), 0, null);
+            commandList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
+            //commandList.SetVertexBuffer(0, vertexBufferView);
+            //commandList.DrawInstanced(3, 1, 0, 0);
+            commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
+            commandList.Close();
+
+            commandQueue.ExecuteCommandList(commandList);
+
+            // Present the frame.
+            swapChain.Present(1, 0);
+
+            int localFence = fenceValue;
+            commandQueue.Signal(this.fence, localFence);
+            fenceValue++;
+
+            // Wait until the previous frame is finished.
+            if (this.fence.CompletedValue < localFence)
+            {
+                this.fence.SetEventOnCompletion(localFence, fenceEvent.SafeWaitHandle.DangerousGetHandle());
+                fenceEvent.WaitOne();
+            }
+
+            frameIndex = swapChain.CurrentBackBufferIndex;
         }
 
         public void Dispose()

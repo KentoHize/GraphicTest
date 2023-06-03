@@ -21,8 +21,7 @@ namespace GraphicLibrary.Items
         { }
 
         public ArVertex(ArIntVector3 position, Color color)
-            : this(position.X, position.Y, position.Z,
-                  (float)color.R / 255, (float)color.G / 255, (float)color.B / 255, (float)color.A / 255)
+            : this(position.X, position.Y, position.Z, color.ToArFloatVector4())
         { }
 
         public ArVertex(int x, int y, int z, float red, float green, float blue, float alpha)

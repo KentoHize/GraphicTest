@@ -1,4 +1,5 @@
 using GraphicLibrary;
+using GraphicLibrary.Items;
 using System.Xml.Schema;
 
 namespace DrawIndexedInstance
@@ -37,7 +38,7 @@ namespace DrawIndexedInstance
 
             SharpDXData data = new SharpDXData
             {
-                BackgroundColor = Color.Wheat
+                BackgroundColor =  Color.Wheat.ToArFloatVector4()
             };
             //
             sde.Load(data);
