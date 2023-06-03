@@ -29,7 +29,7 @@ struct PSInput
 
 PSInput VSMain(float4 position : POSITION, float4 color : COLOR)
 {
-	PSInput result;   
+	PSInput result;
     result.position = position + cb3.position3;
 	result.color = color;
 	return result;

@@ -1,21 +1,33 @@
 using GraphicLibrary;
 using GraphicLibrary.Items;
-using System.Xml.Schema;
 
-namespace DrawIndexedInstance
+namespace ComputeMatrix
 {
     public partial class MainForm : Form
     {
         SharpDXEngine sde { get; set; }
+        private Ar3DArea GetArea()
+        {
+            Ar3DArea area = new Ar3DArea();
+            //Ar3DModelGroup modelGroup = new Ar3DModelGroup();
+            area.ModelGroups = new Ar3DModelGroup[] { new Ar3DModelGroup() };
+            area.ModelGroups[0].Models = new Ar3DModel[] { new Ar3DModel() };
+            area.ModelGroups[0].Models[0].Planes = new ArPlane[] {
+                new ArPlane(new ArVertex[]
+                {
+                    new ArVertex(1000, 1000, 0),
+                    new ArVertex(1000, 0, 0),
+                    new ArVertex(0, 1000, 0),
+                })
+            };
+            return area;
+        }
+
+
         public MainForm()
         {
             InitializeComponent();
             sde = new SharpDXEngine();
-        }
-
-        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            Program.Exit = true;
         }
 
         private void MainForm_Paint(object sender, PaintEventArgs e)
@@ -55,8 +67,8 @@ namespace DrawIndexedInstance
                             0, 1, 2, 1, 2, 3
                         }
                     }
-                },                
-            };            
+                },
+            };
             sde.Load(data);
             sde.Render();
         }

@@ -8,11 +8,14 @@ using SharpDX;
 using SharpDX.Direct3D;
 
 namespace GraphicLibrary
-{  
+{
     public class SharpDXBundleData
     {
-        public ArVertex[] Verteices { get; set; }        
+        public ArVertex[] Verteices { get; set; }
         public int[] Indices { get; set; }
+        public ArIntVector3 TraslateVector { get; set; }
+        public ArFloatVector3 RotateVector { get; set; }
+        public ArFloatVector3 ScaleVector { get; set; }
         public PrimitiveTopology PrimitiveTopology { get; set; }
     }
 }
