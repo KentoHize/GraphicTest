@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,7 +20,8 @@ namespace GraphicLibrary
         Device device;
         SwapChain3 swapChain;
         CommandQueue commandQueue;
-        PipelineState pipelineState;
+        PipelineState graphicPLState;
+        PipelineState computePLState;
         InfoQueue infoQueue;
 
         GraphicsCommandList commandList;
@@ -28,25 +30,50 @@ namespace GraphicLibrary
         DescriptorHeap renderTargetViewHeap;
         int rtvDescriptorSize;
 
-        RootSignature rootSignature;
+        RootSignature computeRootSignature;
+        RootSignature graphicRootSignature;
 
         ViewportF viewport;
         int frameIndex;
 
+        AutoResetEvent fenceEvent;
+        Fence fence;
+        int fenceValue;
+
+        internal Dictionary<ShaderType, ShaderFileInfo> ShaderFiles { get; set; }
+
         public SharpDXEngine()
         {
-            ShaderFiles = new List<ShaderFileInfo>();
             FrameCount = 2;
+            const string GLShaderFile = @"C:\Programs\GraphicTest\GraphicLibrary\Shaders.hlsl";
+
+            ShaderFiles = new Dictionary<ShaderType, ShaderFileInfo>
+            {
+                {ShaderType.VertexShader, new ShaderFileInfo(GLShaderFile, ShaderType.VertexShader) },
+                {ShaderType.PixelShader, new ShaderFileInfo(GLShaderFile, ShaderType.PixelShader) },
+            };
         }
 
-        internal List<ShaderFileInfo> ShaderFiles { get; set; }
-        public void Initiailize(SharpDXSetting setting)
-        {   
+        public void Initialize(SharpDXSetting setting)
+        {
+            LoadSetting(setting);
+        }
+
+        /// <summary>
+        /// (Can't Reload)
+        /// </summary>
+        /// <param name="setting"></param>
+        public void LoadSetting(SharpDXSetting setting)
+        {
             viewport = setting.Viewport;
             FrameCount = setting.FrameCount;
 #if DEBUG
             DebugInterface.Get().EnableDebugLayer();
 #endif
+            //Temp
+            if (device != null)
+                return;
+
             device = new Device(null, SharpDX.Direct3D.FeatureLevel.Level_11_0);
             using (Factory4 factory = new Factory4())
             {
@@ -91,9 +118,19 @@ namespace GraphicLibrary
             }
             commandAllocator = device.CreateCommandAllocator(CommandListType.Direct);
 
+            //computeRootSignature = device.CreateRootSignature(rootSignatureDesc.Serialize());
+            //ComputePipelineStateDescription cpsoDec = new ComputePipelineStateDescription
+            //{
+            //    ComputeShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
+            //            ShaderFiles[ShaderType.ComputeShader].File, ShaderFiles[ShaderType.ComputeShader].EntryPoint, ShaderFiles[ShaderType.ComputeShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug)),
+
+            //    //RootSignaturePointer = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout)
+            //};
+            //computePLState = device.CreateComputePipelineState(cpsoDec);
+
             var rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout,
-              new RootParameter[]
-              {
+            new RootParameter[]
+            {
                     new RootParameter(ShaderVisibility.All,
                         new DescriptorRange()
                         {
@@ -103,8 +140,59 @@ namespace GraphicLibrary
                             OffsetInDescriptorsFromTableStart = 0,
                             DescriptorCount = 1
                         })
-              });
-            rootSignature = device.CreateRootSignature(rootSignatureDesc.Serialize());
+            });
+            graphicRootSignature = device.CreateRootSignature(rootSignatureDesc.Serialize());
+
+            InputElement[] inputElementDescs = new InputElement[]
+              {
+                    new InputElement("POSITION",0,Format.R32G32B32_Float,0,0),
+                    new InputElement("COLOR",0,Format.R32G32B32A32_Float,12,0)
+              };
+
+            RasterizerStateDescription rasterizerStateDesc = new RasterizerStateDescription()
+            {
+                CullMode = setting.CullTwoFace ? CullMode.None : CullMode.Front,
+                FillMode = FillMode.Solid,
+                IsDepthClipEnabled = false,
+                IsFrontCounterClockwise = true,
+                IsMultisampleEnabled = false,
+            };
+
+            GraphicsPipelineStateDescription psoDesc = new GraphicsPipelineStateDescription()
+            {
+                InputLayout = new InputLayoutDescription(inputElementDescs),
+                RootSignature = graphicRootSignature,
+#if DEBUG
+                VertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
+                        ShaderFiles[ShaderType.VertexShader].File, ShaderFiles[ShaderType.VertexShader].EntryPoint, ShaderFiles[ShaderType.VertexShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug)),
+                PixelShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
+                        ShaderFiles[ShaderType.PixelShader].File, ShaderFiles[ShaderType.PixelShader].EntryPoint, ShaderFiles[ShaderType.PixelShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug)),
+#else
+                VertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
+                        ShaderFiles[ShaderType.VertexShader].File, ShaderFiles[ShaderType.VertexShader].EntryPoint, ShaderFiles[ShaderType.VertexShader].Profile)),
+                PixelShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
+                        ShaderFiles[ShaderType.PixelShader].File, ShaderFiles[ShaderType.PixelShader].EntryPoint, ShaderFiles[ShaderType.PixelShader].Profile)),
+#endif
+                RasterizerState = rasterizerStateDesc,
+                BlendState = BlendStateDescription.Default(),
+                DepthStencilFormat = Format.D32_Float,
+                DepthStencilState = new DepthStencilStateDescription() { IsDepthEnabled = false, IsStencilEnabled = false },
+                SampleMask = int.MaxValue,
+                PrimitiveTopologyType = PrimitiveTopologyType.Triangle,
+                RenderTargetCount = 1,
+                Flags = PipelineStateFlags.None,
+                SampleDescription = new SampleDescription(1, 0),
+                StreamOutput = new StreamOutputDescription()
+            };
+            psoDesc.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
+            graphicPLState = device.CreateGraphicsPipelineState(psoDesc);
+
+            commandList = device.CreateCommandList(CommandListType.Direct, commandAllocator, graphicPLState);
+            commandList.Close();
+
+            fence = device.CreateFence(0, FenceFlags.None);
+            fenceValue = 1;
+            fenceEvent = new AutoResetEvent(false);
         }
 
         public void Load(SharpDXData data)

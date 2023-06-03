@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace GraphicLibrary
+﻿namespace GraphicLibrary
 {
     //cs_5_1, ds_5_1, gs_5_1, hs_5_1, ps_5_1, vs_5_1, rootsig_1_0
     internal static class ShaderProfile

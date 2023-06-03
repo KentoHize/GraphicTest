@@ -10,7 +10,6 @@ namespace DrawIndexedInstance
         {
             InitializeComponent();
             sde = new SharpDXEngine();
-            
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -26,13 +25,23 @@ namespace DrawIndexedInstance
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            sde.Initiailize(new SharpDXSetting
+            SharpDXSetting setting = new SharpDXSetting
             {
                 CullTwoFace = true,
                 Handle = pibMain.Handle,
                 FrameCount = 2,
                 Viewport = new SharpDX.ViewportF(0, 0, pibMain.ClientSize.Width, pibMain.ClientSize.Height)
-            });
+            };
+            sde.Initialize(setting);
+
+
+            SharpDXData data = new SharpDXData
+            {
+                BackgroundColor = Color.Wheat
+            };
+            //
+            sde.Load(data);
+            sde.Render();
         }
     }
 }

@@ -100,7 +100,6 @@ namespace ConstantBuffer
             }
             commandAllocator = device.CreateCommandAllocator(CommandListType.Direct);
 
-
             //Init Constant Buffer Heap
             var cbvHeapDesc = new DescriptorHeapDescription()
             {

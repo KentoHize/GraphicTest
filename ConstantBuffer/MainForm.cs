@@ -42,9 +42,9 @@ namespace ConstantBuffer
 
             Vertex[] triangle = new Vertex[]
             {
-                new Vertex{ pos = new SharpDX.Vector3(1, 0, 0), color = new SharpDX.Vector4(0, 1, 0, 1)},
-                new Vertex{ pos = new SharpDX.Vector3(0, 1, 0), color = new SharpDX.Vector4(1, 0, 0, 1)},
-                new Vertex{ pos = new SharpDX.Vector3(0, 0, 0), color = new SharpDX.Vector4(0, 0, 1, 1)},
+                new Vertex{ pos = new Vector3(1, 0, 0), color = new Vector4(0, 1, 0, 1)},
+                new Vertex{ pos = new Vector3(0, 1, 0), color = new Vector4(1, 0, 0, 1)},
+                new Vertex{ pos = new Vector3(0, 0, 0), color = new Vector4(0, 0, 1, 1)},
             };
             triangle = triangle.Reverse().ToArray();
         
