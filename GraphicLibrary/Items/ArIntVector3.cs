@@ -65,7 +65,7 @@ namespace GraphicLibrary.Items
         public string ToString(string? format, IFormatProvider? formatProvider)
             => string.Format(formatProvider, "({0}, {1}, {2})", _data[0], _data[1], _data[2]);
         public override int GetHashCode()
-            => _data[0] ^ _data[1] ^ _data[2];
+            => (_data[0], _data[1], _data[2]).GetHashCode();
         public override bool Equals(object obj)
             => obj is ArIntVector3 && Equals((ArIntVector3)obj);
     }

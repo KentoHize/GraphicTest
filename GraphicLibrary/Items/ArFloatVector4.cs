@@ -55,7 +55,7 @@ namespace GraphicLibrary.Items
         public string ToString(string? format, IFormatProvider? formatProvider)
             => string.Format(formatProvider, "({0}, {1}, {2}, {3})", _data[0], _data[1], _data[2], _data[3]);
         public override int GetHashCode()
-            => (int)_data[0] ^ (int)_data[1] ^ (int)_data[2] ^ (int)_data[3];
+            => (_data[0], _data[1], _data[2], _data[3]).GetHashCode();
         public override bool Equals(object obj)
             => obj is ArFloatVector4 && Equals((ArFloatVector4)obj);
     }
