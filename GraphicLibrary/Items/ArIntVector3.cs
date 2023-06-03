@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ namespace GraphicLibrary.Items
     //DirectX Shader Compatible Int Vector3
     public struct ArIntVector3 : IEquatable<ArIntVector3>, IFormattable
     {
-        int[] _data = new int[3];
+        int _x, _y, _z;
         public static ArIntVector3 Zero { get => new ArIntVector3(); }
         public static ArIntVector3 One { get => new ArIntVector3(1, 1, 1); }
         public static ArIntVector3 UnitX { get => new ArIntVector3(1, 0, 0); }
@@ -20,52 +21,68 @@ namespace GraphicLibrary.Items
 
         public ArIntVector3(int x, int y, int z)
         {
-            _data[0] = x;
-            _data[1] = y;
-            _data[2] = z;
+            _x = x;
+            _y = y;
+            _z = z;
         }
 
         public int this[int index]
         {
-            get => _data[index];
-            set => _data[index] = value;
+            get => index switch { 0 => _x, 1 => _y, 2 => _z, _ => throw new IndexOutOfRangeException(nameof(index)) };
+            set
+            {
+                switch (index)
+                {
+                    case 0:
+                        _x = value;
+                        break;
+                    case 1:
+                        _y = value;
+                        break;
+                    case 2:
+                        _z = value;
+                        break;
+                    default:
+                        throw new IndexOutOfRangeException(nameof(index));
+                }
+            }
         }
-        public int X { get => _data[0]; set => _data[0] = value; }
-        public int Y { get => _data[1]; set => _data[1] = value; }
-        public int Z { get => _data[2]; set => _data[2] = value; }
+        public int X { get => _x; set => _x = value; }
+        public int Y { get => _y; set => _y = value; }
+        public int Z { get => _z; set => _z = value; }
         public static ArIntVector3 operator +(ArIntVector3 a, ArIntVector3 b)
-            => new ArIntVector3(a._data[0] + b._data[0], a._data[1] + b._data[1], a._data[2] + b._data[2]);
+            => new ArIntVector3(a._x + b._x, a._y + b._y, a._z + b._z);
         public static ArIntVector3 operator -(ArIntVector3 a, ArIntVector3 b)
-            => new ArIntVector3(a._data[0] - b._data[0], a._data[1] - b._data[1], a._data[2] - b._data[2]);
+            => new ArIntVector3(a._x - b._x, a._y - b._y, a._z - b._z);
         public static ArIntVector3 operator *(ArIntVector3 a, double b)
-            => new ArIntVector3((int)(a._data[0] * b), (int)(a._data[1] * b), (int)(a._data[2] * b));
+            => new ArIntVector3((int)(a._x * b), (int)(a._y * b), (int)(a._z * b));
         public static ArIntVector3 operator *(ArIntVector3 a, int b)
-            => new ArIntVector3(a._data[0] * b, a._data[1] * b, a._data[2] * b);
+            => new ArIntVector3(a._x * b, a._y * b, a._z * b);
         public static ArIntVector3 operator /(ArIntVector3 a, double b)
-            => new ArIntVector3((int)(a._data[0] / b), (int)(a._data[1] / b), (int)(a._data[2] / b));
+            => new ArIntVector3((int)(a._x / b), (int)(a._y / b), (int)(a._z / b));
         public static ArIntVector3 operator /(ArIntVector3 a, int b)
-            => new ArIntVector3(a._data[0] / b, a._data[1] / b, a._data[2] / b);
+            => new ArIntVector3(a._x / b, a._y / b, a._z / b);
         public static bool operator ==(ArIntVector3 a, ArIntVector3 b)
             => a.Equals(b);
         public static bool operator !=(ArIntVector3 a, ArIntVector3 b)
             => !a.Equals(b);
 
         public ArIntVector3 CrossProduct(ArIntVector3 a)
-            => new ArIntVector3(_data[1] * a._data[2] - _data[2] * a._data[1],
-                _data[2] * a._data[0] - _data[0] * a._data[2],
-                _data[0] * a._data[1] - _data[1] * a._data[0]);
+            => new ArIntVector3(_y * a._z - _z * a._y,
+                _z * a._x - _x * a._z,
+                _x * a._y - _y * a._x);
         public long DotProduct(ArIntVector3 a)
-            => _data[0] * a._data[0] + _data[1] * a._data[1] + _data[2] * a._data[2];
+            => _x * a._x + _y * a._y + _z * a._z;
         public double GetLength()
-            => Math.Sqrt(_data[0] * _data[0] + _data[1] * _data[1] + _data[2] * _data[2]);
+            => Math.Sqrt(_x * _x + _y * _y + _z * _z);
         public override string ToString()
-            => $"({_data[0]}, {_data[1]}, {_data[2]})";
+            => $"({_x}, {_y}, {_z})";
         public bool Equals(ArIntVector3 other)
-            => _data[0] == other._data[0] && _data[1] == other._data[1] && _data[2] == other._data[2];
+            => _x == other._x && _y == other._y && _z == other._z;
         public string ToString(string? format, IFormatProvider? formatProvider)
-            => string.Format(formatProvider, "({0}, {1}, {2})", _data[0], _data[1], _data[2]);
+            => string.Format(formatProvider, "({0}, {1}, {2})", _x, _y, _z);
         public override int GetHashCode()
-            => (_data[0], _data[1], _data[2]).GetHashCode();
+            => (_x, _y, _z).GetHashCode();
         public override bool Equals(object obj)
             => obj is ArIntVector3 && Equals((ArIntVector3)obj);
     }

@@ -7,10 +7,12 @@ using System.Threading.Tasks;
 
 namespace GraphicLibrary.Items
 {
+    //DirectX Compatible
     public struct ArVertex
     {
-        ArIntVector3 Position { get; set; }
-        ArFloatVector4 Color { get; set; }
+        public ArIntVector3 Position { get; set; }
+        public ArFloatVector4 Color { get; set; }
+      
         public static ArVertex Empty => new ArVertex();
         public ArVertex()
             : this(0, 0, 0, 0, 0, 0, 0)
@@ -27,7 +29,7 @@ namespace GraphicLibrary.Items
         public ArVertex(int x, int y, int z, float red, float green, float blue, float alpha)
         {
             Position = new ArIntVector3(x, y, z);
-            Color = new ArFloatVector4(red, green, blue, alpha);
+            Color = new ArFloatVector4(red, green, blue, alpha);           
         }
         public ArVertex(int x, int y, int z, ArFloatVector4 color)
             : this(x, y, z, color.W, color.X, color.Y, color.Z)

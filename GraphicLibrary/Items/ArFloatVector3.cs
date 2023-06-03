@@ -9,7 +9,7 @@ namespace GraphicLibrary.Items
     //DirectX Shader Compatible Int Vector3
     public struct ArFloatVector3 : IEquatable<ArFloatVector3>, IFormattable
     {
-        float[] _data = new float[3];
+        float _x, _y, _z;
         public static ArFloatVector3 Zero { get => new ArFloatVector3(); }
         public static ArFloatVector3 One { get => new ArFloatVector3(1, 1, 1); }
         public static ArFloatVector3 UnitX { get => new ArFloatVector3(1, 0, 0); }
@@ -20,52 +20,68 @@ namespace GraphicLibrary.Items
 
         public ArFloatVector3(float x, float y, float z)
         {
-            _data[0] = x;
-            _data[1] = y;
-            _data[2] = z;
+            _x = x;
+            _y = y;
+            _z = z;
         }
 
         public float this[int index]
         {
-            get => _data[index];
-            set => _data[index] = value;
+            get => index switch { 0 => _x, 1 => _y, 2 => _z, _ => throw new IndexOutOfRangeException(nameof(index)) };
+            set
+            {
+                switch (index)
+                {
+                    case 0:
+                        _x = value;
+                        break;
+                    case 1:
+                        _y = value;
+                        break;
+                    case 2:
+                        _z = value;
+                        break;                    
+                    default:
+                        throw new IndexOutOfRangeException(nameof(index));
+                }
+            }
         }
-        public float X { get => _data[0]; set => _data[0] = value; }
-        public float Y { get => _data[1]; set => _data[1] = value; }
-        public float Z { get => _data[2]; set => _data[2] = value; }
+        public float X { get => _x; set => _x = value; }
+        public float Y { get => _y; set => _y = value; }
+        public float Z { get => _z; set => _z = value; }
         public static ArFloatVector3 operator +(ArFloatVector3 a, ArFloatVector3 b)
-            => new ArFloatVector3(a._data[0] + b._data[0], a._data[1] + b._data[1], a._data[2] + b._data[2]);
+            => new ArFloatVector3(a._x + b._x, a._y + b._y, a._z + b._z);
         public static ArFloatVector3 operator -(ArFloatVector3 a, ArFloatVector3 b)
-            => new ArFloatVector3(a._data[0] - b._data[0], a._data[1] - b._data[1], a._data[2] - b._data[2]);
+            => new ArFloatVector3(a._x - b._x, a._y - b._y, a._z - b._z);
         public static ArFloatVector3 operator *(ArFloatVector3 a, double b)
-            => new ArFloatVector3((float)(a._data[0] * b), (float)(a._data[1] * b), (float)(a._data[2] * b));
+            => new ArFloatVector3((float)(a._x * b), (float)(a._y * b), (float)(a._z * b));
         public static ArFloatVector3 operator *(ArFloatVector3 a, int b)
-            => new ArFloatVector3(a._data[0] * b, a._data[1] * b, a._data[2] * b);
+            => new ArFloatVector3(a._x * b, a._y * b, a._z * b);
         public static ArFloatVector3 operator /(ArFloatVector3 a, double b)
-            => new ArFloatVector3((float)(a._data[0] / b), (float)(a._data[1] / b), (float)(a._data[2] / b));
+            => new ArFloatVector3((float)(a._x / b), (float)(a._y / b), (float)(a._z / b));
         public static ArFloatVector3 operator /(ArFloatVector3 a, int b)
-            => new ArFloatVector3(a._data[0] / b, a._data[1] / b, a._data[2] / b);
+            => new ArFloatVector3(a._x / b, a._y / b, a._z / b);
         public static bool operator ==(ArFloatVector3 a, ArFloatVector3 b)
             => a.Equals(b);
         public static bool operator !=(ArFloatVector3 a, ArFloatVector3 b)
             => !a.Equals(b);
 
         public ArFloatVector3 CrossProduct(ArFloatVector3 a)
-            => new ArFloatVector3(_data[1] * a._data[2] - _data[2] * a._data[1],
-                _data[2] * a._data[0] - _data[0] * a._data[2],
-                _data[0] * a._data[1] - _data[1] * a._data[0]);
+            => new ArFloatVector3(_y * a._z - _z * a._y,
+                _z * a._x - _x * a._z,
+                _x * a._y - _y * a._x);
         public float DotProduct(ArFloatVector3 a)
-            => _data[0] * a._data[0] + _data[1] * a._data[1] + _data[2] * a._data[2];
+            => _x * a._x + _y * a._y + _z * a._z;
         public double GetLength()
-            => Math.Sqrt(_data[0] * _data[0] + _data[1] * _data[1] + _data[2] * _data[2]);
+            => Math.Sqrt(_x * _x + _y * _y + _z * _z);
         public override string ToString()
-            => $"({_data[0]}, {_data[1]}, {_data[2]})";
+            => $"({_x}, {_y}, {_z})";
         public bool Equals(ArFloatVector3 other)
-            => _data[0] == other._data[0] && _data[1] == other._data[1] && _data[2] == other._data[2];
+            => _x == other._x && _y == other._y && _z == other._z;
         public string ToString(string? format, IFormatProvider? formatProvider)
-            => string.Format(formatProvider, "({0}, {1}, {2})", _data[0], _data[1], _data[2]);
+            => string.Format(formatProvider, "({0}, {1}, {2})", _x, _y, _z);
         public override int GetHashCode()
-            => (_data[0],  _data[1],  _data[2]).GetHashCode();
+            => (_x,  _y,  _z).GetHashCode();
         public override bool Equals(object obj)
             => obj is ArFloatVector3 && Equals((ArFloatVector3)obj);
     }

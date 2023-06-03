@@ -1,6 +1,6 @@
 ﻿namespace GraphicLibrary
 {
-    internal enum ShaderType
+    public enum ShaderType
     {
         VertexShader,
         PixelShader,

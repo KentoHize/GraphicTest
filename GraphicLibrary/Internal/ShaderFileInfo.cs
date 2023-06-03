@@ -1,6 +1,6 @@
 ﻿namespace GraphicLibrary
 {
-    internal class ShaderFileInfo
+    public class ShaderFileInfo
     {
         public string File { get; set; }
         public string EntryPoint { get; set; }

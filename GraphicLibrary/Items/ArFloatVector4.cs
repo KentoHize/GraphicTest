@@ -9,7 +9,7 @@ namespace GraphicLibrary.Items
     //DirectX Shader Compatible Float Vector4
     public struct ArFloatVector4 : IEquatable<ArFloatVector4>, IFormattable
     {
-        float[] _data = new float[4];
+        float _x, _y, _z, _w;        
         public static ArFloatVector4 Zero { get => new ArFloatVector4(); }
         public static ArFloatVector4 One { get => new ArFloatVector4(1, 1, 1, 1); }
         public static ArFloatVector4 UnitW { get => new ArFloatVector4(1, 0, 0, 0); }
@@ -19,43 +19,62 @@ namespace GraphicLibrary.Items
         public ArFloatVector4()
         { }
 
-        public ArFloatVector4(float w, float x, float y, float z)
+        public ArFloatVector4(float x, float y, float z, float w)
         {
-            _data[0] = w;
-            _data[1] = x;
-            _data[2] = y;
-            _data[3] = z;
+            _x = x;
+            _y = y;
+            _z = z;
+            _w = w;
         }
 
         public float this[int index]
         {
-            get => _data[index];
-            set => _data[index] = value;
+            get => index switch { 0 => _x, 1 => _y, 2 => _z, 3 => _w, _ => throw new IndexOutOfRangeException(nameof(index)) };
+            set
+            {
+                switch (index)
+                {
+                    case 0:
+                        _x = value;
+                        break;
+                    case 1:
+                        _y = value;
+                        break;
+                    case 2:
+                        _z = value;
+                        break;
+                    case 3:
+                        _w = value;
+                        break;
+                    default:
+                        throw new IndexOutOfRangeException(nameof(index));
+                }
+            }
         }
-        public float W { get => _data[0]; set => _data[0] = value; }
-        public float X { get => _data[1]; set => _data[1] = value; }
-        public float Y { get => _data[2]; set => _data[2] = value; }
-        public float Z { get => _data[3]; set => _data[3] = value; }
+        public float X { get => _x; set => _x = value; }
+        public float Y { get => _y; set => _y = value; }
+        public float Z { get => _z; set => _z = value; }
+        public float W { get => _w; set => _w = value; }
         public static ArFloatVector4 operator +(ArFloatVector4 a, ArFloatVector4 b)
-            => new ArFloatVector4(a._data[0] + b._data[0], a._data[1] + b._data[1], a._data[2] + b._data[2], a._data[3] + b._data[3]);
+            => new ArFloatVector4(a._x + b._x, a._y + b._y, a._z + b._z, a._w + b._w);
         public static ArFloatVector4 operator -(ArFloatVector4 a, ArFloatVector4 b)
-            => new ArFloatVector4(a._data[0] - b._data[0], a._data[1] - b._data[1], a._data[2] - b._data[2], a._data[3] - b._data[3]);
+            => new ArFloatVector4(a._x - b._x, a._y - b._y, a._z - b._z, a._w - b._w);
         public static ArFloatVector4 operator *(ArFloatVector4 a, int b)
-            => new ArFloatVector4(a._data[0] * b, a._data[1] * b, a._data[2] * b, a._data[3] * b);
+            => new ArFloatVector4(a._x * b, a._y * b, a._z * b, a._w * b);
         public static ArFloatVector4 operator /(ArFloatVector4 a, int b)
-            => new ArFloatVector4(a._data[0] / b, a._data[1] / b, a._data[2] / b, a._data[3] / b);
+            => new ArFloatVector4(a._x / b, a._y / b, a._z / b, a._w / b);
         public static bool operator ==(ArFloatVector4 a, ArFloatVector4 b)
             => a.Equals(b);
         public static bool operator !=(ArFloatVector4 a, ArFloatVector4 b)
             => !a.Equals(b);
         public override string ToString()
-            => $"({_data[0]}, {_data[1]}, {_data[2]}, {_data[3]})";
+            => $"({_x}, {_y}, {_z}, {_w})";
         public bool Equals(ArFloatVector4 other)
-            => _data[0] == other._data[0] && _data[1] == other._data[1] && _data[2] == other._data[2] && _data[3] == other._data[3];
+            => _x == other._x && _y == other._y && _z == other._z && _w == other._w;
         public string ToString(string? format, IFormatProvider? formatProvider)
-            => string.Format(formatProvider, "({0}, {1}, {2}, {3})", _data[0], _data[1], _data[2], _data[3]);
+            => string.Format(formatProvider, "({0}, {1}, {2}, {3})", _x, _y, _z, _w);
         public override int GetHashCode()
-            => (_data[0], _data[1], _data[2], _data[3]).GetHashCode();
+            => (_x, _y, _z, _w).GetHashCode();
         public override bool Equals(object obj)
             => obj is ArFloatVector4 && Equals((ArFloatVector4)obj);
     }

@@ -55,7 +55,7 @@ namespace DrawIndexedInstance
 
             SharpDXData data = new SharpDXData
             {
-                BackgroundColor = Color.Wheat.ToArFloatVector4(),
+                BackgroundColor = Color.Black.ToArFloatVector4(),
                 VerteicesData = new SharpDXBundleData[]
                 {
                     new SharpDXBundleData
@@ -63,13 +63,14 @@ namespace DrawIndexedInstance
                         PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
                         Verteices = new ArVertex[]
                         {
-                            new ArVertex(0, 0, 0, Color.White),
+                            new ArVertex(0, 0, 0, Color.Blue),
                             new ArVertex(1, 0, 0, Color.White),
-                            new ArVertex(0, 1, 0, Color.White)
+                            new ArVertex(0, 1, 0, Color.White),
+                            new ArVertex(1, 1, 1, Color.Red)
                         },
                         Indices = new int[]
                         {
-                            0, 1, 2
+                            0, 1, 2, 1, 2, 3
                         }
                     }
                 },                

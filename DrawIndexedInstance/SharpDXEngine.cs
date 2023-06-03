@@ -10,7 +10,9 @@ using SharpDX.DXGI;
 using Device = SharpDX.Direct3D12.Device;
 using InfoQueue = SharpDX.Direct3D12.InfoQueue;
 using Resource = SharpDX.Direct3D12.Resource;
+using Color = SharpDX.Color;
 using GraphicLibrary.Items;
+
 
 namespace GraphicLibrary
 {
@@ -49,13 +51,14 @@ namespace GraphicLibrary
         IndexBufferView[] indicesBufferView;
         Resource[] verticesBuffer;
         Resource[] indicesBuffer;
+        int indicesCount;
 
         internal Dictionary<ShaderType, ShaderFileInfo> ShaderFiles { get; set; }
 
         public SharpDXEngine()
         {
             FrameCount = 2;
-            const string GLShaderFile = @"C:\Programs\GraphicTest\GraphicLibrary\Shaders.hlsl";
+            const string GLShaderFile = @"C:\Programs\GraphicTest\DrawIndexedInstance\Shaders.hlsl";
 
             ShaderFiles = new Dictionary<ShaderType, ShaderFileInfo>
             {
@@ -126,17 +129,7 @@ namespace GraphicLibrary
                 device.CreateRenderTargetView(renderTargets[n], null, rtvHandle);
                 rtvHandle += rtvDescriptorSize;
             }
-            commandAllocator = device.CreateCommandAllocator(CommandListType.Direct);
-
-            //computeRootSignature = device.CreateRootSignature(rootSignatureDesc.Serialize());
-            //ComputePipelineStateDescription cpsoDec = new ComputePipelineStateDescription
-            //{
-            //    ComputeShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
-            //            ShaderFiles[ShaderType.ComputeShader].File, ShaderFiles[ShaderType.ComputeShader].EntryPoint, ShaderFiles[ShaderType.ComputeShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug)),
-
-            //    //RootSignaturePointer = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout)
-            //};
-            //computePLState = device.CreateComputePipelineState(cpsoDec);
+            commandAllocator = device.CreateCommandAllocator(CommandListType.Direct);           
 
             var rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout,
             new RootParameter[]
@@ -151,7 +144,8 @@ namespace GraphicLibrary
                             DescriptorCount = 1
                         })
             });
-            graphicRootSignature = device.CreateRootSignature(rootSignatureDesc.Serialize());
+            //graphicRootSignature = device.CreateRootSignature(rootSignatureDesc.Serialize());
+            graphicRootSignature = device.CreateRootSignature(new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout).Serialize());
 
             InputElement[] inputElementDescs = new InputElement[]
               {
@@ -199,10 +193,6 @@ namespace GraphicLibrary
 
             commandList = device.CreateCommandList(CommandListType.Direct, commandAllocator, graphicPLState);
             commandList.Close();
-
-            fence = device.CreateFence(0, FenceFlags.None);
-            fenceValue = 1;
-            fenceEvent = new AutoResetEvent(false);
         }
 
         public void Load(SharpDXData data)
@@ -214,7 +204,6 @@ namespace GraphicLibrary
             indicesBuffer = new Resource[data.VerteicesData.Length];
             for (int i = 0; i < data.VerteicesData.Length; i++)
             {
-
                 int verticesBufferSize = Utilities.SizeOf(data.VerteicesData[i].Verteices);
                 verticesBuffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(verticesBufferSize), ResourceStates.GenericRead);
                 IntPtr pVertexDataBegin = verticesBuffer[i].Map(0);
@@ -229,13 +218,22 @@ namespace GraphicLibrary
                 };
 
                 int indicesBufferSize = Utilities.SizeOf(data.VerteicesData[i].Indices);
+                indicesCount = data.VerteicesData[i].Indices.Length;
                 indicesBuffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(indicesBufferSize), ResourceStates.GenericRead);
+                pVertexDataBegin = indicesBuffer[i].Map(0);
+                Utilities.Write(pVertexDataBegin, data.VerteicesData[i].Indices, 0, data.VerteicesData[i].Indices.Length);
+                indicesBuffer[i].Unmap(0);
                 indicesBufferView[i] = new IndexBufferView
                 {
                     BufferLocation = indicesBuffer[i].GPUVirtualAddress,
-                    SizeInBytes = indicesBufferSize
+                    SizeInBytes = indicesBufferSize,
+                    Format = Format.R32_UInt
                 };
             }
+
+            fence = device.CreateFence(0, FenceFlags.None);
+            fenceValue = 1;
+            fenceEvent = new AutoResetEvent(false);
         }
 
         public void Update()
@@ -259,13 +257,12 @@ namespace GraphicLibrary
             CpuDescriptorHandle rtvHandle = renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
             rtvHandle += frameIndex * rtvDescriptorSize;
             commandList.SetRenderTargets(rtvHandle, null);
-            commandList.ClearRenderTargetView(rtvHandle, new Color4(backgroundColor.W, backgroundColor.X, backgroundColor.Y, backgroundColor.Z), 0, null);
+            commandList.ClearRenderTargetView(rtvHandle, new Color4(backgroundColor.X, backgroundColor.Y, backgroundColor.Z, backgroundColor.W), 0, null);
             commandList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
 
             commandList.SetVertexBuffer(0, verticesBufferView[0]);
             commandList.SetIndexBuffer(indicesBufferView[0]);
-            commandList.DrawIndexedInstanced(3, 1, 0, 0, 0);
-            //commandList.DrawInstanced(3, 1, 0, 0);
+            commandList.DrawIndexedInstanced(indicesCount, 1, 0, 0, 0);
 
             commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
             commandList.Close();
