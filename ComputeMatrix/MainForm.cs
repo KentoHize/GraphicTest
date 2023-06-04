@@ -14,7 +14,7 @@ namespace ComputeMatrix
             area.ModelGroups = new Ar3DModelGroup[] { new Ar3DModelGroup() };
             area.ModelGroups[0].Models = new Ar3DModel[] { new Ar3DModel() };
             area.ModelGroups[0].Models[0].Planes = new ArPlane[] {
-                new ArPlane(new ArColorVertex[]
+                new ArPlane(new IArVertex[]
                 {
                     new ArColorVertex(1000, 1000, 0),
                     new ArColorVertex(1000, 0, 0),
@@ -55,7 +55,7 @@ namespace ComputeMatrix
                     new SharpDXBundleData
                     {
                         PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
-                        Verteices = new ArColorVertex[]
+                        Verteices = new IArVertex[]
                         {
                             new ArColorVertex(0, 0, 0, Color.Blue),
                             new ArColorVertex(512, 0, 0, Color.White),
@@ -75,7 +75,7 @@ namespace ComputeMatrix
                     new SharpDXBundleData
                     {
                         PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.LineList,
-                        Verteices = new ArColorVertex[]
+                        Verteices = new IArVertex[]
                         {
                             new ArColorVertex(-200, -200, 0, Color.Gold),
                             new ArColorVertex(-200, 200, 0, Color.Gold),

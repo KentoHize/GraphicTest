@@ -4,9 +4,12 @@ using GraphicLibrary;
 using GraphicLibrary.Items;
 
 namespace Texture
-{
+{ 
+
     public partial class MainForm : Form
     {
+        const string textureFile = @"C:\Programs\GraphicTest\Texture\Texture\158452020235.jpg";
+
         SharpDXEngine sde;
         public MainForm()
         {
@@ -25,6 +28,17 @@ namespace Texture
             };
             sde.Initialize(setting);
 
+            sde.LoadStaticData(new SharpDXStaticData
+            {
+                Textures = new SharpDXTextureData[]
+                {
+                    new SharpDXTextureData
+                    {
+                        Data = new FileStream(textureFile, FileMode.Open)
+                    }
+                }
+            });
+
             SharpDXData data = new SharpDXData
             {
                 BackgroundColor = Color.Black.ToArFloatVector4(),
@@ -33,7 +47,7 @@ namespace Texture
                     new SharpDXBundleData
                     {
                         PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
-                        Verteices = new ArColorVertex[]
+                        Verteices = new IArVertex[]
                         {
                             new ArColorVertex(0, 0, 0, Color.Blue),
                             new ArColorVertex(512, 0, 0, Color.White),
@@ -53,7 +67,7 @@ namespace Texture
                     new SharpDXBundleData
                     {
                         PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.LineList,
-                        Verteices = new ArColorVertex[]
+                        Verteices = new IArVertex[]
                         {
                             new ArColorVertex(-200, -200, 0, Color.Gold),
                             new ArColorVertex(-200, 200, 0, Color.Gold),
@@ -64,10 +78,21 @@ namespace Texture
                         {
                             0, 1, 1, 2, 2, 3
                         }
-                        //TransformMartrix = Ar3DMachine.ProduceTransformMatrix(
-                        //    new ArIntVector3(0, 0, 0),
-                        //    new ArFloatVector3((float)Math.PI / 3, 0, 0),
-                        //    new ArFloatVector3(1, 1, 1))
+                    },
+                    new SharpDXBundleData
+                    {
+                        PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
+                        Verteices = new IArVertex[]
+                        {
+                            new ArTextureVertex(700, -100, 0, 1, 0),
+                            new ArTextureVertex(0, -700, 0, 0, 0),
+                            new ArTextureVertex(700, -700, 0, 1, 1),
+                            new ArTextureVertex(0, -100, 0, 1, 0),
+                        },
+                        Indices = new int[]
+                        {
+                            0, 1, 2, 0, 1, 3
+                        }
                     }
                 }
 
