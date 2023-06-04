@@ -43,8 +43,6 @@ namespace GraphicLibrary
         Fence fence;
         int fenceValue;
 
-        //ArVertex[][] verticesData;
-        //int[][] indicesData;
         ArFloatVector4 backgroundColor;
 
         VertexBufferView[] verticesBufferView;

@@ -70,6 +70,25 @@ namespace ComputeMatrix
                             new ArIntVector3(-200, 0, 0),
                             new ArFloatVector3(0, 0, 0),
                             new ArFloatVector3(1, 1, 1))
+                    },
+                    new SharpDXBundleData
+                    {
+                        PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.LineList,
+                        Verteices = new ArVertex[]
+                        {
+                            new ArVertex(-200, -200, 0, Color.Gold),
+                            new ArVertex(-200, 200, 0, Color.Gold),
+                            new ArVertex(-300, 200, 0, Color.Gold),
+                            new ArVertex(-300, -200, 0, Color.Gold),
+                        },
+                        Indices = new int[]
+                        {
+                            0, 1, 1, 2, 2, 3
+                        },
+                        TransformMartrix = Ar3DMachine.ProduceTransformMatrix(
+                            new ArIntVector3(0, 0, 0),
+                            new ArFloatVector3((float)Math.PI / 3, 0, 0),
+                            new ArFloatVector3(1, 1, 1))
                     }
                 }
                 
