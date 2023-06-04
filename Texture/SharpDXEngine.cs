@@ -13,6 +13,7 @@ using Resource = SharpDX.Direct3D12.Resource;
 using GraphicLibrary.Items;
 using System.Reflection.Metadata;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Runtime.InteropServices;
 
 namespace GraphicLibrary
 {
@@ -20,6 +21,7 @@ namespace GraphicLibrary
     {
         public int FrameCount { get; private set; }
         public const int ConstantBufferViewCount = 1;
+        public const int ShaderResourceViewCount = 1;
 
         Device device;
         SwapChain3 swapChain;
@@ -36,6 +38,7 @@ namespace GraphicLibrary
         DescriptorHeap constantBufferViewHeap;
         int rtvDescriptorSize;
         int cruDescriptorSize;
+        CpuDescriptorHandle cruHandle;
         IntPtr ptr;
 
         RootSignature computeRootSignature;
@@ -55,7 +58,10 @@ namespace GraphicLibrary
         IndexBufferView[] indicesBufferView;
         Resource[] verticesBuffer;
         Resource[] indicesBuffer;
-        Resource[] constantBuffer;        
+        Resource[] constantBuffer;
+        Resource[] shaderResource;
+
+        Resource texture;
 
         internal Dictionary<ShaderType, ShaderFileInfo> ShaderFiles { get; set; }
 
@@ -136,15 +142,15 @@ namespace GraphicLibrary
             
             var cbvHeapDesc = new DescriptorHeapDescription()
             {
-                DescriptorCount = ConstantBufferViewCount,
+                DescriptorCount = ConstantBufferViewCount + ShaderResourceViewCount,
                 Flags = DescriptorHeapFlags.ShaderVisible,
                 Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView
             };
             constantBufferViewHeap = device.CreateDescriptorHeap(cbvHeapDesc);
 
             cruDescriptorSize = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
-            var cruHandle = constantBufferViewHeap.CPUDescriptorHandleForHeapStart;
 
+            cruHandle = constantBufferViewHeap.CPUDescriptorHandleForHeapStart;
             constantBuffer = new Resource[ConstantBufferViewCount];
             for (int i = 0; i < ConstantBufferViewCount; i++)
             {
@@ -170,14 +176,31 @@ namespace GraphicLibrary
                             RegisterSpace = 0,
                             OffsetInDescriptorsFromTableStart = 0,
                             DescriptorCount = ConstantBufferViewCount
+                        },
+                        new DescriptorRange
+                        {
+                            RangeType = DescriptorRangeType.ShaderResourceView,
+                            BaseShaderRegister = 0,
+                            RegisterSpace = 0,
+                            OffsetInDescriptorsFromTableStart = 0,
+                            DescriptorCount = ShaderResourceViewCount
                         })
+            },
+            new StaticSamplerDescription[]
+            {
+                new StaticSamplerDescription(ShaderVisibility.Pixel, 0, 0)
+                {
+                     Filter = Filter.MinimumMinMagMipPoint,
+                     AddressUVW = TextureAddressMode.Border,
+                }
             });
             graphicRootSignature = device.CreateRootSignature(rootSignatureDesc.Serialize());            
 
             InputElement[] inputElementDescs = new InputElement[]
               {
                     new InputElement("POSITION",0,Format.R32G32B32_SInt,0,0),
-                    new InputElement("COLOR",0,Format.R32G32B32A32_Float,12,0)
+                    new InputElement("COLOR",0,Format.R32G32B32A32_Float,12,0),
+                    new InputElement("TEXCOORD", 0, Format.R32G32_Float,28,0)
               };
 
             RasterizerStateDescription rasterizerStateDesc = new RasterizerStateDescription()
@@ -227,6 +250,25 @@ namespace GraphicLibrary
             fenceEvent = new AutoResetEvent(false);
         }
 
+        public void LoadStaticData(SharpDXStaticData data)
+        {
+            //shaderResource = new Resource[ShaderResourceViewCount];
+            //shaderRenderViewHeap = device.CreateDescriptorHeap(srvHeapDesc);
+            //for (int i = 0; i < ShaderResourceViewCount; i++)
+            //{
+            //    var srvDesc = new ShaderResourceViewDescription
+            //    {
+            //        Shader4ComponentMapping = D3DXUtilities.DefaultComponentMapping(),
+            //        Format = textureDesc.Format,
+            //        Dimension = ShaderResourceViewDimension.Texture2D,
+            //        Texture2D = { MipLevels = 1 },
+            //    };
+            //    //device.CreateShaderResourceView(texture, srvDesc, cruHandle);
+            //    cruHandle += cruDescriptorSize;
+            //    //shaderResource[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.GenericRead);               
+            //}
+        }
+
         public void Load(SharpDXData data)
         {   
             backgroundColor = data.BackgroundColor;
@@ -248,7 +290,7 @@ namespace GraphicLibrary
                 verticesBufferView[i] = new VertexBufferView
                 {
                     BufferLocation = verticesBuffer[i].GPUVirtualAddress,
-                    StrideInBytes = Utilities.SizeOf<ArVertex>(),
+                    StrideInBytes = Utilities.SizeOf<ArColorVertex>(),
                     SizeInBytes = verticesBufferSize
                 };
 
@@ -277,11 +319,67 @@ namespace GraphicLibrary
             ptr = constantBuffer[0].Map(0);
             Utilities.Write(ptr, new ArFloatMatrix44[] { transformMatrix[0] }, 0, 1);
             constantBuffer[0].Unmap(0);
+
+            const int TextureWidth = 256;
+            const int TextureHeight = 256;
+            const int TexturePixelSize = 4;
+            //const string ImageFile = @"C:\Programs\GraphicTest\Texture\Texture\158452020235.jpg";
+            //Image image = Image.FromFile(ImageFile);
+
+            // Create the texture.
+            // Describe and create a Texture2D.
+            //var textureDesc = ResourceDescription.Texture2D(Format.R8G8B8A8_UNorm, TextureWidth, TextureHeight);
+            ////ResourceDescription.t
+            //texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
+
+            //long uploadBufferSize = GetRequiredIntermediateSize(this.texture, 0, 1);
+
+            //// Create the GPU upload buffer.
+            //var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(Format.R8G8B8A8_UNorm, TextureWidth, TextureHeight), ResourceStates.GenericRead);
+
+            //// Copy data to the intermediate upload heap and then schedule a copy 
+            //// from the upload heap to the Texture2D.
+            ////byte[] textureData = GenerateTextureData();
+
+            ////ShaderResourceView.
+            ////ShaderResourceView textureView = SharpDX.Direct3D11.Resource.FromFile<Texture2D>(device, "Texture.png");
+
+            ////Texture2D t=  new Texture2D(device, new Texture2DDescription { },)
+
+            //var handle = GCHandle.Alloc(textureData, GCHandleType.Pinned);
+            //var ptr = Marshal.UnsafeAddrOfPinnedArrayElement(textureData, 0);
+            //textureUploadHeap.WriteToSubresource(0, null, ptr, TexturePixelSize * TextureWidth, textureData.Length);
+            //handle.Free();
+
+            //commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(textureUploadHeap, 0), null);
+
+            //commandList.ResourceBarrierTransition(this.texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
+
+            //// Describe and create a SRV for the texture.
+            var srvDesc = new ShaderResourceViewDescription
+            {
+            //    Shader4ComponentMapping = D3DXUtilities.DefaultComponentMapping(),
+            //    Format = textureDesc.Format,
+            //    Dimension = ShaderResourceViewDimension.Texture2D,
+            //    Texture2D = { MipLevels = 1 },
+                Dimension = ShaderResourceViewDimension.Texture2D,
+            };
+            srvDesc.Texture2D.MipLevels = 1;
+
+            //device.CreateShaderResourceView(this.texture, srvDesc, shaderRenderViewHeap.CPUDescriptorHandleForHeapStart);
+
+            // Command lists are created in the recording state, but there is nothing
+            // to record yet. The main loop expects it to be closed, so close it now.
+            //commandList.Close();
+
+            //commandQueue.ExecuteCommandList(commandList);
+
+            //image.Save()
         }
 
         public void Update()
         {
-          
+            
         }
 
         public void Render()
@@ -328,6 +426,36 @@ namespace GraphicLibrary
         public void Dispose()
         {
             device.Dispose();
+        }
+    }
+
+    public class D3DXUtilities
+    {
+
+        public const int ComponentMappingMask = 0x7;
+
+        public const int ComponentMappingShift = 3;
+
+        public const int ComponentMappingAlwaysSetBitAvoidingZeromemMistakes = (1 << (ComponentMappingShift * 4));
+
+        public static int ComponentMapping(int src0, int src1, int src2, int src3)
+        {
+
+            return ((((src0) & ComponentMappingMask) |
+            (((src1) & ComponentMappingMask) << ComponentMappingShift) |
+                                                                (((src2) & ComponentMappingMask) << (ComponentMappingShift * 2)) |
+                                                                (((src3) & ComponentMappingMask) << (ComponentMappingShift * 3)) |
+                                                                ComponentMappingAlwaysSetBitAvoidingZeromemMistakes));
+        }
+
+        public static int DefaultComponentMapping()
+        {
+            return ComponentMapping(0, 1, 2, 3);
+        }
+
+        public static int ComponentMapping(int ComponentToExtract, int Mapping)
+        {
+            return ((Mapping >> (ComponentMappingShift * ComponentToExtract) & ComponentMappingMask));
         }
     }
 }

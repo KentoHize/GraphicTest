@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GraphicLibrary.Items
 {
-    //DirectX Shader Compatible Int Vector3
+    //DirectX Shader Compatible Float Vector3
     public struct ArFloatVector3 : IEquatable<ArFloatVector3>, IFormattable
     {
         float _x, _y, _z;

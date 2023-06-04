@@ -11,7 +11,7 @@ namespace GraphicLibrary
 {
     public class SharpDXBundleData
     {
-        public ArVertex[] Verteices { get; set; }
+        public ArColorVertex[] Verteices { get; set; }
         public int[] Indices { get; set; }
 
         public ArFloatMatrix44 TransformMartrix { get; set; }

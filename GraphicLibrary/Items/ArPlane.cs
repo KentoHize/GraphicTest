@@ -9,16 +9,16 @@ namespace GraphicLibrary.Items
     public class ArPlane
     {
         //目前轉點順序需要正確
-        ArVertex[] m_vertices;
-        public ArVertex[] Vertices { get => m_vertices; set { if (value.Length > int.MaxValue) throw new IndexOutOfRangeException(); m_vertices = value; } }
-        public Stream TextureResource { get; set; }
+        IArVertex[] m_vertices;
+        public IArVertex[] Vertices { get => m_vertices; set { if (value.Length > int.MaxValue) throw new IndexOutOfRangeException(); m_vertices = value; } }
+        //public Stream TextureResource { get; set; }
         public bool IsPlane { get => m_vertices.Length > 2; }
         public bool IsLine { get => m_vertices.Length == 2; }
         public bool IsPoint { get => m_vertices.Length == 1; }
-        public ArPlane(List<ArVertex> vertices)
+        public ArPlane(List<IArVertex> vertices)
             : this(vertices.ToArray())
         { }
-        public ArPlane(ArVertex[] vertices)
+        public ArPlane(IArVertex[] vertices)
         {
             Vertices = vertices;
         }

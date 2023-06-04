@@ -16,7 +16,6 @@ namespace Texture
                 Height = 1000,
                 Text = "Texture"
             };
-            mf.Show();
             Application.Run(mf);
         }
     }

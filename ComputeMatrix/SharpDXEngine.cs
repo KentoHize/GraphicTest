@@ -248,7 +248,7 @@ namespace GraphicLibrary
                 verticesBufferView[i] = new VertexBufferView
                 {
                     BufferLocation = verticesBuffer[i].GPUVirtualAddress,
-                    StrideInBytes = Utilities.SizeOf<ArVertex>(),
+                    StrideInBytes = Utilities.SizeOf<ArColorVertex>(),
                     SizeInBytes = verticesBufferSize
                 };
 
