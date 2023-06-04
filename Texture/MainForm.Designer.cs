@@ -28,12 +28,34 @@
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
+            pibMain = new PictureBox();
+            ((System.ComponentModel.ISupportInitialize)pibMain).BeginInit();
+            SuspendLayout();
+            // 
+            // pibMain
+            // 
+            pibMain.Dock = DockStyle.Fill;
+            pibMain.Location = new Point(0, 0);
+            pibMain.Name = "pibMain";
+            pibMain.Size = new Size(800, 450);
+            pibMain.TabIndex = 0;
+            pibMain.TabStop = false;
+            // 
+            // MainForm
+            // 
+            AutoScaleDimensions = new SizeF(9F, 19F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(pibMain);
+            Name = "MainForm";
             Text = "Form1";
+            Load += MainForm_Load;
+            ((System.ComponentModel.ISupportInitialize)pibMain).EndInit();
+            ResumeLayout(false);
         }
 
         #endregion
+
+        private PictureBox pibMain;
     }
 }
