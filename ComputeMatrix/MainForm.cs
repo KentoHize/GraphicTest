@@ -69,6 +69,7 @@ namespace ComputeMatrix
                         TransformMartrix = Ar3DMachine.ProduceTransformMatrix(
                             new ArIntVector3(-200, 0, 0),
                             new ArFloatVector3(0, 0, 0),
+                            //new ArFloatVector3((float)Math.PI /2, 0, 0),
                             new ArFloatVector3(1, 1, 1))
                     },
                     new SharpDXBundleData
@@ -84,11 +85,11 @@ namespace ComputeMatrix
                         Indices = new int[]
                         {
                             0, 1, 1, 2, 2, 3
-                        },
-                        TransformMartrix = Ar3DMachine.ProduceTransformMatrix(
-                            new ArIntVector3(0, 0, 0),
-                            new ArFloatVector3((float)Math.PI / 3, 0, 0),
-                            new ArFloatVector3(1, 1, 1))
+                        }
+                        //TransformMartrix = Ar3DMachine.ProduceTransformMatrix(
+                        //    new ArIntVector3(0, 0, 0),
+                        //    new ArFloatVector3((float)Math.PI / 3, 0, 0),
+                        //    new ArFloatVector3(1, 1, 1))
                     }
                 }
                 

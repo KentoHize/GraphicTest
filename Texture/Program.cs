@@ -1,4 +1,4 @@
-namespace ComputeMatrix
+namespace Texture
 {
     internal static class Program
     {
@@ -11,12 +11,12 @@ namespace ComputeMatrix
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-            MainForm mf = new MainForm()
-            {
+            MainForm mf = new MainForm {
                 Width = 1200,
                 Height = 1000,
-                Text = "ComputeMatrix"
+                Text = "Texture"
             };
+            mf.Show();
             Application.Run(mf);
         }
     }
