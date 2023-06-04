@@ -43,7 +43,7 @@ namespace DrawIndexedInstance
                     new SharpDXBundleData
                     {
                         PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
-                        Verteices = new ArColorVertex[]
+                        ColorVertices = new ArColorVertex[]
                         {
                             new ArColorVertex(0, 0, 0, Color.Blue),
                             new ArColorVertex(512, 0, 0, Color.White),

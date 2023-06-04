@@ -8,6 +8,6 @@ namespace GraphicLibrary.Items
 {
     public interface IArVertex
     {
-
+        public int ByteSize { get; }
     }
 }

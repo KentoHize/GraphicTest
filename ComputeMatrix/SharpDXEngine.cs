@@ -239,30 +239,34 @@ namespace GraphicLibrary
             for (int i = 0; i < data.VerteicesData.Length; i++)
             {
                 transformMatrix[i] = data.VerteicesData[i].TransformMartrix;
-                int verticesBufferSize = Utilities.SizeOf(data.VerteicesData[i].Verteices);
-                verticesBuffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(verticesBufferSize), ResourceStates.GenericRead);
-                IntPtr pVertexDataBegin = verticesBuffer[i].Map(0);
-                Utilities.Write(pVertexDataBegin, data.VerteicesData[i].Verteices, 0, data.VerteicesData[i].Verteices.Length);
-                verticesBuffer[i].Unmap(0);
 
-                verticesBufferView[i] = new VertexBufferView
+                if (data.VerteicesData[i].ColorVertices.Length > 0)
                 {
-                    BufferLocation = verticesBuffer[i].GPUVirtualAddress,
-                    StrideInBytes = Utilities.SizeOf<ArColorVertex>(),
-                    SizeInBytes = verticesBufferSize
-                };
+                    int verticesBufferSize = Utilities.SizeOf(data.VerteicesData[i].ColorVertices);
+                    verticesBuffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(verticesBufferSize), ResourceStates.GenericRead);
+                    IntPtr pVertexDataBegin = verticesBuffer[i].Map(0);
+                    Utilities.Write(pVertexDataBegin, data.VerteicesData[i].ColorVertices, 0, data.VerteicesData[i].ColorVertices.Length);
+                    verticesBuffer[i].Unmap(0);
 
-                int indicesBufferSize = Utilities.SizeOf(data.VerteicesData[i].Indices);                
-                indicesBuffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(indicesBufferSize), ResourceStates.GenericRead);
-                pVertexDataBegin = indicesBuffer[i].Map(0);
-                Utilities.Write(pVertexDataBegin, data.VerteicesData[i].Indices, 0, data.VerteicesData[i].Indices.Length);
-                indicesBuffer[i].Unmap(0);
-                indicesBufferView[i] = new IndexBufferView
-                {
-                    BufferLocation = indicesBuffer[i].GPUVirtualAddress,
-                    SizeInBytes = indicesBufferSize,
-                    Format = Format.R32_UInt
-                };
+                    verticesBufferView[i] = new VertexBufferView
+                    {
+                        BufferLocation = verticesBuffer[i].GPUVirtualAddress,
+                        StrideInBytes = Utilities.SizeOf<ArColorVertex>(),
+                        SizeInBytes = verticesBufferSize
+                    };
+
+                    int indicesBufferSize = Utilities.SizeOf(data.VerteicesData[i].Indices);
+                    indicesBuffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(indicesBufferSize), ResourceStates.GenericRead);
+                    pVertexDataBegin = indicesBuffer[i].Map(0);
+                    Utilities.Write(pVertexDataBegin, data.VerteicesData[i].Indices, 0, data.VerteicesData[i].Indices.Length);
+                    indicesBuffer[i].Unmap(0);
+                    indicesBufferView[i] = new IndexBufferView
+                    {
+                        BufferLocation = indicesBuffer[i].GPUVirtualAddress,
+                        SizeInBytes = indicesBufferSize,
+                        Format = Format.R32_UInt
+                    };
+                }
 
                 CommandAllocator bundleAllocator = device.CreateCommandAllocator(CommandListType.Bundle);
                 bundles[i] = device.CreateCommandList(0, CommandListType.Bundle, bundleAllocator, graphicPLState);

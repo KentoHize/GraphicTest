@@ -11,7 +11,7 @@ namespace GraphicLibrary.Items
         public ArIntVector3 Position { get; set; }
         public ArFloatVector2 TextureCroodinate { get; set; }
         public static ArTextureVertex Empty => new ArTextureVertex();
-
+        public int ByteSize => 20;
         public ArTextureVertex()
            : this(0, 0, 0, 0, 0)
         { }

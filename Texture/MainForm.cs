@@ -47,7 +47,7 @@ namespace Texture
                     new SharpDXBundleData
                     {
                         PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
-                        Verteices = new IArVertex[]
+                        ColorVertices = new ArColorVertex[]
                         {
                             new ArColorVertex(0, 0, 0, Color.Blue),
                             new ArColorVertex(512, 0, 0, Color.White),
@@ -67,7 +67,7 @@ namespace Texture
                     new SharpDXBundleData
                     {
                         PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.LineList,
-                        Verteices = new IArVertex[]
+                        ColorVertices = new ArColorVertex[]
                         {
                             new ArColorVertex(-200, -200, 0, Color.Gold),
                             new ArColorVertex(-200, 200, 0, Color.Gold),
@@ -82,7 +82,7 @@ namespace Texture
                     new SharpDXBundleData
                     {
                         PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
-                        Verteices = new IArVertex[]
+                        TextureVertices = new ArTextureVertex[]
                         {
                             new ArTextureVertex(700, -100, 0, 1, 0),
                             new ArTextureVertex(0, -700, 0, 0, 0),

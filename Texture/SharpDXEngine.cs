@@ -281,10 +281,18 @@ namespace GraphicLibrary
             for (int i = 0; i < data.VerteicesData.Length; i++)
             {
                 transformMatrix[i] = data.VerteicesData[i].TransformMartrix;
-                int verticesBufferSize = Utilities.SizeOf(data.VerteicesData[i].Verteices);
+                int verticesBufferSize;
+                if (data.VerteicesData[i].ColorVertices != null)
+                    verticesBufferSize = Utilities.SizeOf(data.VerteicesData[i].ColorVertices);
+                else
+                    verticesBufferSize = Utilities.SizeOf(data.VerteicesData[i].TextureVertices);
+
                 verticesBuffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(verticesBufferSize), ResourceStates.GenericRead);
                 IntPtr pVertexDataBegin = verticesBuffer[i].Map(0);
-                Utilities.Write(pVertexDataBegin, data.VerteicesData[i].Verteices, 0, data.VerteicesData[i].Verteices.Length);
+                if (data.VerteicesData[i].ColorVertices != null)
+                    Utilities.Write(pVertexDataBegin, data.VerteicesData[i].ColorVertices, 0, data.VerteicesData[i].ColorVertices.Length);
+                else
+                    Utilities.Write(pVertexDataBegin, data.VerteicesData[i].TextureVertices, 0, data.VerteicesData[i].TextureVertices.Length);
                 verticesBuffer[i].Unmap(0);
 
                 verticesBufferView[i] = new VertexBufferView

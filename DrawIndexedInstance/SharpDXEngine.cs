@@ -202,10 +202,10 @@ namespace GraphicLibrary
             indicesBuffer = new Resource[data.VerteicesData.Length];
             for (int i = 0; i < data.VerteicesData.Length; i++)
             {
-                int verticesBufferSize = Utilities.SizeOf(data.VerteicesData[i].Verteices);
+                int verticesBufferSize = Utilities.SizeOf(data.VerteicesData[i].ColorVertices);
                 verticesBuffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(verticesBufferSize), ResourceStates.GenericRead);
                 IntPtr pVertexDataBegin = verticesBuffer[i].Map(0);
-                Utilities.Write(pVertexDataBegin, data.VerteicesData[i].Verteices, 0, data.VerteicesData[i].Verteices.Length);
+                Utilities.Write(pVertexDataBegin, data.VerteicesData[i].ColorVertices, 0, data.VerteicesData[i].ColorVertices.Length);
                 verticesBuffer[i].Unmap(0);
 
                 verticesBufferView[i] = new VertexBufferView
