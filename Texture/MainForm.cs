@@ -14,7 +14,7 @@ namespace Texture
         public MainForm()
         {
             InitializeComponent();
-            sde = new SharpDXEngine();
+            sde = new SharpDXEngine();            
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -82,17 +82,18 @@ namespace Texture
                     new SharpDXBundleData
                     {
                         PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
-                        TextureVertices = new ArTextureVertex[]
+                        MixVertices = new ArMixVertex[]
                         {
-                            new ArTextureVertex(700, -100, 0, 1, 0),
-                            new ArTextureVertex(0, -700, 0, 0, 0),
-                            new ArTextureVertex(700, -700, 0, 1, 1),
-                            new ArTextureVertex(0, -100, 0, 1, 0),
+                            new ArMixVertex(700, -100, 0, 1, 0),
+                            new ArMixVertex(0, -700, 0, 0, 0),
+                            new ArMixVertex(700, -700, 0, 1, 1),
+                            new ArMixVertex(0, -100, 0, 1, 0),
                         },
                         Indices = new int[]
                         {
                             0, 1, 2, 0, 1, 3
                         }
+                        
                     }
                 }
 

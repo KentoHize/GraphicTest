@@ -20,7 +20,7 @@ namespace GraphicLibrary.Items
         { }
 
         public ArColorVertex(ArIntVector3 position, ArFloatVector4 color)
-            : this(position.X, position.Y, position.Z, color.W, color.X, color.Y, color.Z)
+            : this(position.X, position.Y, position.Z, color[0], color[1], color[2], color[3])
         { }
 
         public ArColorVertex(ArIntVector3 position, Color color)
@@ -33,11 +33,11 @@ namespace GraphicLibrary.Items
             Color = new ArFloatVector4(red, green, blue, alpha);           
         }
         public ArColorVertex(int x, int y, int z, ArFloatVector4 color)
-            : this(x, y, z, color.W, color.X, color.Y, color.Z)
+            : this(x, y, z, color[0], color[1], color[2], color[3])
         { }
 
         public ArColorVertex(int x, int y, int z, Color color)
-            : this(x, y, z, (float)color.R / 255, (float)color.G / 255, (float)color.B / 255, (float)color.A / 255)
+            : this(x, y, z, color.ToArFloatVector4())
         { }
 
         public ArColorVertex(int x, int y, int z)

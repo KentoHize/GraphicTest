@@ -7,9 +7,12 @@ ConstantBuffer<TranformMatrix> tm : register(b0);
 struct PSInput
 {
 	float4 position : SV_POSITION;
-	float4 color : COLOR;
+    float4 color : COLOR;
     float2 texCrood : TEXCOORD;
 };
+
+Texture2D t2d_Annette : register(t0);
+SamplerState normal_sampler : register(s0);
 
 PSInput VSMain(int3 position : POSITION, float4 color : COLOR, float2 texCrood : TEXCOORD)
 {
@@ -25,4 +28,6 @@ PSInput VSMain(int3 position : POSITION, float4 color : COLOR, float2 texCrood :
 float4 PSMain(PSInput input) : SV_TARGET
 {
     return input.color;
+    //return float4(input.texCrood[0], input.texCrood[1], 0, 1);
+    
 }

@@ -2,13 +2,28 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace GraphicLibrary
 {
     public static class Ar3DMachine
     {
+        //Only Support Windows
+        public static byte[] LoadBitmapFromFile(string bitmapFile)
+        {
+            Bitmap bitmap = new Bitmap(bitmapFile);
+            BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            byte[] result = new byte[bitmap.Width * bitmap.Height * 4];
+            Marshal.Copy(data.Scan0, result, 0, result.Length);
+            bitmap.UnlockBits(data);
+            return result;
+        }
+
         public static long StaticScaleFactor = 1000;
         //public static ArFloatVector3 MultiplyTransformMatrix(ArFloatVector3 position, ArFloatMatrix44 transformMatrix)
         //{
