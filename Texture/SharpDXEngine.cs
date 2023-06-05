@@ -14,6 +14,7 @@ using GraphicLibrary.Items;
 using System.Reflection.Metadata;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace GraphicLibrary
 {
@@ -241,96 +242,50 @@ namespace GraphicLibrary
             psoDesc.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
             graphicPLState = device.CreateGraphicsPipelineState(psoDesc);
 
-            commandAllocator = device.CreateCommandAllocator(CommandListType.Direct);
-            commandList = device.CreateCommandList(CommandListType.Direct, commandAllocator, graphicPLState);
-            commandList.Close();
+            
 
             fence = device.CreateFence(0, FenceFlags.None);
             fenceValue = 1;
             fenceEvent = new AutoResetEvent(false);
         }
 
+        public long GetRequiredIntermediateSize(Resource destinationResource, int firstSubresource, int subresourcesCount)
+        {
+            ResourceDescription desc = destinationResource.Description;
+            device.GetCopyableFootprints(ref desc, firstSubresource, subresourcesCount, 0, null, null, null, out long requiredSize);
+            return requiredSize;
+        }
+
         public void LoadStaticData(SharpDXStaticData data)
         {
+            commandAllocator = device.CreateCommandAllocator(CommandListType.Direct);
+            commandList = device.CreateCommandList(CommandListType.Direct, commandAllocator, graphicPLState);
             shaderResource = new Resource[ShaderResourceViewCount];
-            //var textureDesc = ResourceDescription.Texture2D(Format.R8G8B8A8_UNorm, TextureWidth, TextureHeight);
-            //texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
-
-            //shaderRenderViewHeap = device.CreateDescriptorHeap(srvHeapDesc);
-            //for (int i = 0; i < ShaderResourceViewCount; i++)
-            //{
-            //    var srvDesc = new ShaderResourceViewDescription
-            //    {
-            //        Shader4ComponentMapping = D3DXUtilities.DefaultComponentMapping(),
-            //        Format = textureDesc.Format,
-            //        Dimension = ShaderResourceViewDimension.Texture2D,
-            //        Texture2D = { MipLevels = 1 },
-            //    };
-            //    device.CreateShaderResourceView(texture, srvDesc, cruHandle);
-            //    cruHandle += cruDescriptorSize;
-            //    //shaderResource[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.GenericRead);               
-            //}
-
-
-            //const int TextureWidth = 256;
-            //const int TextureHeight = 256;
-            //const int TexturePixelSize = 4;
-            //const string ImageFile = @"C:\Programs\GraphicTest\Texture\Texture\158452020235.jpg";
-            //Image image = Image.FromFile(ImageFile);
-
-            // Create the texture.
-            // Describe and create a Texture2D.
-            //var textureDesc = ResourceDescription.Texture2D(Format.R8G8B8A8_UNorm, TextureWidth, TextureHeight);
-            ////ResourceDescription.t
-            //texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
-
-            //long uploadBufferSize = GetRequiredIntermediateSize(this.texture, 0, 1);
-
-            //// Create the GPU upload buffer.
-            //var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(Format.R8G8B8A8_UNorm, TextureWidth, TextureHeight), ResourceStates.GenericRead);
-
-            //// Copy data to the intermediate upload heap and then schedule a copy 
-            //// from the upload heap to the Texture2D.
-            ////byte[] textureData = GenerateTextureData();
-
-            ////ShaderResourceView.
-            ////ShaderResourceView textureView = SharpDX.Direct3D11.Resource.FromFile<Texture2D>(device, "Texture.png");
-
-            ////Texture2D t=  new Texture2D(device, new Texture2DDescription { },)
-
-            //var handle = GCHandle.Alloc(textureData, GCHandleType.Pinned);
-            //var ptr = Marshal.UnsafeAddrOfPinnedArrayElement(textureData, 0);
-            //textureUploadHeap.WriteToSubresource(0, null, ptr, TexturePixelSize * TextureWidth, textureData.Length);
-            //handle.Free();
-
-            //commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(textureUploadHeap, 0), null);
-
-            //commandList.ResourceBarrierTransition(this.texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
-
-            //// Describe and create a SRV for the texture.
-            //var srvDesc = new ShaderResourceViewDescription
-            //{
-            ////    Shader4ComponentMapping = D3DXUtilities.DefaultComponentMapping(),
-            ////    Format = textureDesc.Format,
-            ////    Dimension = ShaderResourceViewDimension.Texture2D,
-            ////    Texture2D = { MipLevels = 1 },
-            //    Dimension = ShaderResourceViewDimension.Texture2D,
-            //};
-            //srvDesc.Texture2D.MipLevels = 1;
-
-            //device.CreateShaderResourceView(this.texture, srvDesc, shaderRenderViewHeap.CPUDescriptorHandleForHeapStart);
-
-            // Command lists are created in the recording state, but there is nothing
-            // to record yet. The main loop expects it to be closed, so close it now.
-            //commandList.Close();
-
-            //commandQueue.ExecuteCommandList(commandList);
-            for (int i = 0; i < data.Textures.Length; i++)
+            for(int i = 0; i < data.Textures.Length; i++)
             {
-               
-
-                data.Textures[i].Data.Close();
+                var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[i].Width, data.Textures[i].Height);
+                texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
+                long uploadBufferSize = GetRequiredIntermediateSize(texture, 0, 1);
+                var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[i].Width, data.Textures[i].Height), ResourceStates.GenericRead);
+                var handle = GCHandle.Alloc(data.Textures[i].Data, GCHandleType.Pinned);
+                ptr = Marshal.UnsafeAddrOfPinnedArrayElement(data.Textures[i].Data, 0);
+                textureUploadHeap.WriteToSubresource(0, null, ptr, 4 * data.Textures[i].Width, data.Textures[i].Data.Length);
+                handle.Free();
+                commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(textureUploadHeap, 0), null);
+                commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);                
+                var srvDesc = new ShaderResourceViewDescription
+                {
+                    Shader4ComponentMapping = D3DXUtilities.DefaultComponentMapping(),
+                    //Shader4ComponentMapping = 0,
+                    Format = textureDesc.Format,
+                    Dimension = ShaderResourceViewDimension.Texture2D,
+                    Texture2D = { MipLevels = 1 },
+                };
+                device.CreateShaderResourceView(texture, srvDesc, cruHandle);
+                cruHandle += cruDescriptorSize;
             }
+            commandList.Close();
+            commandQueue.ExecuteCommandList(commandList);
         }
 
         public void Load(SharpDXData data)
@@ -344,29 +299,54 @@ namespace GraphicLibrary
             bundles = new GraphicsCommandList[data.VerteicesData.Length];
             for (int i = 0; i < data.VerteicesData.Length; i++)
             {
+                int dataSize;
+                if (data.VerteicesData[i].ColorVertices != null)
+                    dataSize = ArColorVertex.ByteSize;
+                else if (data.VerteicesData[i].TextureVertices != null)
+                    dataSize = ArTextureVertex.ByteSize;
+                else
+                    dataSize = ArMixVertex.ByteSize;
+
                 transformMatrix[i] = data.VerteicesData[i].TransformMartrix;
-                int verticesBufferSize;
+                int verticesBufferSize;                
                 if (data.VerteicesData[i].ColorVertices != null)
                     verticesBufferSize = Utilities.SizeOf(data.VerteicesData[i].ColorVertices);
                 else if (data.VerteicesData[i].TextureVertices != null)
                     verticesBufferSize = Utilities.SizeOf(data.VerteicesData[i].TextureVertices);
                 else
-                    verticesBufferSize = Utilities.SizeOf(data.VerteicesData[i].MixVertices);
-
+                    verticesBufferSize = Utilities.SizeOf(data.VerteicesData[i].MixVertices);                
                 verticesBuffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(verticesBufferSize), ResourceStates.GenericRead);
                 IntPtr pVertexDataBegin = verticesBuffer[i].Map(0);
                 if (data.VerteicesData[i].ColorVertices != null)
+                {
                     Utilities.Write(pVertexDataBegin, data.VerteicesData[i].ColorVertices, 0, data.VerteicesData[i].ColorVertices.Length);
+                    //for (int j = 0; j < verticesBufferSize; j++)
+                    //{
+                    //    //Marshal.Get
+                    //    Debug.WriteLine($"{j}:{Marshal.ReadByte( pVertexDataBegin, j)}");
+                    //}
+                }   
                 else if (data.VerteicesData[i].TextureVertices != null)
                     Utilities.Write(pVertexDataBegin, data.VerteicesData[i].TextureVertices, 0, data.VerteicesData[i].TextureVertices.Length);
                 else
+                {
                     Utilities.Write(pVertexDataBegin, data.VerteicesData[i].MixVertices, 0, data.VerteicesData[i].MixVertices.Length);
+                    //Debug.WriteLine("");
+                    //for (int j = 0; j < verticesBufferSize; j++)
+                    //{
+                    //    Debug.Write($"{Marshal.ReadByte(pVertexDataBegin, j)} ");
+                    //    if (j % 4 == 3)
+                    //        Debug.WriteLine("");
+                    //}
+                    
+                }
+                    
                 verticesBuffer[i].Unmap(0);
 
                 verticesBufferView[i] = new VertexBufferView
                 {
                     BufferLocation = verticesBuffer[i].GPUVirtualAddress,
-                    StrideInBytes = Utilities.SizeOf<ArColorVertex>(),
+                    StrideInBytes = dataSize,
                     SizeInBytes = verticesBufferSize
                 };
 

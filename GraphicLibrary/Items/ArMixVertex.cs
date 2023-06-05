@@ -8,7 +8,7 @@ namespace GraphicLibrary.Items
         public ArFloatVector4 Color { get; set; }
         public ArFloatVector2 TextureCroodinate { get; set; }
         public static ArMixVertex Empty => new ArMixVertex();
-        public int ByteSize => 36;
+        public static int ByteSize => 36;
         public ArMixVertex()
             : this(0, 0, 0, 0, 0, 0, 0, 0, 0)
         { }

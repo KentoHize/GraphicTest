@@ -14,7 +14,7 @@ namespace GraphicLibrary.Items
         public ArFloatVector4 Color { get; set; }
       
         public static ArColorVertex Empty => new ArColorVertex();
-        public int ByteSize => 28;
+        public static int ByteSize => 28;
         public ArColorVertex()
             : this(0, 0, 0, 0, 0, 0, 0)
         { }

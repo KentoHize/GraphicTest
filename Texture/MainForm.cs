@@ -8,7 +8,7 @@ namespace Texture
 
     public partial class MainForm : Form
     {
-        const string textureFile = @"C:\Programs\GraphicTest\Texture\Texture\158452020235.jpg";
+        const string textureFile = @"C:\Programs\GraphicTest\Texture\Texture\Annette.bmp";
 
         SharpDXEngine sde;
         public MainForm()
@@ -34,7 +34,9 @@ namespace Texture
                 {
                     new SharpDXTextureData
                     {
-                        Data = new FileStream(textureFile, FileMode.Open)
+                        Data = Ar3DMachine.LoadBitmapFromFile(textureFile),
+                        Width = 400,
+                        Height = 441
                     }
                 }
             });
@@ -59,7 +61,7 @@ namespace Texture
                             0, 1, 2, 1, 2, 3
                         },
                         TransformMartrix = Ar3DMachine.ProduceTransformMatrix(
-                            new ArIntVector3(-200, 0, 0),
+                            new ArIntVector3(0, 0, 0),
                             new ArFloatVector3(0, 0, 0),
                             //new ArFloatVector3((float)Math.PI /2, 0, 0),
                             new ArFloatVector3(1, 1, 1))
@@ -85,9 +87,9 @@ namespace Texture
                         MixVertices = new ArMixVertex[]
                         {
                             new ArMixVertex(700, -100, 0, 1, 0),
-                            new ArMixVertex(0, -700, 0, 0, 0),
+                            new ArMixVertex(0, -700, 0, 0, 1),
                             new ArMixVertex(700, -700, 0, 1, 1),
-                            new ArMixVertex(0, -100, 0, 1, 0),
+                            new ArMixVertex(0, -100, 0, 0, 0),
                         },
                         Indices = new int[]
                         {

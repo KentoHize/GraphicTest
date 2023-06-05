@@ -8,26 +8,36 @@ struct PSInput
 {
 	float4 position : SV_POSITION;
     float4 color : COLOR;
-    float2 texCrood : TEXCOORD;
+    float2 uv : TEXCOORD;
 };
 
 Texture2D t2d_Annette : register(t0);
 SamplerState normal_sampler : register(s0);
 
-PSInput VSMain(int3 position : POSITION, float4 color : COLOR, float2 texCrood : TEXCOORD)
+PSInput VSMain(int3 position : POSITION, float4 color : COLOR, float2 texCoord : TEXCOORD)
 {
 	PSInput result;   
     int4 p = int4(position[0], position[1], position[2], 1);    
     float4 p2 = mul(p, tm.transformMatrix);
     result.position = p2;
 	result.color = color;
-    result.texCrood = texCrood;
+    result.uv = texCoord;
 	return result;
 }
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
-    return input.color;
-    //return float4(input.texCrood[0], input.texCrood[1], 0, 1);
+    if(input.color[3] != 0) // detect have color
+        return input.color;
+    else
+        return t2d_Annette.Sample(normal_sampler, input.uv);
+    //    return float4(input.uv[0], input.uv[1], 0, 1);
+    //return float4(input.uv[0], input.uv[1], 0, 1);
     
+    //if (input.color[3] == 0)
+    //    return float4(input.uv[0], input.uv[1], 0, 1);
+    //    //return float4(1, 0, 0, 1);
+    //else
+    //    return float4(0, 0, 0, 1);
+        
 }
