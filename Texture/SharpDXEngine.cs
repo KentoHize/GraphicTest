@@ -183,7 +183,7 @@ namespace GraphicLibrary
                             RangeType = DescriptorRangeType.ShaderResourceView,
                             BaseShaderRegister = 0,
                             RegisterSpace = 0,
-                            OffsetInDescriptorsFromTableStart = 0,
+                            OffsetInDescriptorsFromTableStart = 1,
                             DescriptorCount = ShaderResourceViewCount
                         })
             },
@@ -242,8 +242,6 @@ namespace GraphicLibrary
             psoDesc.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
             graphicPLState = device.CreateGraphicsPipelineState(psoDesc);
 
-            
-
             fence = device.CreateFence(0, FenceFlags.None);
             fenceValue = 1;
             fenceEvent = new AutoResetEvent(false);
@@ -274,12 +272,11 @@ namespace GraphicLibrary
                 commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(textureUploadHeap, 0), null);
                 commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);                
                 var srvDesc = new ShaderResourceViewDescription
-                {
+                {   
                     Shader4ComponentMapping = D3DXUtilities.DefaultComponentMapping(),
-                    //Shader4ComponentMapping = 0,
                     Format = textureDesc.Format,
                     Dimension = ShaderResourceViewDimension.Texture2D,
-                    Texture2D = { MipLevels = 1 },
+                    Texture2D = { MipLevels = 1 },                    
                 };
                 device.CreateShaderResourceView(texture, srvDesc, cruHandle);
                 cruHandle += cruDescriptorSize;
@@ -318,31 +315,13 @@ namespace GraphicLibrary
                 verticesBuffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(verticesBufferSize), ResourceStates.GenericRead);
                 IntPtr pVertexDataBegin = verticesBuffer[i].Map(0);
                 if (data.VerteicesData[i].ColorVertices != null)
-                {
                     Utilities.Write(pVertexDataBegin, data.VerteicesData[i].ColorVertices, 0, data.VerteicesData[i].ColorVertices.Length);
-                    //for (int j = 0; j < verticesBufferSize; j++)
-                    //{
-                    //    //Marshal.Get
-                    //    Debug.WriteLine($"{j}:{Marshal.ReadByte( pVertexDataBegin, j)}");
-                    //}
-                }   
                 else if (data.VerteicesData[i].TextureVertices != null)
                     Utilities.Write(pVertexDataBegin, data.VerteicesData[i].TextureVertices, 0, data.VerteicesData[i].TextureVertices.Length);
                 else
-                {
                     Utilities.Write(pVertexDataBegin, data.VerteicesData[i].MixVertices, 0, data.VerteicesData[i].MixVertices.Length);
-                    //Debug.WriteLine("");
-                    //for (int j = 0; j < verticesBufferSize; j++)
-                    //{
-                    //    Debug.Write($"{Marshal.ReadByte(pVertexDataBegin, j)} ");
-                    //    if (j % 4 == 3)
-                    //        Debug.WriteLine("");
-                    //}
-                    
-                }
                     
                 verticesBuffer[i].Unmap(0);
-
                 verticesBufferView[i] = new VertexBufferView
                 {
                     BufferLocation = verticesBuffer[i].GPUVirtualAddress,
@@ -402,9 +381,7 @@ namespace GraphicLibrary
             commandList.ClearRenderTargetView(rtvHandle, new Color4(backgroundColor.X, backgroundColor.Y, backgroundColor.Z, backgroundColor.W), 0, null);
                         
             for (int i = 0; i < bundles.Length; i++)
-            {   
                 commandList.ExecuteBundle(bundles[i]);
-            }
             commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
             commandList.Close();
 
@@ -434,14 +411,10 @@ namespace GraphicLibrary
     {
 
         public const int ComponentMappingMask = 0x7;
-
         public const int ComponentMappingShift = 3;
-
         public const int ComponentMappingAlwaysSetBitAvoidingZeromemMistakes = (1 << (ComponentMappingShift * 4));
-
         public static int ComponentMapping(int src0, int src1, int src2, int src3)
         {
-
             return ((((src0) & ComponentMappingMask) |
             (((src1) & ComponentMappingMask) << ComponentMappingShift) |
                                                                 (((src2) & ComponentMappingMask) << (ComponentMappingShift * 2)) |

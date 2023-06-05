@@ -13,12 +13,14 @@ namespace GraphicLibrary
     public static class Ar3DMachine
     {
         //Only Support Windows
-        public static byte[] LoadBitmapFromFile(string bitmapFile)
+        public static byte[] LoadBitmapFromFile(string bitmapFile, out int width, out int height)
         {
             Bitmap bitmap = new Bitmap(bitmapFile);
-            BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+            width = bitmap.Width;
+            height = bitmap.Height;
+            BitmapData data = bitmap.LockBits(new Rectangle(0, 0, width, height),
                 ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-            byte[] result = new byte[bitmap.Width * bitmap.Height * 4];
+            byte[] result = new byte[width * height * 4];
             Marshal.Copy(data.Scan0, result, 0, result.Length);
             bitmap.UnlockBits(data);
             return result;

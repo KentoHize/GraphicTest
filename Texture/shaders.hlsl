@@ -31,13 +31,4 @@ float4 PSMain(PSInput input) : SV_TARGET
         return input.color;
     else
         return t2d_Annette.Sample(normal_sampler, input.uv);
-    //    return float4(input.uv[0], input.uv[1], 0, 1);
-    //return float4(input.uv[0], input.uv[1], 0, 1);
-    
-    //if (input.color[3] == 0)
-    //    return float4(input.uv[0], input.uv[1], 0, 1);
-    //    //return float4(1, 0, 0, 1);
-    //else
-    //    return float4(0, 0, 0, 1);
-        
 }

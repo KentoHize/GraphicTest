@@ -8,7 +8,7 @@ namespace Texture
 
     public partial class MainForm : Form
     {
-        const string textureFile = @"C:\Programs\GraphicTest\Texture\Texture\Annette.bmp";
+        const string textureFile = @"C:\Programs\GraphicTest\Texture\Texture\AnnetteSquare.bmp";
 
         SharpDXEngine sde;
         public MainForm()
@@ -34,9 +34,9 @@ namespace Texture
                 {
                     new SharpDXTextureData
                     {
-                        Data = Ar3DMachine.LoadBitmapFromFile(textureFile),
-                        Width = 400,
-                        Height = 441
+                        Data = Ar3DMachine.LoadBitmapFromFile(textureFile, out int width, out int height),
+                        Width = width,
+                        Height = height
                     }
                 }
             });
