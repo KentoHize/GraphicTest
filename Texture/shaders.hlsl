@@ -4,6 +4,12 @@
 };
 ConstantBuffer<TranformMatrix> tm : register(b0);
 
+struct DrawSetting
+{
+    int textureIndex;
+};
+ConstantBuffer<DrawSetting> ds : register(b1);
+
 struct PSInput
 {
 	float4 position : SV_POSITION;
@@ -12,6 +18,7 @@ struct PSInput
 };
 
 Texture2D t2d_Annette : register(t0);
+Texture2D t2d_Clacier : register(t1);
 SamplerState normal_sampler : register(s0);
 
 PSInput VSMain(int3 position : POSITION, float4 color : COLOR, float2 texCoord : TEXCOORD)

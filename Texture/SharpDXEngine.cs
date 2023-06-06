@@ -21,8 +21,8 @@ namespace GraphicLibrary
     public class SharpDXEngine : IDisposable
     {
         public int FrameCount { get; private set; }
-        public const int ConstantBufferViewCount = 1;
-        public const int ShaderResourceViewCount = 1;
+        public const int ConstantBufferViewCount = 2;
+        public const int ShaderResourceViewCount = 2;
 
         Device device;
         SwapChain3 swapChain;
@@ -166,6 +166,10 @@ namespace GraphicLibrary
                 cruHandle += cruDescriptorSize;
             }
 
+            ptr = constantBuffer[0].Map(0);
+            Utilities.Write(ptr, new ArFloatMatrix44[] { transformMatrix[0] }, 0, 1);
+            constantBuffer[0].Unmap(0);
+
             var rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout,
             new RootParameter[]
             {
@@ -183,9 +187,10 @@ namespace GraphicLibrary
                             RangeType = DescriptorRangeType.ShaderResourceView,
                             BaseShaderRegister = 0,
                             RegisterSpace = 0,
-                            OffsetInDescriptorsFromTableStart = 1,
+                            OffsetInDescriptorsFromTableStart = ConstantBufferViewCount,
                             DescriptorCount = ShaderResourceViewCount
-                        })
+                        }),
+                        
             },
             new StaticSamplerDescription[]
             {
@@ -201,7 +206,7 @@ namespace GraphicLibrary
               {
                     new InputElement("POSITION", 0, Format.R32G32B32_SInt,0,0),
                     new InputElement("COLOR", 0, Format.R32G32B32A32_Float,12,0),
-                    new InputElement("TEXCOORD", 0, Format.R32G32_Float,28,0)
+                    new InputElement("TEXCOORD", 0, Format.R32G32_Float,28,0),                    
               };
 
             RasterizerStateDescription rasterizerStateDesc = new RasterizerStateDescription()
@@ -342,6 +347,7 @@ namespace GraphicLibrary
                 };
 
                 CommandAllocator bundleAllocator = device.CreateCommandAllocator(CommandListType.Bundle);
+
                 bundles[i] = device.CreateCommandList(0, CommandListType.Bundle, bundleAllocator, graphicPLState);
                 //bundles[i].SetGraphicsRootSignature(graphicRootSignature);
                 bundles[i].PrimitiveTopology = data.VerteicesData[i].PrimitiveTopology;
@@ -351,10 +357,7 @@ namespace GraphicLibrary
                 bundles[i].Close();
             }
 
-            ptr = constantBuffer[0].Map(0);
-            Utilities.Write(ptr, new ArFloatMatrix44[] { transformMatrix[0] }, 0, 1);
-            constantBuffer[0].Unmap(0);
-
+            
         }
 
         public void Update()
@@ -381,11 +384,19 @@ namespace GraphicLibrary
             commandList.ClearRenderTargetView(rtvHandle, new Color4(backgroundColor.X, backgroundColor.Y, backgroundColor.Z, backgroundColor.W), 0, null);
                         
             for (int i = 0; i < bundles.Length; i++)
+            {
+                //ptr = constantBuffer[0].Map(0);
+                //Utilities.Write(ptr, new ArFloatMatrix44[] { transformMatrix[0] }, 0, 1);
+                //constantBuffer[0].Unmap(0);
+                //commandAllocator.Reset();
                 commandList.ExecuteBundle(bundles[i]);
+                //commandList.SetGraphicsRootConstantBufferView()
+            
+            }
             commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
             commandList.Close();
-
             commandQueue.ExecuteCommandList(commandList);
+
             swapChain.Present(1, 0);
 
             int localFence = fenceValue;

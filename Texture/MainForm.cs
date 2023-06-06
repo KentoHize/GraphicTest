@@ -9,6 +9,7 @@ namespace Texture
     public partial class MainForm : Form
     {
         const string textureFile = @"C:\Programs\GraphicTest\Texture\Texture\AnnetteSquare.bmp";
+        const string textureFile2 = @"C:\Programs\GraphicTest\Texture\Texture\ClacierSquare.bmp";
 
         SharpDXEngine sde;
         public MainForm()
@@ -37,6 +38,12 @@ namespace Texture
                         Data = Ar3DMachine.LoadBitmapFromFile(textureFile, out int width, out int height),
                         Width = width,
                         Height = height
+                    },
+                    new SharpDXTextureData
+                    {
+                        Data = Ar3DMachine.LoadBitmapFromFile(textureFile2, out int width2, out int height2),
+                        Width = width2,
+                        Height = height2
                     }
                 }
             });
@@ -71,10 +78,10 @@ namespace Texture
                         PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.LineList,
                         ColorVertices = new ArColorVertex[]
                         {
-                            new ArColorVertex(-200, -200, 0, Color.Gold),
-                            new ArColorVertex(-200, 200, 0, Color.Gold),
-                            new ArColorVertex(-300, 200, 0, Color.Gold),
-                            new ArColorVertex(-300, -200, 0, Color.Gold),
+                            new ArColorVertex(-200, 0, 0, Color.Gold),
+                            new ArColorVertex(-200, 400, 0, Color.Gold),
+                            new ArColorVertex(-300, 400, 0, Color.Gold),
+                            new ArColorVertex(-300, 0, 0, Color.Gold),
                         },
                         Indices = new int[]
                         {
@@ -94,8 +101,24 @@ namespace Texture
                         Indices = new int[]
                         {
                             0, 1, 2, 0, 1, 3
-                        }
-                        
+                        },
+                        TextureIndex = 0
+                    },
+                    new SharpDXBundleData
+                    {
+                        PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
+                        MixVertices = new ArMixVertex[]
+                        {
+                            new ArMixVertex(-200, -100, 0, 1, 0),
+                            new ArMixVertex(-700, -700, 0, 0, 1),
+                            new ArMixVertex(-200, -700, 0, 1, 1),
+                            new ArMixVertex(-700, -100, 0, 0, 0),
+                        },
+                        Indices = new int[]
+                        {
+                            0, 1, 2, 0, 1, 3
+                        },
+                        TextureIndex = 1
                     }
                 }
 
