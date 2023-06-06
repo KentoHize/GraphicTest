@@ -164,11 +164,7 @@ namespace GraphicLibrary
 
                 device.CreateConstantBufferView(cbvDesc, cruHandle);
                 cruHandle += cruDescriptorSize;
-            }
-
-            ptr = constantBuffer[0].Map(0);
-            Utilities.Write(ptr, new ArFloatMatrix44[] { transformMatrix[0] }, 0, 1);
-            constantBuffer[0].Unmap(0);
+            }        
 
             var rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout,
             new RootParameter[]
@@ -286,6 +282,8 @@ namespace GraphicLibrary
                 device.CreateShaderResourceView(texture, srvDesc, cruHandle);
                 cruHandle += cruDescriptorSize;
             }
+           
+
             commandList.Close();
             commandQueue.ExecuteCommandList(commandList);
         }
@@ -299,6 +297,8 @@ namespace GraphicLibrary
             indicesBuffer = new Resource[data.VerteicesData.Length];
             transformMatrix = new ArFloatMatrix44[data.VerteicesData.Length];           
             bundles = new GraphicsCommandList[data.VerteicesData.Length];
+         
+
             for (int i = 0; i < data.VerteicesData.Length; i++)
             {
                 int dataSize;
@@ -357,7 +357,9 @@ namespace GraphicLibrary
                 bundles[i].Close();
             }
 
-            
+            ptr = constantBuffer[0].Map(0);
+            Utilities.Write(ptr, new ArFloatMatrix44[] { transformMatrix[0] }, 0, 1);
+            constantBuffer[0].Unmap(0);
         }
 
         public void Update()

@@ -146,7 +146,7 @@ namespace ReplaceHeap
             //};
 
             //Stopwatch sw = Stopwatch.StartNew();
-            sde.Load(data);
+            sde.LoadData(data);
             //sw.Stop();
             //Debug.WriteLine($"Load Data:{sw.ElapsedMilliseconds}");
             //sw.Restart();

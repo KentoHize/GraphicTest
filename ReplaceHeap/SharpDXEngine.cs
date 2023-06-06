@@ -119,11 +119,15 @@ namespace ReplaceHeap
                 device.CreateRenderTargetView(renderTargets[n], null, rtvHandle);                
                 rtvHandle += rtvDescriptorSize;
             }
+            //fence = device.CreateFence(0, FenceFlags.None);
+            //fenceValue = 1;
+            //fenceEvent = new AutoResetEvent(false);
         }
 
+        
+
         public void LoadStaticData(SharpDXStaticData data)
-        {
-            
+        {            
             var cbvHeapDesc = new DescriptorHeapDescription()
             {
                 DescriptorCount = ConstantBufferViewCount + ShaderResourceViewCount,
@@ -166,11 +170,55 @@ namespace ReplaceHeap
 
         public void Render()
         {
+            commandAllocator.Reset();
+            commandList.Reset(commandAllocator, graphicPLState);
+            commandList.SetGraphicsRootSignature(graphicRootSignature);
 
+            commandList.SetViewport(viewport);
+            commandList.SetScissorRectangles(new SharpDX.Mathematics.Interop.RawRectangle(0, 0, (int)viewport.Width, (int)viewport.Height));
+
+            commandList.SetDescriptorHeaps(new DescriptorHeap[] { constantBufferViewHeap });
+            commandList.SetGraphicsRootDescriptorTable(0, constantBufferViewHeap.GPUDescriptorHandleForHeapStart);
+
+            CpuDescriptorHandle rtvHandle = renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
+            rtvHandle += frameIndex * rtvDescriptorSize;
+            commandList.SetRenderTargets(rtvHandle, null);
+            commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
+            commandList.ClearRenderTargetView(rtvHandle, new Color4(backgroundColor.X, backgroundColor.Y, backgroundColor.Z, backgroundColor.W), 0, null);
+
+            for (int i = 0; i < bundles.Length; i++)
+            {
+                //ptr = constantBuffer[0].Map(0);
+                //Utilities.Write(ptr, new ArFloatMatrix44[] { transformMatrix[0] }, 0, 1);
+                //constantBuffer[0].Unmap(0);
+                //commandAllocator.Reset();
+                commandList.ExecuteBundle(bundles[i]);
+                //commandList.SetGraphicsRootConstantBufferView()
+
+            }
+            commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
+            commandList.Close();
+            commandQueue.ExecuteCommandList(commandList);
+
+            swapChain.Present(1, 0);
+
+            int localFence = fenceValue;
+            commandQueue.Signal(fence, localFence);
+            fenceValue++;
+
+            if (fence.CompletedValue < localFence)
+            {
+                fence.SetEventOnCompletion(localFence, fenceEvent.SafeWaitHandle.DangerousGetHandle());
+                fenceEvent.WaitOne();
+            }
+
+            frameIndex = swapChain.CurrentBackBufferIndex;
         }
 
         public void Close()
         {
+            if(fence != null)
+                fence.Dispose();
             for(int i = 0; i < renderTargets.Length; i++)
                 renderTargets[i].Dispose();
             renderTargetViewHeap.Dispose();
