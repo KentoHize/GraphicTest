@@ -28,8 +28,7 @@ namespace ReplaceHeap
             sde.LoadSetting(setting);
             sde.Close();
 
-            sde.LoadSetting(setting);
-            sde.Close();
+            sde.LoadSetting(setting);            
             sde.LoadStaticData(new SharpDXStaticData
             {
                 Textures = new SharpDXTextureData[]
@@ -154,6 +153,7 @@ namespace ReplaceHeap
             //Debug.WriteLine($"Render:{sw.ElapsedMilliseconds}");
 
             sde.Render();
+            sde.Close();
         }
     }
 }

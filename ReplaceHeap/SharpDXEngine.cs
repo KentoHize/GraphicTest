@@ -124,10 +124,9 @@ namespace ReplaceHeap
             //fenceEvent = new AutoResetEvent(false);
         }
 
-        
 
-        public void LoadStaticData(SharpDXStaticData data)
-        {            
+        protected void CreateConstantBuffer()
+        {
             var cbvHeapDesc = new DescriptorHeapDescription()
             {
                 DescriptorCount = ConstantBufferViewCount + ShaderResourceViewCount,
@@ -137,24 +136,25 @@ namespace ReplaceHeap
             constantBufferViewHeap = device.CreateDescriptorHeap(cbvHeapDesc);
 
             cruDescriptorSize = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
-
             cruHandle = constantBufferViewHeap.CPUDescriptorHandleForHeapStart;
             constantBuffer = new Resource[ConstantBufferViewCount];
-            for (int i = 0; i < ConstantBufferViewCount; i++)
+            
+            constantBuffer[0] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.GenericRead);
+            var cbvDesc = new ConstantBufferViewDescription()
             {
-                constantBuffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.GenericRead);
-                var cbvDesc = new ConstantBufferViewDescription()
-                {
-                    BufferLocation = constantBuffer[i].GPUVirtualAddress,
-                    SizeInBytes = (Utilities.SizeOf<ArFloatMatrix44>() + 255) & ~255
-                };
+                BufferLocation = constantBuffer[0].GPUVirtualAddress,
+                SizeInBytes = (Utilities.SizeOf<int>() + 255) & ~255
+            };
+            device.CreateConstantBufferView(cbvDesc, cruHandle);
+            cruHandle += cruDescriptorSize;
+        }
 
-                device.CreateConstantBufferView(cbvDesc, cruHandle);
-                cruHandle += cruDescriptorSize;
-            }
+        public void LoadStaticData(SharpDXStaticData data)
+        {
+            CreateConstantBuffer();
 
             ptr = constantBuffer[0].Map(0);
-            Utilities.Write(ptr, new ArFloatMatrix44[] { transformMatrix[0] }, 0, 1);
+            Utilities.Write(ptr, new int[] { 1 }, 0, 1);
             constantBuffer[0].Unmap(0);
         }
 

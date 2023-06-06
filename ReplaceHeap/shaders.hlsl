@@ -23,6 +23,6 @@ PSInput VSMain(int3 position : POSITION, float4 color : COLOR)
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
-    return flaot4(ds.textureIndex, 0, 0, 1);
+    return float4((float)ds.textureIndex, 0, 0, 1);
     return input.color;
 }
