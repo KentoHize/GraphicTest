@@ -67,6 +67,10 @@ namespace ReplaceHeap
                         {
                             0, 1, 2, 1, 2, 3
                         },
+                        TransformMartrix = Ar3DMachine.ProduceTransformMatrix(
+                                        new ArIntVector3(0, 0, 0),
+                                        new ArFloatVector3(0, 0, 0),
+                                        new ArFloatVector3(1, 1, 1)),
                         TextureIndex = 0
                     }
                 }
