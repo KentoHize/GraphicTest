@@ -7,8 +7,8 @@ namespace ReplaceHeap
     public partial class MainForm : Form
     {
         SharpDXEngine sde;
-        const string textureFile = @"C:\Programs\GraphicTest\Texture\Texture\AnnetteSquare.bmp";
-        const string textureFile2 = @"C:\Programs\GraphicTest\Texture\Texture\ClacierSquare.bmp";
+        const string textureFile = @"C:\Programs\GraphicTest\ReplaceHeap\Texture\AnnetteSquare.bmp";
+        const string textureFile2 = @"C:\Programs\GraphicTest\ReplaceHeap\Texture\ClacierSquare.bmp";
         public MainForm()
         {
             InitializeComponent();
@@ -71,7 +71,27 @@ namespace ReplaceHeap
                                         new ArIntVector3(0, 0, 0),
                                         new ArFloatVector3(0, 0, 0),
                                         new ArFloatVector3(1, 1, 1)),
-                        TextureIndex = 0
+                        TextureIndex = 1
+                    },
+                    new SharpDXBundleData
+                    {
+                        PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
+                        TextureVertices = new ArTextureVertex[]
+                        {
+                            new ArTextureVertex(0, 0, 0, 0, 0),
+                            new ArTextureVertex(-512, 0, 0, 1, 0),
+                            new ArTextureVertex(0, -512, 0, 0, 1),
+                            new ArTextureVertex(-512, -512, 0, 1, 1)
+                        },
+                        Indices = new int[]
+                        {
+                            0, 1, 2, 1, 2, 3
+                        },
+                        TransformMartrix = Ar3DMachine.ProduceTransformMatrix(
+                                        new ArIntVector3(-200, 0, 0),
+                                        new ArFloatVector3(0, 0, 0),
+                                        new ArFloatVector3(1, 1, 1)),
+                        TextureIndex = 1
                     }
                 }
             };

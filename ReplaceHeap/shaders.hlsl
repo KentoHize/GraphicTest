@@ -10,6 +10,7 @@ struct DrawingSetting
 };
 ConstantBuffer<DrawingSetting> ds : register(b1);
 
+
 SamplerState normal_sampler : register(s0);
 
 struct PSInput
@@ -23,8 +24,10 @@ PSInput VSMain(int3 position : POSITION, float3 normal : NORMAL, float2 uv : TEX
 {
 	PSInput result;   
     int4 p = int4(position[0], position[1], position[2], 1);
-    float4 p2 = mul(p, tm.transformMatrix);
-    //float4 p2 = asfloat(p);
+    float4 p2;
+    float4x4 normalTF = float4x4(0.001, 0, 0, 0, 0, 0.001, 0, 0, 0, 0, 0.001, 0, 0, 0, 0, 1);
+    p2 = mul(p, tm.transformMatrix);
+    //p2 = mul(p, normalTF);
     result.position = p2;    
     result.uv = uv;
 	return result;
