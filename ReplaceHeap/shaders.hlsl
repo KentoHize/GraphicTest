@@ -10,6 +10,8 @@ struct DrawingSetting
 };
 ConstantBuffer<DrawingSetting> ds : register(b1);
 
+Texture2D t2d_Annette : register(t0);
+Texture2D t2d_Clacier : register(t1);
 
 SamplerState normal_sampler : register(s0);
 
@@ -36,5 +38,10 @@ PSInput VSMain(int3 position : POSITION, float3 normal : NORMAL, float2 uv : TEX
 float4 PSMain(PSInput input) : SV_TARGET
 {
     //return float4(1, 0, 0, 0);
-    return float4((float)ds.textureIndex, 0, 0, 1);    
+    //return float4((float)ds.textureIndex, 0, 0, 1);
+    //return 
+    if(ds.textureIndex == 0)
+        return t2d_Annette.Sample(normal_sampler, input.uv);
+    else
+        return t2d_Clacier.Sample(normal_sampler, input.uv);
 }

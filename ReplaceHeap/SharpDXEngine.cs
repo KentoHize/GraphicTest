@@ -23,7 +23,7 @@ namespace ReplaceHeap
     {
         public int FrameCount { get; private set; }
         public int ConstantBufferViewCount = 2;
-        public int ShaderResourceViewCount = 0;
+        public int ShaderResourceViewCount = 2;
 
         Device device;
         SwapChain3 swapChain;
@@ -39,6 +39,7 @@ namespace ReplaceHeap
         DescriptorHeap renderTargetViewHeap;
         DescriptorHeap constantBufferViewHeap;
         DescriptorHeap constantBufferViewHeap2;
+        DescriptorHeap shaderResourceViewHeap;
         int rtvDescriptorSize;
         int cruDescriptorSize;
         CpuDescriptorHandle cruHandle;
@@ -64,7 +65,9 @@ namespace ReplaceHeap
         Resource[] constantBuffer;
         Resource[] constantBuffer2;
         Resource[] shaderResource;
-        
+
+        Resource texture;
+
         internal Dictionary<ShaderType, ShaderFileInfo> ShaderFiles { get; set; }
 
         public void Initialize()
@@ -141,15 +144,15 @@ namespace ReplaceHeap
                                 RegisterSpace = 0,
                                 OffsetInDescriptorsFromTableStart = 0,
                                 DescriptorCount =  ConstantBufferViewCount
+                            },
+                            new DescriptorRange()
+                            {
+                                RangeType = DescriptorRangeType.ShaderResourceView,
+                                BaseShaderRegister = 0,
+                                RegisterSpace = 0,
+                                OffsetInDescriptorsFromTableStart = ConstantBufferViewCount,
+                                DescriptorCount =  ShaderResourceViewCount
                             }
-                            //new DescriptorRange
-                            //{
-                            //    RangeType = DescriptorRangeType.ShaderResourceView,
-                            //    BaseShaderRegister = 0,
-                            //    RegisterSpace = 0,
-                            //    OffsetInDescriptorsFromTableStart = ConstantBufferViewCount,
-                            //    DescriptorCount = ShaderResourceViewCount
-                            //},
                 ) },
               //new RootParameter[] { },
               new StaticSamplerDescription[]
@@ -218,7 +221,7 @@ namespace ReplaceHeap
         }
 
 
-        protected void CreateConstantBuffer()
+        protected void CreateConstantBuffer(SharpDXStaticData data)
         {
             var cbvHeapDesc = new DescriptorHeapDescription()
             {
@@ -248,13 +251,37 @@ namespace ReplaceHeap
             };
             device.CreateConstantBufferView(cbvDesc, cruHandle);
             cruHandle += cruDescriptorSize;
-           
+
+            shaderResource = new Resource[ShaderResourceViewCount];
+            for (int i = 0; i < 2; i++)
+            {
+                var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[i].Width, data.Textures[i].Height);
+                texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
+                long uploadBufferSize = GetRequiredIntermediateSize(texture, 0, 1);
+                var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[i].Width, data.Textures[i].Height), ResourceStates.GenericRead);
+                var handle = GCHandle.Alloc(data.Textures[i].Data, GCHandleType.Pinned);
+                ptr = Marshal.UnsafeAddrOfPinnedArrayElement(data.Textures[i].Data, 0);
+                textureUploadHeap.WriteToSubresource(0, null, ptr, 4 * data.Textures[i].Width, data.Textures[i].Data.Length);
+                handle.Free();
+                commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(textureUploadHeap, 0), null);
+                commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
+                var srvDesc = new ShaderResourceViewDescription
+                {
+                    Shader4ComponentMapping = D3DXUtilities.DefaultComponentMapping(),
+                    Format = textureDesc.Format,
+                    Dimension = ShaderResourceViewDimension.Texture2D,
+                    Texture2D = { MipLevels = 1 },
+                };
+                device.CreateShaderResourceView(texture, srvDesc, cruHandle);
+                cruHandle += cruDescriptorSize;
+            }
+            
             constantBufferViewHeap2 = device.CreateDescriptorHeap(cbvHeapDesc);
             cruHandle = constantBufferViewHeap2.CPUDescriptorHandleForHeapStart;
             constantBuffer2 = new Resource[ConstantBufferViewCount];
 
             constantBuffer2[0] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.GenericRead);
-            constantBuffer2[1] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.GenericRead);            
+            constantBuffer2[1] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.GenericRead);
 
             cbvDesc = new ConstantBufferViewDescription()
             {
@@ -272,6 +299,43 @@ namespace ReplaceHeap
             };
             device.CreateConstantBufferView(cbvDesc, cruHandle);
             cruHandle += cruDescriptorSize;
+
+            for (int i = 0; i < 2; i++)
+            {
+                var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[i].Width, data.Textures[i].Height);
+                texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
+                //long uploadBufferSize = GetRequiredIntermediateSize(texture, 0, 1);
+                var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[i].Width, data.Textures[i].Height), ResourceStates.GenericRead);
+                var handle = GCHandle.Alloc(data.Textures[i].Data, GCHandleType.Pinned);
+                ptr = Marshal.UnsafeAddrOfPinnedArrayElement(data.Textures[i].Data, 0);
+                textureUploadHeap.WriteToSubresource(0, null, ptr, 4 * data.Textures[i].Width, data.Textures[i].Data.Length);
+                handle.Free();
+                commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(textureUploadHeap, 0), null);
+                commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
+                var srvDesc = new ShaderResourceViewDescription
+                {
+                    Shader4ComponentMapping = D3DXUtilities.DefaultComponentMapping(),
+                    Format = textureDesc.Format,
+                    Dimension = ShaderResourceViewDimension.Texture2D,
+                    Texture2D = { MipLevels = 1 },
+                };
+                device.CreateShaderResourceView(texture, srvDesc, cruHandle);
+                cruHandle += cruDescriptorSize;
+            }
+        }
+
+        public void CreateShadowResourceBuffer(SharpDXStaticData data)
+        {
+            //var srvHeapDesc = new DescriptorHeapDescription()
+            //{
+            //    DescriptorCount = ShaderResourceViewCount,
+            //    Flags = DescriptorHeapFlags.ShaderVisible,
+            //    Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView
+            //};
+            //shaderResourceViewHeap = device.CreateDescriptorHeap(srvHeapDesc);
+            //cruHandle = shaderResourceViewHeap.CPUDescriptorHandleForHeapStart;
+
+           
         }
 
         public void LoadStaticData(SharpDXStaticData data)
@@ -279,8 +343,8 @@ namespace ReplaceHeap
             commandAllocator = device.CreateCommandAllocator(CommandListType.Direct);
             commandList = device.CreateCommandList(CommandListType.Direct, commandAllocator, graphicPLState);
 
-            CreateConstantBuffer();// Can Improve
-
+            CreateConstantBuffer(data);// Can Improve
+            //CreateShadowResourceBuffer(data);
             commandList.Close();
             commandQueue.ExecuteCommandList(commandList);
         }
@@ -382,9 +446,8 @@ namespace ReplaceHeap
 
             commandList.SetViewport(viewport);
             commandList.SetScissorRectangles(new SharpDX.Mathematics.Interop.RawRectangle(0, 0, (int)viewport.Width, (int)viewport.Height));
-           
             commandList.SetGraphicsRootDescriptorTable(0, constantBufferViewHeap.GPUDescriptorHandleForHeapStart);
-            commandList.SetDescriptorHeaps(new DescriptorHeap[] { constantBufferViewHeap });
+
             CpuDescriptorHandle rtvHandle = renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
             rtvHandle += frameIndex * rtvDescriptorSize;
             commandList.SetRenderTargets(rtvHandle, null);
@@ -394,7 +457,9 @@ namespace ReplaceHeap
 
             for (int i = 0; i < bundles.Length; i++)
             {   
-                if(i == 1)
+                if(i == 0)
+                    commandList.SetDescriptorHeaps(new DescriptorHeap[] { constantBufferViewHeap });
+                else
                     commandList.SetDescriptorHeaps(new DescriptorHeap[] { constantBufferViewHeap2 });
                 commandList.ExecuteBundle(bundles[i]);
             }
@@ -402,7 +467,6 @@ namespace ReplaceHeap
             commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
             commandList.Close();
             commandQueue.ExecuteCommandList(commandList);
-            // GetDeviceRemovedReason
             swapChain.Present(1, 0);
 
             int localFence = fenceValue;
@@ -434,6 +498,39 @@ namespace ReplaceHeap
         public void Dispose()
         {
             Close();
+        }
+
+        public long GetRequiredIntermediateSize(Resource destinationResource, int firstSubresource, int subresourcesCount)
+        {
+            ResourceDescription desc = destinationResource.Description;
+            device.GetCopyableFootprints(ref desc, firstSubresource, subresourcesCount, 0, null, null, null, out long requiredSize);
+            return requiredSize;
+        }
+    }
+
+    public class D3DXUtilities
+    {
+
+        public const int ComponentMappingMask = 0x7;
+        public const int ComponentMappingShift = 3;
+        public const int ComponentMappingAlwaysSetBitAvoidingZeromemMistakes = (1 << (ComponentMappingShift * 4));
+        public static int ComponentMapping(int src0, int src1, int src2, int src3)
+        {
+            return ((((src0) & ComponentMappingMask) |
+            (((src1) & ComponentMappingMask) << ComponentMappingShift) |
+                                                                (((src2) & ComponentMappingMask) << (ComponentMappingShift * 2)) |
+                                                                (((src3) & ComponentMappingMask) << (ComponentMappingShift * 3)) |
+                                                                ComponentMappingAlwaysSetBitAvoidingZeromemMistakes));
+        }
+
+        public static int DefaultComponentMapping()
+        {
+            return ComponentMapping(0, 1, 2, 3);
+        }
+
+        public static int ComponentMapping(int ComponentToExtract, int Mapping)
+        {
+            return ((Mapping >> (ComponentMappingShift * ComponentToExtract) & ComponentMappingMask));
         }
     }
 }

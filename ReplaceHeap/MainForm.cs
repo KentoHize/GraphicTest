@@ -19,7 +19,7 @@ namespace ReplaceHeap
         {
             SharpDXSetting setting = new SharpDXSetting
             {
-                CullTwoFace = true,
+                CullTwoFace = false,
                 Handle = pibMain.Handle,
                 FrameCount = 2,
                 Viewport = new SharpDX.ViewportF(0, 0, pibMain.ClientSize.Width, pibMain.ClientSize.Height)
@@ -58,20 +58,20 @@ namespace ReplaceHeap
                         PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
                         TextureVertices = new ArTextureVertex[]
                         {
-                            new ArTextureVertex(0, 0, 0, 0, 0),
-                            new ArTextureVertex(512, 0, 0, 1, 0),
-                            new ArTextureVertex(0, 512, 0, 0, 1),
-                            new ArTextureVertex(512, 512, 0, 1, 1)
+                            new ArTextureVertex(0, 0, 0, 1, 1),
+                            new ArTextureVertex(512, 0, 0, 0, 1),
+                            new ArTextureVertex(0, 512, 0, 1, 0),
+                            new ArTextureVertex(512, 512, 0, 0, 0)
                         },
                         Indices = new int[]
                         {
-                            0, 1, 2, 1, 2, 3
+                            1, 0, 2, 1, 2, 3
                         },
                         TransformMartrix = Ar3DMachine.ProduceTransformMatrix(
                                         new ArIntVector3(0, 0, 0),
                                         new ArFloatVector3(0, 0, 0),
                                         new ArFloatVector3(1, 1, 1)),
-                        TextureIndex = 1
+                        TextureIndex = 0
                     },
                     new SharpDXBundleData
                     {
@@ -85,7 +85,7 @@ namespace ReplaceHeap
                         },
                         Indices = new int[]
                         {
-                            0, 1, 2, 1, 2, 3
+                            1, 0, 2, 1, 2, 3
                         },
                         TransformMartrix = Ar3DMachine.ProduceTransformMatrix(
                                         new ArIntVector3(-200, 0, 0),
