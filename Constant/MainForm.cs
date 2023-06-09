@@ -1,14 +1,14 @@
 using GraphicLibrary.Items;
 using GraphicLibrary;
-using System.Diagnostics;
 
-namespace ReplaceHeap
+namespace Constant
 {
     public partial class MainForm : Form
     {
+        const string textureFile = @"C:\Programs\GraphicTest\Texture\Texture\AnnetteSquare.bmp";
+        const string textureFile2 = @"C:\Programs\GraphicTest\Texture\Texture\ClacierSquare.bmp";
         SharpDXEngine sde;
-        const string textureFile = @"C:\Programs\GraphicTest\ReplaceHeap\Texture\AnnetteSquare.bmp";
-        const string textureFile2 = @"C:\Programs\GraphicTest\ReplaceHeap\Texture\ClacierSquare.bmp";
+
         public MainForm()
         {
             InitializeComponent();
@@ -23,12 +23,11 @@ namespace ReplaceHeap
                 Handle = pibMain.Handle,
                 FrameCount = 2,
                 Viewport = new SharpDX.ViewportF(0, 0, pibMain.ClientSize.Width, pibMain.ClientSize.Height)
-            };
-            sde.Initialize();
+            };            
             sde.LoadSetting(setting);
             sde.Close();
 
-            sde.LoadSetting(setting);            
+            sde.LoadSetting(setting);
             sde.LoadStaticData(new SharpDXStaticData
             {
                 Textures = new SharpDXTextureData[]
@@ -51,6 +50,10 @@ namespace ReplaceHeap
             SharpDXData data = new SharpDXData
             {
                 BackgroundColor = Color.Black.ToArFloatVector4(),
+                TransformMartrix = Ar3DMachine.ProduceTransformMatrix(
+                                        new ArIntVector3(0, 0, 0),
+                                        new ArFloatVector3(0, 0, 0),
+                                        new ArFloatVector3(1, 1, 1)),
                 VerticesData = new SharpDXBundleData[]
                 {
                     new SharpDXBundleData
@@ -67,10 +70,6 @@ namespace ReplaceHeap
                         {
                             1, 0, 2, 1, 2, 3
                         },
-                        TransformMartrix = Ar3DMachine.ProduceTransformMatrix(
-                                        new ArIntVector3(0, 0, 0),
-                                        new ArFloatVector3(0, 0, 0),
-                                        new ArFloatVector3(1, 1, 1)),
                         TextureIndex = 0
                     },
                     new SharpDXBundleData
@@ -87,26 +86,11 @@ namespace ReplaceHeap
                         {
                             1, 0, 2, 1, 2, 3
                         },
-                        TransformMartrix = Ar3DMachine.ProduceTransformMatrix(
-                                        new ArIntVector3(-200, 0, 0),
-                                        new ArFloatVector3(0, 0, 0),
-                                        new ArFloatVector3(1, 1, 1)),
                         TextureIndex = 1
                     }
                 }
             };
-           
-     
-            //Stopwatch sw = Stopwatch.StartNew();
-            sde.LoadData(data);
-            //sw.Stop();
-            //Debug.WriteLine($"Load Data:{sw.ElapsedMilliseconds}");
-            //sw.Restart();
-            //sde.Render();
-            //Debug.WriteLine($"Render:{sw.ElapsedMilliseconds}");
-
             sde.Render();
-            sde.Close();
         }
     }
 }

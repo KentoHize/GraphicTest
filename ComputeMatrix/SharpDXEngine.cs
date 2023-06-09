@@ -230,22 +230,22 @@ namespace GraphicLibrary
         public void Load(SharpDXData data)
         {   
             backgroundColor = data.BackgroundColor;
-            verticesBufferView = new VertexBufferView[data.VerteicesData.Length];
-            verticesBuffer = new Resource[data.VerteicesData.Length];
-            indicesBufferView = new IndexBufferView[data.VerteicesData.Length];
-            indicesBuffer = new Resource[data.VerteicesData.Length];
-            transformMatrix = new ArFloatMatrix44[data.VerteicesData.Length];           
-            bundles = new GraphicsCommandList[data.VerteicesData.Length];
-            for (int i = 0; i < data.VerteicesData.Length; i++)
+            verticesBufferView = new VertexBufferView[data.VerticesData.Length];
+            verticesBuffer = new Resource[data.VerticesData.Length];
+            indicesBufferView = new IndexBufferView[data.VerticesData.Length];
+            indicesBuffer = new Resource[data.VerticesData.Length];
+            transformMatrix = new ArFloatMatrix44[data.VerticesData.Length];           
+            bundles = new GraphicsCommandList[data.VerticesData.Length];
+            for (int i = 0; i < data.VerticesData.Length; i++)
             {
-                transformMatrix[i] = data.VerteicesData[i].TransformMartrix;
+                transformMatrix[i] = data.VerticesData[i].TransformMartrix;
 
-                if (data.VerteicesData[i].ColorVertices.Length > 0)
+                if (data.VerticesData[i].ColorVertices.Length > 0)
                 {
-                    int verticesBufferSize = Utilities.SizeOf(data.VerteicesData[i].ColorVertices);
+                    int verticesBufferSize = Utilities.SizeOf(data.VerticesData[i].ColorVertices);
                     verticesBuffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(verticesBufferSize), ResourceStates.GenericRead);
                     IntPtr pVertexDataBegin = verticesBuffer[i].Map(0);
-                    Utilities.Write(pVertexDataBegin, data.VerteicesData[i].ColorVertices, 0, data.VerteicesData[i].ColorVertices.Length);
+                    Utilities.Write(pVertexDataBegin, data.VerticesData[i].ColorVertices, 0, data.VerticesData[i].ColorVertices.Length);
                     verticesBuffer[i].Unmap(0);
 
                     verticesBufferView[i] = new VertexBufferView
@@ -255,10 +255,10 @@ namespace GraphicLibrary
                         SizeInBytes = verticesBufferSize
                     };
 
-                    int indicesBufferSize = Utilities.SizeOf(data.VerteicesData[i].Indices);
+                    int indicesBufferSize = Utilities.SizeOf(data.VerticesData[i].Indices);
                     indicesBuffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(indicesBufferSize), ResourceStates.GenericRead);
                     pVertexDataBegin = indicesBuffer[i].Map(0);
-                    Utilities.Write(pVertexDataBegin, data.VerteicesData[i].Indices, 0, data.VerteicesData[i].Indices.Length);
+                    Utilities.Write(pVertexDataBegin, data.VerticesData[i].Indices, 0, data.VerticesData[i].Indices.Length);
                     indicesBuffer[i].Unmap(0);
                     indicesBufferView[i] = new IndexBufferView
                     {
@@ -271,10 +271,10 @@ namespace GraphicLibrary
                 CommandAllocator bundleAllocator = device.CreateCommandAllocator(CommandListType.Bundle);
                 bundles[i] = device.CreateCommandList(0, CommandListType.Bundle, bundleAllocator, graphicPLState);
                 //bundles[i].SetGraphicsRootSignature(graphicRootSignature);
-                bundles[i].PrimitiveTopology = data.VerteicesData[i].PrimitiveTopology;
+                bundles[i].PrimitiveTopology = data.VerticesData[i].PrimitiveTopology;
                 bundles[i].SetVertexBuffer(0, verticesBufferView[i]);
                 bundles[i].SetIndexBuffer(indicesBufferView[i]);
-                bundles[i].DrawIndexedInstanced(data.VerteicesData[i].Indices.Length, 1, 0, 0, 0);
+                bundles[i].DrawIndexedInstanced(data.VerticesData[i].Indices.Length, 1, 0, 0, 0);
                 bundles[i].Close();
             }
 

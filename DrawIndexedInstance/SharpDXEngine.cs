@@ -196,16 +196,16 @@ namespace GraphicLibrary
         public void Load(SharpDXData data)
         {
             backgroundColor = data.BackgroundColor;
-            verticesBufferView = new VertexBufferView[data.VerteicesData.Length];
-            verticesBuffer = new Resource[data.VerteicesData.Length];
-            indicesBufferView = new IndexBufferView[data.VerteicesData.Length];
-            indicesBuffer = new Resource[data.VerteicesData.Length];
-            for (int i = 0; i < data.VerteicesData.Length; i++)
+            verticesBufferView = new VertexBufferView[data.VerticesData.Length];
+            verticesBuffer = new Resource[data.VerticesData.Length];
+            indicesBufferView = new IndexBufferView[data.VerticesData.Length];
+            indicesBuffer = new Resource[data.VerticesData.Length];
+            for (int i = 0; i < data.VerticesData.Length; i++)
             {
-                int verticesBufferSize = Utilities.SizeOf(data.VerteicesData[i].ColorVertices);
+                int verticesBufferSize = Utilities.SizeOf(data.VerticesData[i].ColorVertices);
                 verticesBuffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(verticesBufferSize), ResourceStates.GenericRead);
                 IntPtr pVertexDataBegin = verticesBuffer[i].Map(0);
-                Utilities.Write(pVertexDataBegin, data.VerteicesData[i].ColorVertices, 0, data.VerteicesData[i].ColorVertices.Length);
+                Utilities.Write(pVertexDataBegin, data.VerticesData[i].ColorVertices, 0, data.VerticesData[i].ColorVertices.Length);
                 verticesBuffer[i].Unmap(0);
 
                 verticesBufferView[i] = new VertexBufferView
@@ -215,11 +215,11 @@ namespace GraphicLibrary
                     SizeInBytes = verticesBufferSize
                 };
 
-                int indicesBufferSize = Utilities.SizeOf(data.VerteicesData[i].Indices);
-                indicesCount = data.VerteicesData[i].Indices.Length;
+                int indicesBufferSize = Utilities.SizeOf(data.VerticesData[i].Indices);
+                indicesCount = data.VerticesData[i].Indices.Length;
                 indicesBuffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(indicesBufferSize), ResourceStates.GenericRead);
                 pVertexDataBegin = indicesBuffer[i].Map(0);
-                Utilities.Write(pVertexDataBegin, data.VerteicesData[i].Indices, 0, data.VerteicesData[i].Indices.Length);
+                Utilities.Write(pVertexDataBegin, data.VerticesData[i].Indices, 0, data.VerticesData[i].Indices.Length);
                 indicesBuffer[i].Unmap(0);
                 indicesBufferView[i] = new IndexBufferView
                 {

@@ -129,7 +129,7 @@ namespace GraphicLibrary
                 Flags = DescriptorHeapFlags.None,
                 Type = DescriptorHeapType.RenderTargetView
             };
-            renderTargetViewHeap = device.CreateDescriptorHeap(rtvHeapDesc);           
+            renderTargetViewHeap = device.CreateDescriptorHeap(rtvHeapDesc);
 
             rtvDescriptorSize = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.RenderTargetView);
             var rtvHandle = renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
@@ -282,7 +282,6 @@ namespace GraphicLibrary
                 device.CreateShaderResourceView(texture, srvDesc, cruHandle);
                 cruHandle += cruDescriptorSize;
             }
-           
 
             commandList.Close();
             commandQueue.ExecuteCommandList(commandList);
@@ -291,40 +290,39 @@ namespace GraphicLibrary
         public void Load(SharpDXData data)
         {   
             backgroundColor = data.BackgroundColor;
-            verticesBufferView = new VertexBufferView[data.VerteicesData.Length];
-            verticesBuffer = new Resource[data.VerteicesData.Length];
-            indicesBufferView = new IndexBufferView[data.VerteicesData.Length];
-            indicesBuffer = new Resource[data.VerteicesData.Length];
-            transformMatrix = new ArFloatMatrix44[data.VerteicesData.Length];           
-            bundles = new GraphicsCommandList[data.VerteicesData.Length];
-         
+            verticesBufferView = new VertexBufferView[data.VerticesData.Length];
+            verticesBuffer = new Resource[data.VerticesData.Length];
+            indicesBufferView = new IndexBufferView[data.VerticesData.Length];
+            indicesBuffer = new Resource[data.VerticesData.Length];
+            transformMatrix = new ArFloatMatrix44[data.VerticesData.Length];           
+            bundles = new GraphicsCommandList[data.VerticesData.Length];         
 
-            for (int i = 0; i < data.VerteicesData.Length; i++)
+            for (int i = 0; i < data.VerticesData.Length; i++)
             {
                 int dataSize;
-                if (data.VerteicesData[i].ColorVertices != null)
+                if (data.VerticesData[i].ColorVertices != null)
                     dataSize = ArColorVertex.ByteSize;
-                else if (data.VerteicesData[i].TextureVertices != null)
+                else if (data.VerticesData[i].TextureVertices != null)
                     dataSize = ArTextureVertex.ByteSize;
                 else
                     dataSize = ArMixVertex.ByteSize;
 
-                transformMatrix[i] = data.VerteicesData[i].TransformMartrix;
+                transformMatrix[i] = data.VerticesData[i].TransformMartrix;
                 int verticesBufferSize;                
-                if (data.VerteicesData[i].ColorVertices != null)
-                    verticesBufferSize = Utilities.SizeOf(data.VerteicesData[i].ColorVertices);
-                else if (data.VerteicesData[i].TextureVertices != null)
-                    verticesBufferSize = Utilities.SizeOf(data.VerteicesData[i].TextureVertices);
+                if (data.VerticesData[i].ColorVertices != null)
+                    verticesBufferSize = Utilities.SizeOf(data.VerticesData[i].ColorVertices);
+                else if (data.VerticesData[i].TextureVertices != null)
+                    verticesBufferSize = Utilities.SizeOf(data.VerticesData[i].TextureVertices);
                 else
-                    verticesBufferSize = Utilities.SizeOf(data.VerteicesData[i].MixVertices);                
+                    verticesBufferSize = Utilities.SizeOf(data.VerticesData[i].MixVertices);                
                 verticesBuffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(verticesBufferSize), ResourceStates.GenericRead);
                 IntPtr pVertexDataBegin = verticesBuffer[i].Map(0);
-                if (data.VerteicesData[i].ColorVertices != null)
-                    Utilities.Write(pVertexDataBegin, data.VerteicesData[i].ColorVertices, 0, data.VerteicesData[i].ColorVertices.Length);
-                else if (data.VerteicesData[i].TextureVertices != null)
-                    Utilities.Write(pVertexDataBegin, data.VerteicesData[i].TextureVertices, 0, data.VerteicesData[i].TextureVertices.Length);
+                if (data.VerticesData[i].ColorVertices != null)
+                    Utilities.Write(pVertexDataBegin, data.VerticesData[i].ColorVertices, 0, data.VerticesData[i].ColorVertices.Length);
+                else if (data.VerticesData[i].TextureVertices != null)
+                    Utilities.Write(pVertexDataBegin, data.VerticesData[i].TextureVertices, 0, data.VerticesData[i].TextureVertices.Length);
                 else
-                    Utilities.Write(pVertexDataBegin, data.VerteicesData[i].MixVertices, 0, data.VerteicesData[i].MixVertices.Length);
+                    Utilities.Write(pVertexDataBegin, data.VerticesData[i].MixVertices, 0, data.VerticesData[i].MixVertices.Length);
                     
                 verticesBuffer[i].Unmap(0);
                 verticesBufferView[i] = new VertexBufferView
@@ -334,10 +332,10 @@ namespace GraphicLibrary
                     SizeInBytes = verticesBufferSize
                 };
 
-                int indicesBufferSize = Utilities.SizeOf(data.VerteicesData[i].Indices);                
+                int indicesBufferSize = Utilities.SizeOf(data.VerticesData[i].Indices);                
                 indicesBuffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(indicesBufferSize), ResourceStates.GenericRead);
                 pVertexDataBegin = indicesBuffer[i].Map(0);
-                Utilities.Write(pVertexDataBegin, data.VerteicesData[i].Indices, 0, data.VerteicesData[i].Indices.Length);
+                Utilities.Write(pVertexDataBegin, data.VerticesData[i].Indices, 0, data.VerticesData[i].Indices.Length);
                 indicesBuffer[i].Unmap(0);
                 indicesBufferView[i] = new IndexBufferView
                 {
@@ -350,10 +348,10 @@ namespace GraphicLibrary
 
                 bundles[i] = device.CreateCommandList(0, CommandListType.Bundle, bundleAllocator, graphicPLState);
                 //bundles[i].SetGraphicsRootSignature(graphicRootSignature);
-                bundles[i].PrimitiveTopology = data.VerteicesData[i].PrimitiveTopology;
+                bundles[i].PrimitiveTopology = data.VerticesData[i].PrimitiveTopology;
                 bundles[i].SetVertexBuffer(0, verticesBufferView[i]);
                 bundles[i].SetIndexBuffer(indicesBufferView[i]);
-                bundles[i].DrawIndexedInstanced(data.VerteicesData[i].Indices.Length, 1, 0, 0, 0);
+                bundles[i].DrawIndexedInstanced(data.VerticesData[i].Indices.Length, 1, 0, 0, 0);
                 bundles[i].Close();
             }
 
@@ -382,7 +380,7 @@ namespace GraphicLibrary
             CpuDescriptorHandle rtvHandle = renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
             rtvHandle += frameIndex * rtvDescriptorSize;
             commandList.SetRenderTargets(rtvHandle, null);
-            commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
+            commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);            
             commandList.ClearRenderTargetView(rtvHandle, new Color4(backgroundColor.X, backgroundColor.Y, backgroundColor.Z, backgroundColor.W), 0, null);
                         
             for (int i = 0; i < bundles.Length; i++)

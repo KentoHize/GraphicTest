@@ -51,7 +51,7 @@ namespace Texture
             SharpDXData data = new SharpDXData
             {
                 BackgroundColor = Color.Black.ToArFloatVector4(),
-                VerteicesData = new SharpDXBundleData[]
+                VerticesData = new SharpDXBundleData[]
                 {
                     new SharpDXBundleData
                     {
