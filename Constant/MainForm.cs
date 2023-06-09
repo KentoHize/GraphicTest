@@ -90,6 +90,7 @@ namespace Constant
                     }
                 }
             };
+            sde.LoadData(data);
             sde.Render();
         }
     }
