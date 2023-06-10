@@ -12,9 +12,9 @@
 //ConstantBuffer<DrawingSetting> ds : register(b1);
 
 //Texture2D t2d_Annette : register(t0);
-//Texture2D t2d_Clacier : register(t1);
 
-//SamplerState normal_sampler : register(s0);
+
+
 #include "constant.hlsl"
 
 struct PSInput
@@ -39,15 +39,17 @@ PSInput VSMain(int3 position : POSITION, float2 uv : TEXCOORD)
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
+    return fontTexture.Sample(normal_sampler, input.uv);
+    //return float4(input.uv[0], input.uv[1], 0, 1);
     //return float4(1, 0, 0, 1);
     //return float4((float) sc.a / 255, (float) sc.b / 255, 0, 1);
     //return float4((float) sc.a / 255, (float) sc.b / 255, 1, 1);
   
     
     //return float4((float) sc.a / 255, (float) sc.b / 255, 1, 1);
-    return float4((float) sc.a / 255, (float) sc.b / 255, (float) ac.c / 255, (float) ac.d);
+    //return float4((float) sc.a / 255, (float) sc.b / 255, (float) ac.c / 255, (float) ac.d);
     
-    //return input.uv;
+    
     //if(ds.textureIndex == 0)
     //    return t2d_Annette.Sample(normal_sampler, input.uv);
     //else

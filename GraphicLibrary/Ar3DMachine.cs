@@ -27,6 +27,8 @@ namespace GraphicLibrary
         }
 
         public static long StaticScaleFactor = 1000;
+
+        public static int DefaultComponentMapping = 5768;
         //public static ArFloatVector3 MultiplyTransformMatrix(ArFloatVector3 position, ArFloatMatrix44 transformMatrix)
         //{
         //    ArFloatVector4 v4 = transformMatrix * new ArFloatVector4(position[0], position[1], position[2], 1);
@@ -71,6 +73,32 @@ namespace GraphicLibrary
             result[1, 3] = result[1, 3] + (float)((double)translateVector[1] / StaticScaleFactor);
             result[2, 3] = result[2, 3] + (float)((double)translateVector[2] / StaticScaleFactor);
             return result;
+        }
+    }
+
+    public class D3DXUtilities
+    {
+
+        public const int ComponentMappingMask = 0x7;
+        public const int ComponentMappingShift = 3;
+        public const int ComponentMappingAlwaysSetBitAvoidingZeromemMistakes = (1 << (ComponentMappingShift * 4));
+        public static int ComponentMapping(int src0, int src1, int src2, int src3)
+        {
+            return ((((src0) & ComponentMappingMask) |
+            (((src1) & ComponentMappingMask) << ComponentMappingShift) |
+                                                                (((src2) & ComponentMappingMask) << (ComponentMappingShift * 2)) |
+                                                                (((src3) & ComponentMappingMask) << (ComponentMappingShift * 3)) |
+                                                                ComponentMappingAlwaysSetBitAvoidingZeromemMistakes));
+        }
+
+        public static int DefaultComponentMapping()
+        {
+            return ComponentMapping(0, 1, 2, 3);
+        }
+
+        public static int ComponentMapping(int ComponentToExtract, int Mapping)
+        {
+            return ((Mapping >> (ComponentMappingShift * ComponentToExtract) & ComponentMappingMask));
         }
     }
 }

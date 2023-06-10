@@ -37,13 +37,7 @@ namespace Constant
                         Data = Ar3DMachine.LoadBitmapFromFile(textureFile, out int width, out int height),
                         Width = width,
                         Height = height
-                    },
-                    new SharpDXTextureData
-                    {
-                        Data = Ar3DMachine.LoadBitmapFromFile(textureFile2, out int width2, out int height2),
-                        Width = width2,
-                        Height = height2
-                    }
+                    }                    
                 }
             });
 

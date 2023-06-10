@@ -1,14 +1,19 @@
 ﻿using GraphicLibrary;
 using GraphicLibrary.Items;
 using SharpDX;
-
 using SharpDX.Direct3D12;
 using SharpDX.DXGI;
+using SharpDX.Direct2D1;
+using SharpDX.DirectWrite;
 using System.Runtime.InteropServices;
 using Device = SharpDX.Direct3D12.Device;
 using Factory4 = SharpDX.DXGI.Factory4;
 using InfoQueue = SharpDX.Direct3D12.InfoQueue;
 using Resource = SharpDX.Direct3D12.Resource;
+using InputElement = SharpDX.Direct3D12.InputElement;
+using FillMode = SharpDX.Direct3D12.FillMode;
+using Color = SharpDX.Color;
+using Filter = SharpDX.Direct3D12.Filter;
 //using ShaderBytecode = SharpDX.D3DCompiler.ShaderBytecode;
 
 namespace Constant
@@ -84,6 +89,7 @@ namespace Constant
             FrameCount = setting.FrameCount;
             viewport = setting.Viewport;
             device = new Device(null, SharpDX.Direct3D.FeatureLevel.Level_11_0);
+            
 
             using (Factory4 factory = new Factory4())
             {
@@ -122,7 +128,7 @@ namespace Constant
             renderTargets = new Resource[FrameCount];
             for (int n = 0; n < FrameCount; n++)
             {
-                renderTargets[n] = swapChain.GetBackBuffer<Resource>(n);
+                renderTargets[n] = swapChain.GetBackBuffer<Resource>(n);                
                 device.CreateRenderTargetView(renderTargets[n], null, rtvHandle);
                 rtvHandle += rtvDescriptorSize;
             }
@@ -136,16 +142,20 @@ namespace Constant
              {   
                  new RootParameter(ShaderVisibility.All, new RootConstants(0, 0, 2)),                 
                  new RootParameter(ShaderVisibility.All,
-                            new RootDescriptor(1, 0), RootParameterType.ConstantBufferView)
+                            new RootDescriptor(1, 0), RootParameterType.ConstantBufferView),
+                 new RootParameter(ShaderVisibility.All,
+                            new DescriptorRange(DescriptorRangeType.ShaderResourceView, 1, 0))
+                 //new RootParameter(ShaderVisibility.All,
+                 //           new RootDescriptor(0, 0), RootParameterType.ShaderResourceView)
+             },
+             new StaticSamplerDescription[]
+             {
+                    new StaticSamplerDescription(ShaderVisibility.All, 0, 0)
+                    {
+                         Filter = Filter.MinimumMinMagMipPoint,
+                         AddressUVW = TextureAddressMode.Border,
+                    }
              });
-             //new StaticSamplerDescription[]
-             //{
-             //       new StaticSamplerDescription(ShaderVisibility.Pixel, 0, 0)
-             //       {
-             //            Filter = Filter.MinimumMinMagMipPoint,
-             //            AddressUVW = TextureAddressMode.Border,
-             //       }
-             //});
             graphicRootSignature = device.CreateRootSignature(rootSignatureDesc.Serialize());
 
             InputElement[] inputElementDescs = new InputElement[]
@@ -197,39 +207,67 @@ namespace Constant
             commandAllocator = device.CreateCommandAllocator(CommandListType.Direct);
             commandList = device.CreateCommandList(CommandListType.Direct, commandAllocator, graphicPLState);
 
+            DescriptorHeapDescription constantBufferViewHeapDesc = new DescriptorHeapDescription
+            {
+                DescriptorCount = 1,
+                Flags = DescriptorHeapFlags.ShaderVisible,
+                Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView
+            };
+            constantBufferViewHeap = device.CreateDescriptorHeap(constantBufferViewHeapDesc);
+            cruHandle = constantBufferViewHeap.CPUDescriptorHandleForHeapStart;
+
             for (int i = 0; i < data.Textures.Length; i++)
             {
-                //var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[i].Width, data.Textures[i].Height);
-                //texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
-                //long uploadBufferSize = GetRequiredIntermediateSize(texture, 0, 1);
-                //var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[i].Width, data.Textures[i].Height), ResourceStates.GenericRead);
-                //var handle = GCHandle.Alloc(data.Textures[i].Data, GCHandleType.Pinned);
-                //ptr = Marshal.UnsafeAddrOfPinnedArrayElement(data.Textures[i].Data, 0);
-                //textureUploadHeap.WriteToSubresource(0, null, ptr, 4 * data.Textures[i].Width, data.Textures[i].Data.Length);
-                //handle.Free();
-                //commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(textureUploadHeap, 0), null);
-                //commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
-                //var srvDesc = new ShaderResourceViewDescription
-                //{
-                //    Shader4ComponentMapping = D3DXUtilities.DefaultComponentMapping(),
-                //    Format = textureDesc.Format,
-                //    Dimension = ShaderResourceViewDimension.Texture2D,
-                //    Texture2D = { MipLevels = 1 },
-                //};
-                //device.CreateShaderResourceView(texture, srvDesc, cruHandle);
-                //cruHandle += cruDescriptorSize;
+                var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[i].Width, data.Textures[i].Height);
+                texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);                
+                var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[i].Width, data.Textures[i].Height), ResourceStates.GenericRead);
+                var handle = GCHandle.Alloc(data.Textures[i].Data, GCHandleType.Pinned);
+                ptr = Marshal.UnsafeAddrOfPinnedArrayElement(data.Textures[i].Data, 0);
+                textureUploadHeap.WriteToSubresource(0, null, ptr, 4 * data.Textures[i].Width, data.Textures[i].Data.Length);
+                handle.Free();
+                commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(textureUploadHeap, 0), null);
+                commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
+                var srvDesc = new ShaderResourceViewDescription
+                {
+                    Shader4ComponentMapping =  Ar3DMachine.DefaultComponentMapping,
+                    Format = textureDesc.Format,
+                    Dimension = ShaderResourceViewDimension.Texture2D,
+                    Texture2D = { MipLevels = 1 },
+                };
+                device.CreateShaderResourceView(texture, srvDesc, cruHandle);
+                cruHandle += cruDescriptorSize;
             }
 
-            //constantBuffer = new Resource[ConstantBufferViewCount];
             constantBuffer = new Resource[1];
             constantBuffer[0] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.GenericRead);
-            
-            ptr = constantBuffer[0].Map(0);            
-            Utilities.Write(ptr, new AnotherConstant[] { new AnotherConstant { c = 122, d = 200 } },0 ,1);
+
+            ptr = constantBuffer[0].Map(0);
+            Utilities.Write(ptr, new AnotherConstant[] { new AnotherConstant { c = 122, d = 200 } }, 0, 1);
             constantBuffer[0].Unmap(0);
 
             commandList.Close();
             commandQueue.ExecuteCommandList(commandList);
+
+            WaitForPreviousFrame();
+        }
+
+        private void WaitForPreviousFrame()
+        {
+            // WAITING FOR THE FRAME TO COMPLETE BEFORE CONTINUING IS NOT BEST PRACTICE. 
+            // This is code implemented as such for simplicity. 
+
+            int localFence = fenceValue;
+            commandQueue.Signal(this.fence, localFence);
+            fenceValue++;
+
+            // Wait until the previous frame is finished.
+            if (this.fence.CompletedValue < localFence)
+            {
+                this.fence.SetEventOnCompletion(localFence, fenceEvent.SafeWaitHandle.DangerousGetHandle());
+                fenceEvent.WaitOne();
+            }
+
+            frameIndex = swapChain.CurrentBackBufferIndex;
         }
 
         struct AnotherConstant
@@ -303,11 +341,11 @@ namespace Constant
                 bundles[i].DrawIndexedInstanced(data.VerticesData[i].Indices.Length, 1, 0, 0, 0);
                 bundles[i].Close();
             }
-           
         }
 
         public void Render()
         {
+            //commandList.ResourceBarrierTransition(renderTarget)
             commandAllocator.Reset();
             commandList.Reset(commandAllocator, graphicPLState);
             commandList.SetGraphicsRootSignature(graphicRootSignature);
@@ -315,14 +353,14 @@ namespace Constant
             commandList.SetViewport(viewport);
             commandList.SetScissorRectangles(new SharpDX.Mathematics.Interop.RawRectangle(0, 0, (int)viewport.Width, (int)viewport.Height));
 
-            //commandList.SetDescriptorHeaps(new DescriptorHeap[] { constantBufferViewHeap });
+            commandList.SetDescriptorHeaps(new DescriptorHeap[] { constantBufferViewHeap });
             //commandList.SetGraphicsRootDescriptorTable(0, constantBufferViewHeap.GPUDescriptorHandleForHeapStart);            
             commandList.SetGraphicsRoot32BitConstant(0, 255, 0);
             commandList.SetGraphicsRoot32BitConstant(0, 125, 1);
             
             commandList.SetGraphicsRootConstantBufferView(1, constantBuffer[0].GPUVirtualAddress);
-            //commandList.SetGraphicsRoot32BitConstant(1, 255, 0);
-            //commandList.SetGraphicsRoot32BitConstant(1, 125, 1);
+            commandList.SetGraphicsRootDescriptorTable(2, constantBufferViewHeap.GPUDescriptorHandleForHeapStart);
+            //commandList.SetGraphicsRootShaderResourceView(2, texture.GPUVirtualAddress);
 
             CpuDescriptorHandle rtvHandle = renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
             rtvHandle += frameIndex * rtvDescriptorSize;
@@ -335,22 +373,15 @@ namespace Constant
                 commandList.ExecuteBundle(bundles[i]);
             }
             commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
+
+            //MessageBox.Show(device.DeviceRemovedReason.ToString());
+            
             commandList.Close();
             commandQueue.ExecuteCommandList(commandList);
 
             swapChain.Present(1, 0);
 
-            int localFence = fenceValue;
-            commandQueue.Signal(fence, localFence);
-            fenceValue++;
-
-            if (fence.CompletedValue < localFence)
-            {
-                fence.SetEventOnCompletion(localFence, fenceEvent.SafeWaitHandle.DangerousGetHandle());
-                fenceEvent.WaitOne();
-            }
-
-            frameIndex = swapChain.CurrentBackBufferIndex;
+            WaitForPreviousFrame();
         }
 
         public void Update()

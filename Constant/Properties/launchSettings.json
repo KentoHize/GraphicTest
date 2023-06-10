@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Constant": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
