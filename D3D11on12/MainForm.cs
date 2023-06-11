@@ -51,10 +51,10 @@ namespace D3D11on12
                         PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
                         TextureVertices = new ArTextureVertex[]
                         {
-                            new ArTextureVertex(0, 0, 0, 1, 1),
-                            new ArTextureVertex(512, 0, 0, 0, 1),
-                            new ArTextureVertex(0, 512, 0, 1, 0),
-                            new ArTextureVertex(512, 512, 0, 0, 0)
+                            new ArTextureVertex(0, 0, 0, 0, 1),
+                            new ArTextureVertex(512, 0, 0, 1, 1),
+                            new ArTextureVertex(0, 512, 0, 0, 0),
+                            new ArTextureVertex(512, 512, 0, 1, 0)
                         },
                         Indices = new int[]
                         {
@@ -67,10 +67,10 @@ namespace D3D11on12
                         PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
                         TextureVertices = new ArTextureVertex[]
                         {
-                            new ArTextureVertex(0, 0, 0, 0, 0),
-                            new ArTextureVertex(-512, 0, 0, 1, 0),
-                            new ArTextureVertex(0, -512, 0, 0, 1),
-                            new ArTextureVertex(-512, -512, 0, 1, 1)
+                            new ArTextureVertex(0, 0, 0, 1, 0),
+                            new ArTextureVertex(-512, 0, 0, 0, 0),
+                            new ArTextureVertex(0, -512, 0, 1, 1),
+                            new ArTextureVertex(-512, -512, 0, 0, 1)
                         },
                         Indices = new int[]
                         {

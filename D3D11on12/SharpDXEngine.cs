@@ -17,7 +17,10 @@ using Factory4 = SharpDX.DXGI.Factory4;
 using SharpDX;
 using SharpDX.DXGI;
 using Filter = SharpDX.Direct3D12.Filter;
+using System.Drawing;
 using System.Runtime.InteropServices;
+
+
 
 namespace D3D11on12
 {
@@ -81,42 +84,18 @@ namespace D3D11on12
                 {ShaderType.VertexShader, new ShaderFileInfo(GLShaderFile, ShaderType.VertexShader) },
                 {ShaderType.PixelShader, new ShaderFileInfo(GLShaderFile, ShaderType.PixelShader) },
             };
-        }
 
-        public Surface Get2DSurface()
-        { 
-            Device11 device11 = new Device11(SharpDX.Direct3D.DriverType.Hardware, SharpDX.Direct3D11.DeviceCreationFlags.BgraSupport | SharpDX.Direct3D11.DeviceCreationFlags.Debug);
-            Texture2D11 texture = new Texture2D11(device11, new SharpDX.Direct3D11.Texture2DDescription
-            {
-                ArraySize = 1,
-                BindFlags = SharpDX.Direct3D11.BindFlags.RenderTarget | SharpDX.Direct3D11.BindFlags.ShaderResource,
-                CpuAccessFlags = SharpDX.Direct3D11.CpuAccessFlags.None,
-                Format = Format.B8G8R8A8_UNorm,
-                Height = 512,
-                Width = 512,
-                MipLevels = 1,
-                OptionFlags = SharpDX.Direct3D11.ResourceOptionFlags.SharedKeyedmutex,
-                SampleDescription = new SampleDescription(1, 0),
-                Usage = SharpDX.Direct3D11.ResourceUsage.Default
-            });
-            Surface surface = texture.QueryInterface<Surface>();
-            var d2dFactory = new SharpDX.Direct2D1.Factory1();
-            var rtp = new SharpDX.Direct2D1.RenderTargetProperties
-            {
-                MinLevel = SharpDX.Direct2D1.FeatureLevel.Level_10,
-                Type = SharpDX.Direct2D1.RenderTargetType.Hardware,
-                PixelFormat = new SharpDX.Direct2D1.PixelFormat(Format.Unknown, SharpDX.Direct2D1.AlphaMode.Premultiplied)
-            };
-            var renderTarget2D = new SharpDX.Direct2D1.RenderTarget(d2dFactory, surface, rtp);
-            return surface;
+            //Device device22 = new Device();
+            //Device11 device11 = Device11.CreateFromDirect3D12(device22, SharpDX.Direct3D11.DeviceCreationFlags.None,
+            //    null, null);
         }
 
         public void LoadSetting(SharpDXSetting setting)
         {
             FrameCount = setting.FrameCount;
             viewport = setting.Viewport;
-            device = new Device(null, SharpDX.Direct3D.FeatureLevel.Level_11_0);
-            //Get2DSurface();
+            var factory1 = new Factory1();
+            device = new Device(factory1.GetAdapter1(0));            
             using (Factory4 factory = new Factory4())
             {
                 CommandQueueDescription queueDesc = new CommandQueueDescription(CommandListType.Direct);
@@ -226,6 +205,117 @@ namespace D3D11on12
             fenceEvent = new AutoResetEvent(false);
         }
 
+        /*
+        public (Surface, Texture2D11) Get2DSurface(Resource D12Resource)
+        {
+            var d2dFactory = new SharpDX.Direct2D1.Factory1();
+            //var dxgiFactory = new SharpDX.DXGI.Factory1();
+            //Adapter adapter = dxgiFactory.GetAdapter(0);
+            //Device device22 = new Device();            
+            //Device11 device11 = Device11.CreateFromDirect3D12(device22, SharpDX.Direct3D11.DeviceCreationFlags.None,
+            //    null, null);
+            //Device11 device11 = Device11.CreateFromDirect3D12(device, SharpDX.Direct3D11.DeviceCreationFlags.BgraSupport,
+            //        new[] { SharpDX.Direct3D.FeatureLevel.Level_11_1 }, null, commandQueue);
+            Device11 device11 = new Device11(SharpDX.Direct3D.DriverType.Hardware, SharpDX.Direct3D11.DeviceCreationFlags.BgraSupport | SharpDX.Direct3D11.DeviceCreationFlags.Debug, new[] { SharpDX.Direct3D.FeatureLevel.Level_11_1 } );
+            Device12 device12 = new Device12(device.NativePointer);
+
+
+            //var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, 512, 512, 1, 1, 1, 0, ResourceFlags.AllowRenderTarget, TextureLayout.Unknown, 0);            
+            //texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
+            //ResourceDescription.Texture2D()
+            //Surface surface2 = texture.QueryInterface<Surface>();
+
+            SharpDX.Direct3D11.D3D11ResourceFlags format = new SharpDX.Direct3D11.D3D11ResourceFlags
+            {
+                BindFlags = (int)SharpDX.Direct3D11.BindFlags.RenderTarget,
+                CPUAccessFlags = (int)SharpDX.Direct3D11.CpuAccessFlags.None
+            };
+            SharpDX.Direct3D11.Resource d11Resource;
+            //device12.CreateWrappedResource(renderTargets[0], format, (int)ResourceStates.RenderTarget,
+            //    (int)ResourceStates.Present, typeof(SharpDX.Direct3D11.Resource).GUID,
+            //    out d11Resource);
+
+            
+            Texture2D11 texture2 = new Texture2D11(device11, new SharpDX.Direct3D11.Texture2DDescription
+            {
+                ArraySize = 1,
+                BindFlags = SharpDX.Direct3D11.BindFlags.RenderTarget | SharpDX.Direct3D11.BindFlags.ShaderResource,
+                CpuAccessFlags = SharpDX.Direct3D11.CpuAccessFlags.None,
+                Format = Format.B8G8R8A8_UNorm,
+                Height = 512,
+                Width = 512,
+                MipLevels = 1,
+                OptionFlags = SharpDX.Direct3D11.ResourceOptionFlags.SharedKeyedmutex,
+                SampleDescription = new SampleDescription(1, 0),
+                Usage = SharpDX.Direct3D11.ResourceUsage.Default
+            });
+            
+            Surface surface = texture2.QueryInterface<Surface>();
+
+            var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, 512, 512, 1, 1, 1, 0, ResourceFlags.None);
+            var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, textureDesc, ResourceStates.GenericRead);
+            
+            //var handle = GCHandle.Alloc(data.Textures[i].Data, GCHandleType.Pinned);
+            //ptr = Marshal.UnsafeAddrOfPinnedArrayElement(data.Textures[i].Data, 0);
+            //textureUploadHeap.WriteToSubresource(0, null, ptr, 4 * data.Textures[i].Width, data.Textures[i].Data.Length);
+            //handle.Free();
+            //commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(textureUploadHeap, 0), null);
+
+
+
+            var rtp = new SharpDX.Direct2D1.RenderTargetProperties
+            {
+                MinLevel = SharpDX.Direct2D1.FeatureLevel.Level_10,
+                Type = SharpDX.Direct2D1.RenderTargetType.Hardware,
+                PixelFormat = new SharpDX.Direct2D1.PixelFormat(Format.Unknown, SharpDX.Direct2D1.AlphaMode.Premultiplied)
+            };
+            var renderTarget2D = new SharpDX.Direct2D1.RenderTarget(d2dFactory, surface, rtp);
+            return (surface, texture2);
+        }
+        */
+
+        public byte[] GetFontData()
+        {
+            byte[] result;
+
+            //var factory2D = new SharpDX.Direct2D1.Factory(SharpDX.Direct2D1.FactoryType.SingleThreaded, SharpDX.Direct2D1.DebugLevel.Information);            
+            //Device11 device11 = new Device11(SharpDX.Direct3D.DriverType.Hardware, SharpDX.Direct3D11.DeviceCreationFlags.BgraSupport | SharpDX.Direct3D11.DeviceCreationFlags.Debug, new[] { SharpDX.Direct3D.FeatureLevel.Level_11_1 });
+            //var d2dDevice = new SharpDX.Direct2D1.Device(device11.QueryInterface<SharpDX.DXGI.Device>());
+
+            //var d2dContext = new SharpDX.Direct2D1.DeviceContext(d2dDevice, SharpDX.Direct2D1.DeviceContextOptions.None);
+            //var d2PixelFormat = new SharpDX.Direct2D1.PixelFormat(SharpDX.DXGI.Format.R8G8B8A8_UNorm, SharpDX.Direct2D1.AlphaMode.Premultiplied);
+            //var d2dBitmapProps = new SharpDX.Direct2D1.BitmapProperties1(d2PixelFormat, 96, 96, SharpDX.Direct2D1.BitmapOptions.Target | SharpDX.Direct2D1.BitmapOptions.CpuRead | SharpDX.Direct2D1.BitmapOptions.CannotDraw);
+            //var d2dRenderTarget = new SharpDX.Direct2D1.Bitmap1(d2dContext, new Size2(512, 512), d2dBitmapProps);
+            //d2dContext.Target = d2dRenderTarget;
+
+            //d2dContext.BeginDraw();
+            //var dwf = new SharpDX.DirectWrite.Factory();
+            //var tf = new SharpDX.DirectWrite.TextFormat(dwf, "Consolas", 24);
+            //d2dContext.DrawText("aaa", tf, new SharpDX.RectangleF(0, 0, 600, 600), new SharpDX.Direct2D1.SolidColorBrush(d2dContext, new Color4(1, 1, 1, 1)));
+            //d2dContext.EndDraw();
+            //DataRectangle map = d2dRenderTarget.Map(SharpDX.Direct2D1.MapOptions.Read);           
+            //result = new byte[(int)d2dRenderTarget.Size.Width * (int)d2dRenderTarget.Size.Height * 4];            
+            //Marshal.Copy(map.DataPointer, result, 0, result.Length);
+            //d2dRenderTarget.Unmap();
+            Bitmap bitmap = new Bitmap(512, 512);
+            System.Drawing.RectangleF rectf = new System.Drawing.RectangleF(0, 0, 512, 512);
+            Graphics g = Graphics.FromImage(bitmap);
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+            g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+            g.Clear(System.Drawing.Color.White);
+            g.DrawString("Your Text", new Font("Consolas", 48), Brushes.Black, rectf);
+            g.Flush();
+            //bitmap.Save(@"C:\Programs\TestArea\yourText.bmp");
+
+            System.Drawing.Imaging.BitmapData data = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            result = new byte[bitmap.Width * bitmap.Height * 4];
+            Marshal.Copy(data.Scan0, result, 0, result.Length);
+            bitmap.UnlockBits(data);
+            return result;
+        }
+
         public void LoadStaticData(SharpDXStaticData data)
         {
             commandAllocator = device.CreateCommandAllocator(CommandListType.Direct);
@@ -240,26 +330,52 @@ namespace D3D11on12
             shaderResourceBufferViewHeap = device.CreateDescriptorHeap(shaderResourceBufferViewHeapDesc);
             cruHandle = shaderResourceBufferViewHeap.CPUDescriptorHandleForHeapStart;
 
-            for (int i = 0; i < data.Textures.Length; i++)
+            byte[] fontTexture = GetFontData();
+
+            
+            //var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[0].Width, data.Textures[0].Height, 1, 1, 1, 0, ResourceFlags.None);
+            var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, 512, 512, 1, 1, 1, 0, ResourceFlags.None);
+            texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
+            var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, textureDesc, ResourceStates.GenericRead);
+            var handle = GCHandle.Alloc(fontTexture, GCHandleType.Pinned);
+            ptr = Marshal.UnsafeAddrOfPinnedArrayElement(fontTexture, 0);
+            textureUploadHeap.WriteToSubresource(0, null, ptr, 4 * 512, fontTexture.Length);
+            handle.Free();
+            commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(textureUploadHeap, 0), null);
+            commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
+            var srvDesc = new ShaderResourceViewDescription
             {
-                var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[i].Width, data.Textures[i].Height);
-                texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
-                var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[i].Width, data.Textures[i].Height), ResourceStates.GenericRead);
-                var handle = GCHandle.Alloc(data.Textures[i].Data, GCHandleType.Pinned);
-                ptr = Marshal.UnsafeAddrOfPinnedArrayElement(data.Textures[i].Data, 0);
-                textureUploadHeap.WriteToSubresource(0, null, ptr, 4 * data.Textures[i].Width, data.Textures[i].Data.Length);
-                handle.Free();
-                commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(textureUploadHeap, 0), null);
-                commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
-                var srvDesc = new ShaderResourceViewDescription
-                {
-                    Shader4ComponentMapping = Ar3DMachine.DefaultComponentMapping,
-                    Format = textureDesc.Format,
-                    Dimension = ShaderResourceViewDimension.Texture2D,
-                    Texture2D = { MipLevels = 1 },
-                };
-                device.CreateShaderResourceView(texture, srvDesc, cruHandle);
-                cruHandle += cruDescriptorSize;
+                Shader4ComponentMapping = Ar3DMachine.DefaultComponentMapping,
+                Format = textureDesc.Format,
+                Dimension = ShaderResourceViewDimension.Texture2D,
+                Texture2D = { MipLevels = 1 },
+            };
+            device.CreateShaderResourceView(texture, srvDesc, cruHandle);
+            cruHandle += cruDescriptorSize;
+            for (int i = 0; i < data.Textures.Length; i++)
+            { 
+                //ArraySize = 1,
+                //BindFlags = SharpDX.Direct3D11.BindFlags.RenderTarget | SharpDX.Direct3D11.BindFlags.ShaderResource,
+                //CpuAccessFlags = SharpDX.Direct3D11.CpuAccessFlags.None,
+                //Format = Format.B8G8R8A8_UNorm,
+                //Height = 512,
+                //Width = 512,
+                //MipLevels = 1,
+                //OptionFlags = SharpDX.Direct3D11.ResourceOptionFlags.SharedKeyedmutex,
+                //SampleDescription = new SampleDescription(1, 0),
+                //Usage = SharpDX.Direct3D11.ResourceUsage.Default
+
+                //textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, 512, 512, 1, 1, 1, 0, ResourceFlags.None);
+                //textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[i].Width, data.Textures[i].Height);                
+                //texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
+                //var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, textureDesc, ResourceStates.GenericRead);
+                //var handle = GCHandle.Alloc(data.Textures[i].Data, GCHandleType.Pinned);
+                //ptr = Marshal.UnsafeAddrOfPinnedArrayElement(data.Textures[i].Data, 0);
+                //textureUploadHeap.WriteToSubresource(0, null, ptr, 4 * data.Textures[i].Width, data.Textures[i].Data.Length);
+                //handle.Free();
+                //commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(textureUploadHeap, 0), null);
+                //commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
+              
             }
 
             commandList.Close();
@@ -343,6 +459,8 @@ namespace D3D11on12
             ptr = constantBuffer[1].Map(0);
             Utilities.Write(ptr, new int[] { 1 }, 0, 1);
             constantBuffer[1].Unmap(0);
+
+            
         }
 
         public void Render()
@@ -386,7 +504,7 @@ namespace D3D11on12
         public void WaitForPreviousFrame()
         {
             int localFence = fenceValue;
-            commandQueue.Signal(this.fence, localFence);
+            commandQueue.Signal(fence, localFence);
             fenceValue++;
 
             if (fence.CompletedValue < localFence)
