@@ -1,14 +1,12 @@
 using GraphicLibrary.Items;
 using GraphicLibrary;
 
-namespace Constant
+namespace D3D11on12
 {
     public partial class MainForm : Form
     {
-        const string textureFile = @"C:\Programs\GraphicTest\Texture\Texture\AnnetteSquare.bmp";
-        const string textureFile2 = @"C:\Programs\GraphicTest\Texture\Texture\ClacierSquare.bmp";
         SharpDXEngine sde;
-
+        const string textureFile = @"C:\Programs\GraphicTest\Texture\Texture\AnnetteSquare.bmp";
         public MainForm()
         {
             InitializeComponent();
@@ -24,8 +22,6 @@ namespace Constant
                 FrameCount = 2,
                 Viewport = new SharpDX.ViewportF(0, 0, pibMain.ClientSize.Width, pibMain.ClientSize.Height)
             };
-            sde.LoadSetting(setting);
-            sde.Close();
 
             sde.LoadSetting(setting);
             sde.LoadStaticData(new SharpDXStaticData
@@ -85,11 +81,6 @@ namespace Constant
                 }
             };
             sde.LoadData(data);
-            
-        }
-
-        private void pibMain_Paint(object sender, PaintEventArgs e)
-        {   
             sde.Render();
         }
     }

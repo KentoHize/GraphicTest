@@ -1,4 +1,4 @@
-﻿namespace Constant
+﻿namespace D3D11on12
 {
     partial class MainForm
     {
@@ -40,7 +40,6 @@
             pibMain.Size = new Size(800, 450);
             pibMain.TabIndex = 0;
             pibMain.TabStop = false;
-            pibMain.Paint += pibMain_Paint;
             // 
             // MainForm
             // 

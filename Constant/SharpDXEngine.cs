@@ -79,18 +79,11 @@ namespace Constant
             };
         }
 
-        protected Resource CreateUploadResource()
-        {
-            return null;
-        }
-
         public void LoadSetting(SharpDXSetting setting)
         {
             FrameCount = setting.FrameCount;
             viewport = setting.Viewport;
             device = new Device(null, SharpDX.Direct3D.FeatureLevel.Level_11_0);
-            
-
             using (Factory4 factory = new Factory4())
             {
                 CommandQueueDescription queueDesc = new CommandQueueDescription(CommandListType.Direct);
