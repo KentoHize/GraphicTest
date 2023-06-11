@@ -1,16 +1,14 @@
-struct SomeConstant
+struct TranformMatrix
 {
-    int a;
-    int b;
+    float4x4 transformMatrix;
 };
-ConstantBuffer<SomeConstant> sc : register(b0);
+ConstantBuffer<TranformMatrix> tm : register(b0);
 
-struct AnotherConstant
+struct DrawingSetting
 {
-    int c;
-    int d;
+    int textureIndex;
 };
-ConstantBuffer<AnotherConstant> ac : register(b1);
+ConstantBuffer<DrawingSetting> ds : register(b1);
 
 Texture2D fontTexture : register(t0);
 SamplerState normal_sampler : register(s0);

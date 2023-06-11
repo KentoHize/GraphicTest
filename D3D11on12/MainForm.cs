@@ -82,6 +82,7 @@ namespace D3D11on12
             };
             sde.LoadData(data);
             sde.Render();
+            sde.Close();
         }
     }
 }
