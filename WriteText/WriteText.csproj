@@ -16,4 +16,13 @@
     <ProjectReference Include="..\GraphicLibrary\GraphicLibrary.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Shaders\constant.hlsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Shaders\shaders.hlsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

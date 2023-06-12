@@ -216,8 +216,6 @@ namespace D3D11on12
         public void Get2DSurface()
         {
             //DebugInterface.Get().;
-            
-          
         }
 
         /*

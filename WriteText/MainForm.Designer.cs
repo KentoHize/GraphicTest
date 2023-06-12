@@ -49,6 +49,7 @@
             Controls.Add(pictureBox1);
             Name = "MainForm";
             Text = "MainForm";
+            Load += MainForm_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
         }
