@@ -134,9 +134,6 @@ namespace WriteText
                 device.CreateRenderTargetView(renderTargets[n], null, rtvHandle);
                 rtvHandle += rtvDescriptorSize;
             }
-            //device11 = Device11.CreateFromDirect3D12(device, SharpDX.Direct3D11.DeviceCreationFlags.BgraSupport, null, null, commandQueue);
-            //device11 = Device11.CreateFromDirect3D12(device, SharpDX.Direct3D11.DeviceCreationFlags.BgraSupport, null, null, commandQueue);
-
             CreatePipleLine(setting);
         }
 
@@ -227,12 +224,9 @@ namespace WriteText
         }
 
 
-        public Resource WriteTextToTexture(ResourceDescription rd)
-        {   
-            //var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, 512, 512, 1, 1, 1, 0, ResourceFlags.None);
+        public Resource CreateTextToTexture(ResourceDescription rd)
+        {
             texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.Shared, rd, ResourceStates.Common);
-            //texture = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.Shared, rd, ResourceStates.GenericRead);
-
             device11 = Device11.CreateFromDirect3D12(device, SharpDX.Direct3D11.DeviceCreationFlags.BgraSupport, null, null, commandQueue);
             deviceContext = device11.ImmediateContext;            
             device12 = device11.QueryInterface<Device12>();            
@@ -241,7 +235,6 @@ namespace WriteText
                 BindFlags = (int)SharpDX.Direct3D11.BindFlags.RenderTarget,
                 CPUAccessFlags = (int)SharpDX.Direct3D11.CpuAccessFlags.None,
             };
-            //device11.OpenSharedResource()            
             device12.CreateWrappedResource(texture, d3d11RF, (int)ResourceStates.Common, (int)ResourceStates.PixelShaderResource,
                  typeof(SharpDX.Direct3D11.Texture2D).GUID, out resource11);
 
@@ -263,19 +256,18 @@ namespace WriteText
 
             var directWriteFactory = new SharpDX.DirectWrite.Factory();
             var textFormat = new SharpDX.DirectWrite.TextFormat(directWriteFactory, 
-                "Arial", SharpDX.DirectWrite.FontWeight.Bold, SharpDX.DirectWrite.FontStyle.Normal, 48) 
+                "Arial", SharpDX.DirectWrite.FontWeight.Bold, SharpDX.DirectWrite.FontStyle.Normal, 24) 
             { TextAlignment = SharpDX.DirectWrite.TextAlignment.Leading, ParagraphAlignment = SharpDX.DirectWrite.ParagraphAlignment.Near };
             var textBrush = new SharpDX.Direct2D1.SolidColorBrush(d2RenderTarget, Color4.White);
             directWriteFactory.Dispose();
 
-            device12.AcquireWrappedResources(new SharpDX.Direct3D11.Resource[] { resource11 }, 1);
-            d2RenderTarget.BeginDraw();
-            //textBrush.Color = Color4.Lerp(colors[t], colors[t + 1], f);
+            device12.AcquireWrappedResources(new Resource11[] { resource11 }, 1);
+            d2RenderTarget.BeginDraw();            
             string s = "現代人常說隔夜菜不健康，但腎臟科醫師江守山表示，經過研究發現，其實米飯比菜更容易壞掉，也更容易產生毒素。對此，江守山也分享自己曾經遇過的病例，一名30幾歲、腎功能不佳的男子，某天因吃到腐壞的米飯，嚴重腹痛、血壓驟降，險些洗腎。\r\n\r\n腎臟科醫師江守山在節目《健康好生活》中表示，上述病例是全家一起誤食到腐敗的米飯，均食物中毒，「大家一起中獎」。而該男子本身腎功能差，雖然未達洗腎程度，但當天因食物中毒、嚴重腹痛，迷走神經太過興奮，導致血壓驟降，全身冒冷汗，出現所謂的「休克型低血壓」，當時收縮壓甚至來到62、舒張壓近40毫米汞柱。\r\n\r\n他表示，腎臟功能差者，若血壓急遽至該男子的數值，可以直接造成腎小管壞死、重創腎功能，嚴重恐要終身洗腎，「所以不要忽視拉肚子這個小病。」\r\n\r\n江守山補充，「國外也發生過很多次，就是都認為飯不會壞，尤其很多廚師都會教說，冰過或放過的老飯去炒，才會粒粒分明和好吃」，但米飯若腐敗其實很容易長出仙人掌桿菌，並產生「可抗熱」的內毒素，因此即便煮熟都還是無法消滅此菌，吃下去照常食物中毒、上吐下瀉，甚至腹部不適、血壓驟降、嚴重傷害腎臟血管，造成腎臟永久性傷害。\r\n\r\n所以江守山也再次提醒，飯絕對不是不會壞，「只是飯看起來比較乾燥，所以看不出來它已經壞掉」，民眾千萬別輕忽「炒飯症候群」食物中毒的風險，嚴重可能會造成腎臟等器官敗壞，慘淪終身洗腎。";
             d2RenderTarget.DrawText(s, textFormat,
                 new SharpDX.Mathematics.Interop.RawRectangleF(0, 0, rd.Width, rd.Height), textBrush);
             d2RenderTarget.EndDraw();
-            device12.ReleaseWrappedResources(new SharpDX.Direct3D11.Resource[] { resource11 }, 1);
+            device12.ReleaseWrappedResources(new Resource11[] { resource11 }, 1);
             deviceContext.Flush();
             return texture;
         }
@@ -295,7 +287,7 @@ namespace WriteText
             cruHandle = shaderResourceBufferViewHeap.CPUDescriptorHandleForHeapStart;
 
             var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[0].Width, data.Textures[0].Height, 1, 1, 1, 0, ResourceFlags.AllowRenderTarget | ResourceFlags.AllowSimultaneousAccess);
-            Resource r = WriteTextToTexture(textureDesc);
+            Resource r = CreateTextToTexture(textureDesc);
             
             var srvDesc = new ShaderResourceViewDescription
             {
