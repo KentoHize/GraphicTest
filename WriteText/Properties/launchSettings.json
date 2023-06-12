@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "WriteText": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

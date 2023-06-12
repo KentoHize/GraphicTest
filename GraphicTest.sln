@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Constant", "Constant\Consta
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "D3D11on12", "D3D11on12\D3D11on12.csproj", "{53DF056F-25D0-4902-81D0-ADD02CCA47E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WriteText", "WriteText\WriteText.csproj", "{DE9148DD-EEE7-4526-A887-B0B5C31835D7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WriteText", "WriteText\WriteText.csproj", "{DE9148DD-EEE7-4526-A887-B0B5C31835D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

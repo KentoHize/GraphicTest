@@ -10,8 +10,6 @@ namespace WriteText
         public MainForm()
         {
             InitializeComponent();
-            
-            D3D11on12.Other.OtherClass oc = new D3D11on12.Other.OtherClass();
             sde = new SharpDXEngine();
         }
 

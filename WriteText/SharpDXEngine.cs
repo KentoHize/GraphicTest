@@ -9,12 +9,16 @@ using SharpDX.Direct3D12;
 using SharpDX.DXGI;
 using Device = SharpDX.Direct3D12.Device;
 using Device11 = SharpDX.Direct3D11.Device;
+using Device12 = SharpDX.Direct3D11.Device11On12;
+using DeviceContext = SharpDX.Direct3D11.DeviceContext;
 using InfoQueue = SharpDX.Direct3D12.InfoQueue;
 using Resource = SharpDX.Direct3D12.Resource;
+using Resource11 = SharpDX.Direct3D11.Resource;
 using Factory4 = SharpDX.DXGI.Factory4;
 using SharpDX;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+
 
 namespace WriteText
 {
@@ -29,6 +33,9 @@ namespace WriteText
 
         Device device;
         Device11 device11;
+        Device12 device12;
+        DeviceContext deviceContext;
+        Resource11 resource11;
 
         InfoQueue infoQueue;
         SwapChain3 swapChain;
@@ -127,8 +134,7 @@ namespace WriteText
                 device.CreateRenderTargetView(renderTargets[n], null, rtvHandle);
                 rtvHandle += rtvDescriptorSize;
             }
-
-            device11 = Device11.CreateFromDirect3D12(device, SharpDX.Direct3D11.DeviceCreationFlags.BgraSupport, null, null, commandQueue);
+            //device11 = Device11.CreateFromDirect3D12(device, SharpDX.Direct3D11.DeviceCreationFlags.BgraSupport, null, null, commandQueue);
             //device11 = Device11.CreateFromDirect3D12(device, SharpDX.Direct3D11.DeviceCreationFlags.BgraSupport, null, null, commandQueue);
 
             CreatePipleLine(setting);
@@ -220,6 +226,53 @@ namespace WriteText
             return result;
         }
 
+
+        public Resource WriteTextToTexture(ResourceDescription rd)
+        {   
+            //var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, 512, 512, 1, 1, 1, 0, ResourceFlags.None);
+            texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.Shared, rd, ResourceStates.CopyDestination);
+
+            device11 = Device11.CreateFromDirect3D12(device, SharpDX.Direct3D11.DeviceCreationFlags.BgraSupport, null, null, commandQueue);
+            deviceContext = device11.ImmediateContext;            
+            device12 = device11.QueryInterface<Device12>();            
+            SharpDX.Direct3D11.D3D11ResourceFlags d3d11RF = new SharpDX.Direct3D11.D3D11ResourceFlags()
+            {
+                BindFlags = (int)SharpDX.Direct3D11.BindFlags.ShaderResource,
+                CPUAccessFlags = (int)SharpDX.Direct3D11.CpuAccessFlags.None,
+            };
+            device12.CreateWrappedResource(texture, d3d11RF, (int)ResourceStates.CopyDestination, (int)ResourceStates.PixelShaderResource,
+                 typeof(Resource11).GUID, out resource11);
+//            device11.OpenSharedResource()
+            Surface surface = resource11.QueryInterface<Surface>();
+            var d2dFactory = new SharpDX.Direct2D1.Factory(SharpDX.Direct2D1.FactoryType.MultiThreaded);
+            var rtp = new SharpDX.Direct2D1.RenderTargetProperties
+            {
+                PixelFormat = new SharpDX.Direct2D1.PixelFormat(Format.Unknown, SharpDX.Direct2D1.AlphaMode.Premultiplied),
+                Type = SharpDX.Direct2D1.RenderTargetType.Hardware,
+                MinLevel = SharpDX.Direct2D1.FeatureLevel.Level_10,                
+            };
+            var d2RenderTarget = new SharpDX.Direct2D1.RenderTarget(d2dFactory, surface,
+                rtp);
+            surface.Dispose();
+
+            var directWriteFactory = new SharpDX.DirectWrite.Factory();
+            var textFormat = new SharpDX.DirectWrite.TextFormat(directWriteFactory, 
+                "Arial", SharpDX.DirectWrite.FontWeight.Bold, SharpDX.DirectWrite.FontStyle.Normal, 48) 
+            { TextAlignment = SharpDX.DirectWrite.TextAlignment.Leading, ParagraphAlignment = SharpDX.DirectWrite.ParagraphAlignment.Near };
+            var textBrush = new SharpDX.Direct2D1.SolidColorBrush(d2RenderTarget, Color4.White);
+            directWriteFactory.Dispose();
+
+            device12.AcquireWrappedResources(new SharpDX.Direct3D11.Resource[] { resource11 }, 1);
+            d2RenderTarget.BeginDraw();
+            //textBrush.Color = Color4.Lerp(colors[t], colors[t + 1], f);
+            d2RenderTarget.DrawText("Hello Text", textFormat,
+                new SharpDX.Mathematics.Interop.RawRectangleF(0, 0, 200, 200), textBrush);
+            d2RenderTarget.EndDraw();
+            device12.ReleaseWrappedResources(new SharpDX.Direct3D11.Resource[] { resource11 }, 1);
+            deviceContext.Flush();
+            return texture;
+        }
+
         public void LoadStaticData(SharpDXStaticData data)
         {
             commandAllocator = device.CreateCommandAllocator(CommandListType.Direct);
@@ -236,12 +289,13 @@ namespace WriteText
 
             Stopwatch sw = Stopwatch.StartNew();
             byte[] fontTexture = GetFontData();
+            //GetFontSurface();
             sw.Stop();
             Debug.Print($"Get Font:{sw.ElapsedMilliseconds}");
 
-            //var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[0].Width, data.Textures[0].Height, 1, 1, 1, 0, ResourceFlags.None);
-            var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, 512, 512, 1, 1, 1, 0, ResourceFlags.None);
-            texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
+            var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[0].Width, data.Textures[0].Height, 1, 1, 1, 0, ResourceFlags.AllowRenderTarget | ResourceFlags.AllowSimultaneousAccess);
+            Resource r = WriteTextToTexture(textureDesc);
+            
             var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, textureDesc, ResourceStates.GenericRead);
             var handle = GCHandle.Alloc(fontTexture, GCHandleType.Pinned);
             ptr = Marshal.UnsafeAddrOfPinnedArrayElement(fontTexture, 0);
