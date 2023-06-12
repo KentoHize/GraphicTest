@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "D3D11on12": {
-      "commandName": "Project",
-      "nativeDebugging": false
-    }
-  }
-}

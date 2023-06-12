@@ -23,6 +23,8 @@ using System.Diagnostics;
 
 namespace D3D11on12
 {
+    
+
     public class SharpDXEngine
     {
         public int FrameCount { get; private set; } = 2;
@@ -93,14 +95,7 @@ namespace D3D11on12
         {
             FrameCount = setting.FrameCount;
             viewport = setting.Viewport;
-            //var factory1 = new Factory1();
             device = new Device(null, SharpDX.Direct3D.FeatureLevel.Level_11_0);
-            //device.CreateFromDirect3D12(device);
-            //device = new Device();
-
-            //Device11 device11 = Device11.CreateFromDirect3D12(device, SharpDX.Direct3D11.DeviceCreationFlags.None,
-            //  null, null);
-
             using (Factory4 factory = new Factory4())
             {
                 CommandQueueDescription queueDesc = new CommandQueueDescription(CommandListType.Direct);
@@ -123,7 +118,7 @@ namespace D3D11on12
                 tempSwapChain.Dispose();
             }
             frameIndex = swapChain.CurrentBackBufferIndex;
-            //infoQueue = device.QueryInterface<InfoQueue>();
+            infoQueue = device.QueryInterface<InfoQueue>();
 
             DescriptorHeapDescription rtvHeapDesc = new DescriptorHeapDescription()
             {
@@ -143,13 +138,12 @@ namespace D3D11on12
                 rtvHandle += rtvDescriptorSize;
             }
 
-            Device11 device11 = Device11.CreateFromDirect3D12(device, SharpDX.Direct3D11.DeviceCreationFlags.BgraSupport,
-  null, null, commandQueue);
+            Device11 device11 = Device11.CreateFromDirect3D12(device, SharpDX.Direct3D11.DeviceCreationFlags.BgraSupport, null, null, commandQueue);
 
-            CretatePipleLine(setting);
+            CreatePipleLine(setting);
         }
 
-        void CretatePipleLine(SharpDXSetting setting)
+        void CreatePipleLine(SharpDXSetting setting)
         {
             var rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout,
              new RootParameter[]

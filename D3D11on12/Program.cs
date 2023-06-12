@@ -11,7 +11,7 @@ namespace D3D11on12
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-            MainForm mf = new MainForm
+            OtherForm mf = new OtherForm
             {
                 Width = 1200,
                 Height = 1000,
