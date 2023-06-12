@@ -129,7 +129,8 @@ namespace GraphicLibrary
                 Flags = DescriptorHeapFlags.None,
                 Type = DescriptorHeapType.RenderTargetView
             };
-            renderTargetViewHeap = device.CreateDescriptorHeap(rtvHeapDesc);
+            renderTargetViewHeap = device.CreateDescriptorHeap(rtvHeapDesc);        
+            
 
             rtvDescriptorSize = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.RenderTargetView);
             var rtvHandle = renderTargetViewHeap.CPUDescriptorHandleForHeapStart;

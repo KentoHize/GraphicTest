@@ -19,8 +19,7 @@ using SharpDX.DXGI;
 using Filter = SharpDX.Direct3D12.Filter;
 using System.Drawing;
 using System.Runtime.InteropServices;
-
-
+using System.Diagnostics;
 
 namespace D3D11on12
 {
@@ -76,7 +75,7 @@ namespace D3D11on12
 
         public SharpDXEngine()
         {
-#if DEBUG
+#if DEBUG            
             DebugInterface.Get().EnableDebugLayer();
 #endif      
             ShaderFiles = new Dictionary<ShaderType, ShaderFileInfo>
@@ -94,8 +93,14 @@ namespace D3D11on12
         {
             FrameCount = setting.FrameCount;
             viewport = setting.Viewport;
-            var factory1 = new Factory1();
-            device = new Device(factory1.GetAdapter1(0));            
+            //var factory1 = new Factory1();
+            device = new Device(null, SharpDX.Direct3D.FeatureLevel.Level_11_0);
+            //device.CreateFromDirect3D12(device);
+            //device = new Device();
+
+            //Device11 device11 = Device11.CreateFromDirect3D12(device, SharpDX.Direct3D11.DeviceCreationFlags.None,
+            //  null, null);
+
             using (Factory4 factory = new Factory4())
             {
                 CommandQueueDescription queueDesc = new CommandQueueDescription(CommandListType.Direct);
@@ -118,7 +123,7 @@ namespace D3D11on12
                 tempSwapChain.Dispose();
             }
             frameIndex = swapChain.CurrentBackBufferIndex;
-            infoQueue = device.QueryInterface<InfoQueue>();
+            //infoQueue = device.QueryInterface<InfoQueue>();
 
             DescriptorHeapDescription rtvHeapDesc = new DescriptorHeapDescription()
             {
@@ -137,6 +142,9 @@ namespace D3D11on12
                 device.CreateRenderTargetView(renderTargets[n], null, rtvHandle);
                 rtvHandle += rtvDescriptorSize;
             }
+
+            Device11 device11 = Device11.CreateFromDirect3D12(device, SharpDX.Direct3D11.DeviceCreationFlags.BgraSupport,
+  null, null, commandQueue);
 
             CretatePipleLine(setting);
         }
@@ -205,6 +213,13 @@ namespace D3D11on12
             fenceEvent = new AutoResetEvent(false);
         }
 
+        public void Get2DSurface()
+        {
+            //DebugInterface.Get().;
+            
+          
+        }
+
         /*
         public (Surface, Texture2D11) Get2DSurface(Resource D12Resource)
         {
@@ -213,7 +228,7 @@ namespace D3D11on12
             //Adapter adapter = dxgiFactory.GetAdapter(0);
             //Device device22 = new Device();            
             //Device11 device11 = Device11.CreateFromDirect3D12(device22, SharpDX.Direct3D11.DeviceCreationFlags.None,
-            //    null, null);
+                null, null);
             //Device11 device11 = Device11.CreateFromDirect3D12(device, SharpDX.Direct3D11.DeviceCreationFlags.BgraSupport,
             //        new[] { SharpDX.Direct3D.FeatureLevel.Level_11_1 }, null, commandQueue);
             Device11 device11 = new Device11(SharpDX.Direct3D.DriverType.Hardware, SharpDX.Direct3D11.DeviceCreationFlags.BgraSupport | SharpDX.Direct3D11.DeviceCreationFlags.Debug, new[] { SharpDX.Direct3D.FeatureLevel.Level_11_1 } );
@@ -304,8 +319,10 @@ namespace D3D11on12
             g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
             g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
             g.Clear(System.Drawing.Color.White);
-            g.DrawString("Your Text", new Font("Consolas", 48), Brushes.Black, rectf);
+            string s = "現代人常說隔夜菜不健康，但腎臟科醫師江守山表示，經過研究發現，其實米飯比菜更容易壞掉，也更容易產生毒素。對此，江守山也分享自己曾經遇過的病例，一名30幾歲、腎功能不佳的男子，某天因吃到腐壞的米飯，嚴重腹痛、血壓驟降，險些洗腎。\r\n\r\n腎臟科醫師江守山在節目《健康好生活》中表示，上述病例是全家一起誤食到腐敗的米飯，均食物中毒，「大家一起中獎」。而該男子本身腎功能差，雖然未達洗腎程度，但當天因食物中毒、嚴重腹痛，迷走神經太過興奮，導致血壓驟降，全身冒冷汗，出現所謂的「休克型低血壓」，當時收縮壓甚至來到62、舒張壓近40毫米汞柱。\r\n\r\n他表示，腎臟功能差者，若血壓急遽至該男子的數值，可以直接造成腎小管壞死、重創腎功能，嚴重恐要終身洗腎，「所以不要忽視拉肚子這個小病。」\r\n\r\n江守山補充，「國外也發生過很多次，就是都認為飯不會壞，尤其很多廚師都會教說，冰過或放過的老飯去炒，才會粒粒分明和好吃」，但米飯若腐敗其實很容易長出仙人掌桿菌，並產生「可抗熱」的內毒素，因此即便煮熟都還是無法消滅此菌，吃下去照常食物中毒、上吐下瀉，甚至腹部不適、血壓驟降、嚴重傷害腎臟血管，造成腎臟永久性傷害。\r\n\r\n所以江守山也再次提醒，飯絕對不是不會壞，「只是飯看起來比較乾燥，所以看不出來它已經壞掉」，民眾千萬別輕忽「炒飯症候群」食物中毒的風險，嚴重可能會造成腎臟等器官敗壞，慘淪終身洗腎。";
+            g.DrawString(s, new Font("Consolas", 14), Brushes.Black, rectf);
             g.Flush();
+            Get2DSurface();
             //bitmap.Save(@"C:\Programs\TestArea\yourText.bmp");
 
             System.Drawing.Imaging.BitmapData data = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height),
@@ -330,8 +347,10 @@ namespace D3D11on12
             shaderResourceBufferViewHeap = device.CreateDescriptorHeap(shaderResourceBufferViewHeapDesc);
             cruHandle = shaderResourceBufferViewHeap.CPUDescriptorHandleForHeapStart;
 
+            Stopwatch sw = Stopwatch.StartNew();
             byte[] fontTexture = GetFontData();
-
+            sw.Stop();
+            Debug.Print($"Get Font:{sw.ElapsedMilliseconds}");
             
             //var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[0].Width, data.Textures[0].Height, 1, 1, 1, 0, ResourceFlags.None);
             var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, 512, 512, 1, 1, 1, 0, ResourceFlags.None);
