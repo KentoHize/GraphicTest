@@ -28,7 +28,7 @@ namespace WriteText
         public const int ConstantBufferViewCount = 2;
         public const int ShaderResourceViewCount = 2;
         public const int DefaultComponentMapping = 5876;
-        const string GLShaderFile = @"C:\Programs\GraphicTest\D3D11on12\Shaders\shaders.hlsl";
+        const string GLShaderFile = @"C:\Programs\GraphicTest\WriteText\Shaders\shaders.hlsl";
         internal Dictionary<ShaderType, ShaderFileInfo> ShaderFiles { get; set; }
 
         Device device;

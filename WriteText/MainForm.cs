@@ -17,7 +17,7 @@ namespace WriteText
         {
             sde.LoadSetting(new SharpDXSetting
             {
-                CullTwoFace = true,
+                CullTwoFace = false,
                 Viewport = new SharpDX.ViewportF(0, 0, pictureBox1.ClientSize.Width, pictureBox1.ClientSize.Height),
                 FrameCount = 2,
                 SwapEffect = SharpDX.DXGI.SwapEffect.FlipDiscard,
@@ -36,47 +36,56 @@ namespace WriteText
                 }
             });
 
+            var aCube = Ar3DGeometry.GetCube(512);
+            
             SharpDXData data = new SharpDXData
             {
                 BackgroundColor = Color.Black.ToArFloatVector4(),
                 TransformMartrix = Ar3DMachine.ProduceTransformMatrix(
                                         new ArIntVector3(0, 0, 0),
-                                        new ArFloatVector3(0, 0, 0),
+                                        new ArFloatVector3(-0.2f, -0.2f, 0.7f),
                                         new ArFloatVector3(1, 1, 1)),
                 VerticesData = new SharpDXBundleData[]
                 {
                     new SharpDXBundleData
                     {
                         PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
-                        TextureVertices = new ArTextureVertex[]
-                        {
-                            new ArTextureVertex(0, 0, 0, 0, 1),
-                            new ArTextureVertex(512, 0, 0, 1, 1),
-                            new ArTextureVertex(0, 512, 0, 0, 0),
-                            new ArTextureVertex(512, 512, 0, 1, 0)
-                        },
-                        Indices = new int[]
-                        {
-                            1, 0, 2, 1, 2, 3
-                        },
-                        TextureIndex = 0
-                    },
-                    new SharpDXBundleData
-                    {
-                        PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
-                        TextureVertices = new ArTextureVertex[]
-                        {
-                            new ArTextureVertex(0, 0, 0, 1, 0),
-                            new ArTextureVertex(-512, 0, 0, 0, 0),
-                            new ArTextureVertex(0, -512, 0, 1, 1),
-                            new ArTextureVertex(-512, -512, 0, 0, 1)
-                        },
-                        Indices = new int[]
-                        {
-                            1, 0, 2, 1, 2, 3
-                        },
+                        TextureVertices = aCube.vertices,
+                        Indices = aCube.indices,
                         TextureIndex = 1
                     }
+                    //new SharpDXBundleData
+                    //{
+                    //    PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
+                    //    TextureVertices = new ArTextureVertex[]
+                    //    {
+                    //        new ArTextureVertex(0, 0, 0, 0, 1),
+                    //        new ArTextureVertex(512, 0, 0, 1, 1),
+                    //        new ArTextureVertex(0, 512, 0, 0, 0),
+                    //        new ArTextureVertex(512, 512, 0, 1, 0)
+                    //    },
+                    //    Indices = new int[]
+                    //    {
+                    //        1, 0, 2, 1, 2, 3
+                    //    },
+                    //    TextureIndex = 0
+                    //},
+                    //new SharpDXBundleData
+                    //{
+                    //    PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
+                    //    TextureVertices = new ArTextureVertex[]
+                    //    {
+                    //        new ArTextureVertex(0, 0, 0, 1, 0),
+                    //        new ArTextureVertex(-512, 0, 0, 0, 0),
+                    //        new ArTextureVertex(0, -512, 0, 1, 1),
+                    //        new ArTextureVertex(-512, -512, 0, 0, 1)
+                    //    },
+                    //    Indices = new int[]
+                    //    {
+                    //        1, 0, 2, 1, 2, 3
+                    //    },
+                    //    TextureIndex = 1
+                    //}
                 }
             };
             sde.LoadData(data);
