@@ -72,10 +72,11 @@ namespace GraphicLibrary
             vertices[1] = new ArTextureVertex(0, 1, 0, 0, 0);
             vertices[2] = new ArTextureVertex(1, 1, 0, 1, 0);
             vertices[3] = new ArTextureVertex(1, 0, 0, 1, 1);
-            vertices[4] = new ArTextureVertex(0, 0, 1, 0, 1);
-            vertices[5] = new ArTextureVertex(0, 1, 1, 0, 0);
-            vertices[6] = new ArTextureVertex(1, 1, 1, 1, 0);
-            vertices[7] = new ArTextureVertex(1, 0, 1, 1, 1);
+
+            vertices[4] = new ArTextureVertex(0, 0, 1, 1, 1);
+            vertices[5] = new ArTextureVertex(0, 1, 1, 1, 0);
+            vertices[6] = new ArTextureVertex(1, 1, 1, 0, 0);
+            vertices[7] = new ArTextureVertex(1, 0, 1, 0, 1);
 
             int[] indices = new int[]
             { 2, 1, 0, 3, 2, 0,

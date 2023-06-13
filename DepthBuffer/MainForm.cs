@@ -1,12 +1,21 @@
-﻿using GraphicLibrary;
-using GraphicLibrary.Items;
+﻿using GraphicLibrary.Items;
+using GraphicLibrary;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
-namespace WriteText
+namespace DepthBuffer
 {
     public partial class MainForm : Form
     {
         SharpDXEngine sde;
-        const string textureFile = @"C:\Programs\GraphicTest\Texture\Texture\AnnetteSquare.bmp";
+        const string textureFile = @"C:\Programs\GraphicTest\DepthBuffer\Textures\AnnetteSquare.bmp";
         public MainForm()
         {
             InitializeComponent();
@@ -38,7 +47,7 @@ namespace WriteText
             });
 
             var aCube = Ar3DGeometry.GetCube(512);
-            
+
             SharpDXData data = new SharpDXData
             {
                 BackgroundColor = Color.Black.ToArFloatVector4(),

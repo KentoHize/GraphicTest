@@ -14,6 +14,7 @@ namespace GraphicLibrary
         public SwapEffect SwapEffect { get; set; } = SwapEffect.FlipDiscard;
         public ViewportF Viewport { get; set; }
         public bool CullTwoFace { get; set; } = false;
+        public bool DrawClockwise { get; set; } = false;
         public int FrameCount { get; set; } = 2;
     }
 }
