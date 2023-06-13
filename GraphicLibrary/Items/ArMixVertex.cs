@@ -32,6 +32,7 @@ namespace GraphicLibrary.Items
             Color = new ArFloatVector4(red, green, blue, alpha);
             TextureCroodinate = new ArFloatVector2(u, v);
         }
+
         public ArMixVertex(int x, int y, int z, ArFloatVector4 color)
             : this(x, y, z, color[0], color[1], color[2], color[3], 0, 0)
         { }

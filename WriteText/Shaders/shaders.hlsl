@@ -23,7 +23,7 @@ PSInput VSMain(int3 position : POSITION, float2 uv : TEXCOORD)
 float4 PSMain(PSInput input) : SV_TARGET
 {
     //return float4(1, 0, 0, 1);
-    return float4(input.uv[0], input.uv[1], 0, 1);
+    //return float4(input.uv[0], input.uv[1], 0, 1);
     return fontTexture.Sample(normal_sampler, input.uv);
     //if (ds.textureIndex == 1)
         

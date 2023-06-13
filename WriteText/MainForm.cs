@@ -37,15 +37,14 @@ namespace WriteText
                 }
             });
 
-            var aCube = Ar3DGeometry.GetCube(512);
+            var aCube = Ar3DGeometry.GetTextureCube(512);
             
             SharpDXData data = new SharpDXData
             {
                 BackgroundColor = Color.Black.ToArFloatVector4(),
                 TransformMartrix = Ar3DMachine.ProduceTransformMatrix(
                                         new ArIntVector3(0, 0, 0),
-                                        new ArFloatVector3(-0.2f, 0.2f, 0.7f),
-                                        //new ArFloatVector3(0, 0, 0),
+                                        new ArFloatVector3(1.7f, -0.2f, 0.2f),                                        
                                         new ArFloatVector3(1, 1, 1)),
                 VerticesData = new SharpDXBundleData[]
                 {

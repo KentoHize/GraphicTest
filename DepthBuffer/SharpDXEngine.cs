@@ -47,11 +47,14 @@ namespace DepthBuffer
         GraphicsCommandList[] bundles;
         CommandAllocator commandAllocator;
         Resource[] renderTargets;
+        Resource depthTarget;
         DescriptorHeap renderTargetViewHeap;
         DescriptorHeap shaderResourceBufferViewHeap;
+        DescriptorHeap depthStencilViewHeap;
         int rtvDescriptorSize;
         int cruDescriptorSize;
         CpuDescriptorHandle cruHandle;
+        CpuDescriptorHandle dsvHandle;
         IntPtr ptr;
 
         RootSignature computeRootSignature;
@@ -134,6 +137,38 @@ namespace DepthBuffer
                 device.CreateRenderTargetView(renderTargets[n], null, rtvHandle);
                 rtvHandle += rtvDescriptorSize;
             }
+
+            DescriptorHeapDescription dsvHeapDesc = new DescriptorHeapDescription()
+            {
+                DescriptorCount = FrameCount,
+                Flags = DescriptorHeapFlags.None,
+                Type = DescriptorHeapType.DepthStencilView
+            };
+            depthStencilViewHeap = device.CreateDescriptorHeap(dsvHeapDesc);
+            dsvHandle = depthStencilViewHeap.CPUDescriptorHandleForHeapStart;
+
+            ClearValue depthOptimizedClearValue = new ClearValue()
+            {
+                Format = Format.D32_Float,
+                DepthStencil = new DepthStencilValue() { Depth = 1.0F, Stencil = 0 },
+            };
+
+            depthTarget = device.CreateCommittedResource(
+                new HeapProperties(HeapType.Default),
+                HeapFlags.None,
+                new ResourceDescription(ResourceDimension.Texture2D, 0, (int)setting.Viewport.Width, (int)setting.Viewport.Height, 1, 0, Format.D32_Float, 1, 0, TextureLayout.Unknown, ResourceFlags.AllowDepthStencil),
+                ResourceStates.DepthWrite, depthOptimizedClearValue);
+
+            //var depthView = new DepthStencilViewDescription()
+            //{
+            //    Format = Format.D32_Float,
+            //    Dimension = DepthStencilViewDimension.Texture2D,
+            //    Flags = DepthStencilViewFlags.None,
+            //};
+
+            //bind depth buffer
+            device.CreateDepthStencilView(depthTarget, null, dsvHandle);
+
             CreatePipleLine(setting);
         }
 
@@ -160,7 +195,8 @@ namespace DepthBuffer
             InputElement[] inputElementDescs = new InputElement[]
              {
                     new InputElement("POSITION", 0, Format.R32G32B32_SInt,0,0),
-                    new InputElement("TEXCOORD", 0, Format.R32G32_Float,12,0),
+                    new InputElement("COLOR", 0, Format.R32G32B32A32_Float,12,0),
+                    new InputElement("TEXCOORD", 0, Format.R32G32_Float,28,0),
              };
 
             RasterizerStateDescription rasterizerStateDesc = new RasterizerStateDescription()
@@ -394,6 +430,7 @@ namespace DepthBuffer
 
             commandList.SetGraphicsRootConstantBufferView(0, constantBuffer[0].GPUVirtualAddress);
             commandList.SetGraphicsRootConstantBufferView(1, constantBuffer[1].GPUVirtualAddress);
+            
             commandList.SetDescriptorHeaps(new DescriptorHeap[] { shaderResourceBufferViewHeap });
             commandList.SetGraphicsRootDescriptorTable(2, shaderResourceBufferViewHeap.GPUDescriptorHandleForHeapStart);
 
@@ -402,7 +439,7 @@ namespace DepthBuffer
             commandList.SetRenderTargets(rtvHandle, null);
             commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
             commandList.ClearRenderTargetView(rtvHandle, new Color4(backgroundColor.X, backgroundColor.Y, backgroundColor.Z, backgroundColor.W), 0, null);
-
+            commandList.ClearDepthStencilView(dsvHandle, ClearFlags.FlagsDepth, 1, 0);
             for (int i = 0; i < bundles.Length; i++)
                 commandList.ExecuteBundle(bundles[i]);
             commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);

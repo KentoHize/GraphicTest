@@ -46,7 +46,7 @@ namespace DepthBuffer
                 }
             });
 
-            var aCube = Ar3DGeometry.GetCube(512);
+            var aCube = Ar3DGeometry.GetMixCube(512);
 
             SharpDXData data = new SharpDXData
             {
@@ -61,40 +61,52 @@ namespace DepthBuffer
                     new SharpDXBundleData
                     {
                         PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
-                        TextureVertices = aCube.vertices,
+                        MixVertices = aCube.vertices,
                         Indices = aCube.indices,
-                    }
+                    },
                     //new SharpDXBundleData
                     //{
                     //    PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
-                    //    TextureVertices = new ArTextureVertex[]
+                    //    ColorVertices = new ArColorVertex[]
                     //    {
-                    //        new ArTextureVertex(0, 0, 0, 0, 1),
-                    //        new ArTextureVertex(512, 0, 0, 1, 1),
-                    //        new ArTextureVertex(0, 512, 0, 0, 0),
-                    //        new ArTextureVertex(512, 512, 0, 1, 0)
+                    //        new ArColorVertex(-500, 500, 500, 0, 1, 0, 1),
+                    //        new ArColorVertex(500, 500, 500, 0, 1, 0, 1),
+                    //        new ArColorVertex(500, 500, -500, 0, 1, 0, 1),
+                    //        new ArColorVertex(-500, 500, -500, 0, 1, 0, 1),
+
+                    //        new ArColorVertex(-500, -500, 500, 1, 0, 1, 1),
+                    //        new ArColorVertex(500, -500, 500, 1, 0, 1, 1),
+                    //        new ArColorVertex(500, -500, -500, 1, 0, 1, 1),
+                    //        new ArColorVertex(-500, -500, -500, 1, 0, 1, 1),
+
+                    //        new ArColorVertex(-500, -500, 500, 1, 0, 0, 1),
+                    //        new ArColorVertex(-500, 500, 500, 1, 0, 0, 1),
+                    //        new ArColorVertex(-500, 500, -500, 1, 0, 0, 1),
+                    //        new ArColorVertex(-500, -500, -500, 1, 0, 0, 1),
+
+                    //        new ArColorVertex(500, -500, 500, 1, 1, 0, 1),
+                    //        new ArColorVertex(500, 500, 500, 1, 1, 0, 1),
+                    //        new ArColorVertex(500, 500, -500, 1, 1, 0, 1),
+                    //        new ArColorVertex(500, -500, -500, 1, 1, 0, 1),
+
+                    //        new ArColorVertex(-500, 500, 500, 0, 1, 1, 1),
+                    //        new ArColorVertex(500, 500, 500, 0, 1, 1, 1),
+                    //        new ArColorVertex(500, -500, 500, 0, 1, 1, 1),
+                    //        new ArColorVertex(-500, -500, 500, 0, 1, 1, 1),
+
+                    //        new ArColorVertex(-500, 500, -500, 0, 0, 1, 1),
+                    //        new ArColorVertex(500, 500, -500, 0, 0, 1, 1),
+                    //        new ArColorVertex(500, -500, -500, 0, 0, 1, 1),
+                    //        new ArColorVertex(-500, -500, -500, 0, 0, 1, 1),
                     //    },
-                    //    Indices = new int[]
-                    //    {
-                    //        1, 0, 2, 1, 2, 3
-                    //    },
-                    //    TextureIndex = 0
-                    //},
-                    //new SharpDXBundleData
-                    //{
-                    //    PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
-                    //    TextureVertices = new ArTextureVertex[]
-                    //    {
-                    //        new ArTextureVertex(0, 0, 0, 1, 0),
-                    //        new ArTextureVertex(-512, 0, 0, 0, 0),
-                    //        new ArTextureVertex(0, -512, 0, 1, 1),
-                    //        new ArTextureVertex(-512, -512, 0, 0, 1)
-                    //    },
-                    //    Indices = new int[]
-                    //    {
-                    //        1, 0, 2, 1, 2, 3
-                    //    },
-                    //    TextureIndex = 1
+                    //    Indices =  new int[]{
+                    //        0,1,2,0,2,3,
+                    //        4,6,5,4,7,6,
+                    //        8,9,10,8,10,11,
+                    //        12,14,13,12,15,14,
+                    //        16,18,17,16,19,18,
+                    //        20,21,22,20,22,23
+                    //    }
                     //}
                 }
             };
