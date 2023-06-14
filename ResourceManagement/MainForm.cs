@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Xml.Schema;
 
 namespace ResourceManagement
 {
@@ -44,12 +45,14 @@ namespace ResourceManagement
                 Width = width,
                 Height = height
             });
-            //sde.LoadTexture(new SharpDXTextureData
-            //{
-            //    Data = Ar3DMachine.LoadBitmapFromFile(textureFile2, out int width2, out int height2),
-            //    Width = width2,
-            //    Height = height2
-            //});
+            sde.Render();
+            timer1.Start();
+            sde.LoadTexture(new SharpDXTextureData
+            {
+                Data = Ar3DMachine.LoadBitmapFromFile(textureFile2, out int width2, out int height2),
+                Width = width2,
+                Height = height2
+            });
             //sde.LoadStaticData(new SharpDXStaticData
             //{
             //    Textures = new SharpDXTextureData[]
@@ -115,5 +118,15 @@ namespace ResourceManagement
             //    }
             //};
         }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            lblCPUMemory.Text = $"{sde.AdapterName} Shared Memory Use: {GetMB(sde.SharedMemoryUsage)}/{GetMB(sde.SaredSystemMemory)} Mb. Dedicated Memory Use: {GetMB(sde.DedicatedMemoryUsage)}/{GetMB(sde.DedicatedVideoMemory)} Mb";
+            GC.Collect();
+            
+        }
+
+        double GetMB(long byteCount, int reservedDigits = 2)
+            => Math.Round((double)byteCount / 1024 / 1024, reservedDigits);
     }
 }

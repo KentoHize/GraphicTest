@@ -264,7 +264,7 @@ namespace GraphicLibrary
             int height = bitmap.Height;
             BitmapData data = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, width, height),
                 ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);            
-            var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, width, height), ResourceStates.Common);
+            var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, width, height), ResourceStates.CopySource);            
             textureUploadHeap.WriteToSubresource(0, null, data.Scan0, 4 * width, 4 * width * height);
             bitmap.UnlockBits(data);
             bitmap.Dispose();
@@ -288,6 +288,7 @@ namespace GraphicLibrary
                 //var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[i].Width, data.Textures[i].Height), ResourceStates.GenericRead);
                 //textureUploadHeap.WriteToSubresource(0, null, ptr, 4 * data.Textures[i].Width, data.Textures[i].Data.Length);
                 //handle.Free();
+                
                 commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(textureUploadHeap, 0), null);
                 commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);                
                 var srvDesc = new ShaderResourceViewDescription
@@ -302,7 +303,7 @@ namespace GraphicLibrary
             }
 
             commandList.Close();
-            commandQueue.ExecuteCommandList(commandList);
+            commandQueue.ExecuteCommandList(commandList);            
         }
 
         public void Load(SharpDXData data)

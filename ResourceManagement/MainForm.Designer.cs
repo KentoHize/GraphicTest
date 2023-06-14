@@ -28,7 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             pictureBox1 = new PictureBox();
+            timer1 = new System.Windows.Forms.Timer(components);
+            lblCPUMemory = new Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
@@ -41,21 +44,38 @@
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
             // 
+            // timer1
+            // 
+            timer1.Tick += timer1_Tick;
+            // 
+            // lblCPUMemory
+            // 
+            lblCPUMemory.AutoSize = true;
+            lblCPUMemory.Location = new Point(0, 0);
+            lblCPUMemory.Name = "lblCPUMemory";
+            lblCPUMemory.Size = new Size(16, 19);
+            lblCPUMemory.TabIndex = 1;
+            lblCPUMemory.Text = "_";
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(9F, 19F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(lblCPUMemory);
             Controls.Add(pictureBox1);
             Name = "MainForm";
             Text = "MainForm";
             Load += MainForm_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
 
         private PictureBox pictureBox1;
+        private System.Windows.Forms.Timer timer1;
+        private Label lblCPUMemory;
     }
 }

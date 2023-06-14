@@ -12,4 +12,8 @@
     <ProjectReference Include="..\GraphicLibrary\GraphicLibrary.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Shader\" />
+  </ItemGroup>
+
 </Project>
