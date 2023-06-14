@@ -1,11 +1,15 @@
 ﻿using GraphicLibrary;
 using GraphicLibrary.Items;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WriteText
 {
     public partial class MainForm : Form
     {
         SharpDXEngine sde;
+        SharpDXData data;
+        float rx = 0, ry = 0, rz = 0;
+
         const string textureFile = @"C:\Programs\GraphicTest\Texture\Texture\AnnetteSquare.bmp";
         public MainForm()
         {
@@ -38,13 +42,13 @@ namespace WriteText
             });
 
             var aCube = Ar3DGeometry.GetTextureCube(512);
-            
-            SharpDXData data = new SharpDXData
+
+            data = new SharpDXData
             {
                 BackgroundColor = Color.Black.ToArFloatVector4(),
                 TransformMartrix = Ar3DMachine.ProduceTransformMatrix(
                                         new ArIntVector3(0, 0, 0),
-                                        new ArFloatVector3(1.7f, -0.2f, 0.2f),                                        
+                                        new ArFloatVector3(1.7f, -0.2f, 0.2f),
                                         new ArFloatVector3(1, 1, 1)),
                 VerticesData = new SharpDXBundleData[]
                 {
@@ -88,9 +92,23 @@ namespace WriteText
                     //}
                 }
             };
+            
+            timer1.Start();
+            
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {   
             sde.LoadData(data);
-            sde.Render();
-            sde.Close();
+            rx += 0.1f;
+            ry += 0.1f;
+            rz += 0.1f;
+            data.TransformMartrix = Ar3DMachine.ProduceTransformMatrix(
+                                        new ArIntVector3(0, 0, 0),
+                                        new ArFloatVector3(rx, ry, 0),
+                                        new ArFloatVector3(1, 1, 1));
+            sde.Update();
+            sde.Render();            
         }
     }
 }

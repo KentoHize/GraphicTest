@@ -1,4 +1,4 @@
-﻿namespace WriteText
+﻿namespace ResourceManagement
 {
     partial class MainForm
     {
@@ -28,9 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
             pictureBox1 = new PictureBox();
-            timer1 = new System.Windows.Forms.Timer(components);
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
@@ -42,10 +40,6 @@
             pictureBox1.Size = new Size(800, 450);
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
-            // 
-            // timer1
-            // 
-            timer1.Tick += timer1_Tick;
             // 
             // MainForm
             // 
@@ -63,6 +57,5 @@
         #endregion
 
         private PictureBox pictureBox1;
-        private System.Windows.Forms.Timer timer1;
     }
 }
