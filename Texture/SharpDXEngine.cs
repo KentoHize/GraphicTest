@@ -15,6 +15,7 @@ using System.Reflection.Metadata;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using System.Drawing.Imaging;
 
 namespace GraphicLibrary
 {
@@ -51,7 +52,7 @@ namespace GraphicLibrary
         AutoResetEvent fenceEvent;
         Fence fence;
         int fenceValue;
-        
+
         ArFloatVector4 backgroundColor;
         ArFloatMatrix44[] transformMatrix;
 
@@ -129,8 +130,8 @@ namespace GraphicLibrary
                 Flags = DescriptorHeapFlags.None,
                 Type = DescriptorHeapType.RenderTargetView
             };
-            renderTargetViewHeap = device.CreateDescriptorHeap(rtvHeapDesc);        
-            
+            renderTargetViewHeap = device.CreateDescriptorHeap(rtvHeapDesc);
+
 
             rtvDescriptorSize = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.RenderTargetView);
             var rtvHandle = renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
@@ -141,7 +142,7 @@ namespace GraphicLibrary
                 device.CreateRenderTargetView(renderTargets[n], null, rtvHandle);
                 rtvHandle += rtvDescriptorSize;
             }
-            
+
             var cbvHeapDesc = new DescriptorHeapDescription()
             {
                 DescriptorCount = ConstantBufferViewCount + ShaderResourceViewCount,
@@ -165,7 +166,7 @@ namespace GraphicLibrary
 
                 device.CreateConstantBufferView(cbvDesc, cruHandle);
                 cruHandle += cruDescriptorSize;
-            }        
+            }
 
             var rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout,
             new RootParameter[]
@@ -187,7 +188,7 @@ namespace GraphicLibrary
                             OffsetInDescriptorsFromTableStart = ConstantBufferViewCount,
                             DescriptorCount = ShaderResourceViewCount
                         }),
-                        
+
             },
             new StaticSamplerDescription[]
             {
@@ -203,7 +204,7 @@ namespace GraphicLibrary
               {
                     new InputElement("POSITION", 0, Format.R32G32B32_SInt,0,0),
                     new InputElement("COLOR", 0, Format.R32G32B32A32_Float,12,0),
-                    new InputElement("TEXCOORD", 0, Format.R32G32_Float,28,0),                    
+                    new InputElement("TEXCOORD", 0, Format.R32G32_Float,28,0),
               };
 
             RasterizerStateDescription rasterizerStateDesc = new RasterizerStateDescription()
@@ -249,11 +250,25 @@ namespace GraphicLibrary
             fenceEvent = new AutoResetEvent(false);
         }
 
-        public long GetRequiredIntermediateSize(Resource destinationResource, int firstSubresource, int subresourcesCount)
+        //public long GetRequiredIntermediateSize(Resource destinationResource, int firstSubresource, int subresourcesCount)
+        //{
+        //    ResourceDescription desc = destinationResource.Description;
+        //    device.GetCopyableFootprints(ref desc, firstSubresource, subresourcesCount, 0, null, null, null, out long requiredSize);
+        //    return requiredSize;
+        //}
+
+        Resource LoadBitmapToUploadHeap(string fileName)
         {
-            ResourceDescription desc = destinationResource.Description;
-            device.GetCopyableFootprints(ref desc, firstSubresource, subresourcesCount, 0, null, null, null, out long requiredSize);
-            return requiredSize;
+            Bitmap bitmap = new Bitmap(fileName);
+            int width = bitmap.Width;
+            int height = bitmap.Height;
+            BitmapData data = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, width, height),
+                ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);            
+            var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, width, height), ResourceStates.Common);
+            textureUploadHeap.WriteToSubresource(0, null, data.Scan0, 4 * width, 4 * width * height);
+            bitmap.UnlockBits(data);
+            bitmap.Dispose();
+            return textureUploadHeap;
         }
 
         public void LoadStaticData(SharpDXStaticData data)
@@ -263,14 +278,16 @@ namespace GraphicLibrary
             shaderResource = new Resource[ShaderResourceViewCount];
             for(int i = 0; i < data.Textures.Length; i++)
             {
+                if (i == 1)
+                    continue;
                 var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[i].Width, data.Textures[i].Height);
                 texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
-                long uploadBufferSize = GetRequiredIntermediateSize(texture, 0, 1);
-                var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[i].Width, data.Textures[i].Height), ResourceStates.GenericRead);
-                var handle = GCHandle.Alloc(data.Textures[i].Data, GCHandleType.Pinned);
-                ptr = Marshal.UnsafeAddrOfPinnedArrayElement(data.Textures[i].Data, 0);
-                textureUploadHeap.WriteToSubresource(0, null, ptr, 4 * data.Textures[i].Width, data.Textures[i].Data.Length);
-                handle.Free();
+                var textureUploadHeap = LoadBitmapToUploadHeap(@"C:\Programs\GraphicTest\Texture\Texture\ClacierSquare.bmp");
+                //var handle = GCHandle.Alloc(data.Textures[i].Data, GCHandleType.Pinned);
+                //ptr = Marshal.UnsafeAddrOfPinnedArrayElement(data.Textures[i].Data, 0);
+                //var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[i].Width, data.Textures[i].Height), ResourceStates.GenericRead);
+                //textureUploadHeap.WriteToSubresource(0, null, ptr, 4 * data.Textures[i].Width, data.Textures[i].Data.Length);
+                //handle.Free();
                 commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(textureUploadHeap, 0), null);
                 commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);                
                 var srvDesc = new ShaderResourceViewDescription
