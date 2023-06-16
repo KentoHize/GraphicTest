@@ -18,6 +18,7 @@ using Factory4 = SharpDX.DXGI.Factory4;
 using SharpDX;
 using SharpDX.Direct3D12;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Drawing.Imaging;
 
 namespace CreateSphere
 {
@@ -201,6 +202,20 @@ namespace CreateSphere
             fenceEvent = new AutoResetEvent(false);
         }
 
+        Resource LoadBitmapToUploadHeap(string fileName)
+        {
+            Bitmap bitmap = new Bitmap(fileName);
+            int width = bitmap.Width;
+            int height = bitmap.Height;
+            BitmapData data = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, width, height),
+                ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, width, height), ResourceStates.CopySource);
+            textureUploadHeap.WriteToSubresource(0, null, data.Scan0, 4 * width, 4 * width * height);
+            bitmap.UnlockBits(data);
+            bitmap.Dispose();
+            return textureUploadHeap;
+        }
+
         public void LoadTextureFile(string file, string name)
         {
             commandAllocator = device.CreateCommandAllocator(CommandListType.Direct);
@@ -214,8 +229,12 @@ namespace CreateSphere
             };
             shaderResourceBufferViewHeap = device.CreateDescriptorHeap(shaderResourceBufferViewHeapDesc);
             cruHandle = shaderResourceBufferViewHeap.CPUDescriptorHandleForHeapStart;
-            //var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[0].Width, data.Textures[0].Height, 1, 1, 1, 0, ResourceFlags.AllowRenderTarget | ResourceFlags.AllowSimultaneousAccess);
-            //Resource r = CreateTextToTexture(textureDesc);
+
+            var textureUploadHeap = LoadBitmapToUploadHeap(@"C:\Programs\GraphicTest\Texture\Texture\AnnetteSquare.bmp");            
+            var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, textureUploadHeap.Description.Width, textureUploadHeap.Description.Height);
+            texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
+            commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(textureUploadHeap, 0), null);
+            commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
 
             var srvDesc = new ShaderResourceViewDescription
             {
