@@ -19,6 +19,8 @@ namespace ResourceManagement
 {
     public class SharpDXEngine
     {
+        
+
         Adapter4 adapter;
         public string AdapterName => adapter.Description2.Description;
         public long SharedMemoryUsage => adapter.QueryVideoMemoryInfo(0, MemorySegmentGroup.NonLocal).CurrentUsage;
@@ -180,8 +182,11 @@ namespace ResourceManagement
             commandAllocator = device.CreateCommandAllocator(CommandListType.Direct);
             commandList = device.CreateCommandList(CommandListType.Direct, commandAllocator, graphicPLState);
             shaderResource = new Resource[2];
+            
             var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Width, data.Height);
             texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
+            
+            //texture.
             //sw.Stop();
             //MessageBox.Show($"CreateCommittedResource1:{sw.ElapsedMilliseconds} ms");
             //sw.Restart();

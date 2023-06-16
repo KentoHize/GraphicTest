@@ -13,14 +13,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Shader\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Shader\constant.hlsl">
+    <None Update="Shaders\constant.hlsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Shader\shaders.hlsl">
+    <None Update="Shaders\shaders.hlsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

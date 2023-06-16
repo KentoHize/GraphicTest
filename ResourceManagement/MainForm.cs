@@ -39,20 +39,21 @@ namespace ResourceManagement
                 SwapEffect = SharpDX.DXGI.SwapEffect.FlipDiscard,
                 Handle = pictureBox1.Handle
             });
-            sde.LoadTexture(new SharpDXTextureData
-            {
-                Data = Ar3DMachine.LoadBitmapFromFile(textureFile, out int width, out int height),
-                Width = width,
-                Height = height
-            });
-            sde.Render();
-            timer1.Start();
-            sde.LoadTexture(new SharpDXTextureData
-            {
-                Data = Ar3DMachine.LoadBitmapFromFile(textureFile2, out int width2, out int height2),
-                Width = width2,
-                Height = height2
-            });
+            
+            //sde.LoadTexture(new SharpDXTextureData
+            //{
+            //    Data = Ar3DMachine.LoadBitmapFromFile(textureFile, out int width, out int height),
+            //    Width = width,
+            //    Height = height
+            //});
+            //sde.Render();
+            //timer1.Start();
+            //sde.LoadTexture(new SharpDXTextureData
+            //{
+            //    Data = Ar3DMachine.LoadBitmapFromFile(textureFile2, out int width2, out int height2),
+            //    Width = width2,
+            //    Height = height2
+            //});
             //sde.LoadStaticData(new SharpDXStaticData
             //{
             //    Textures = new SharpDXTextureData[]
