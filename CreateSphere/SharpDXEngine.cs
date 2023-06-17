@@ -86,6 +86,8 @@ namespace CreateSphere
             {
                 {ShaderType.VertexShader, new ShaderFileInfo(GLShaderFile, ShaderType.VertexShader) },
                 {ShaderType.PixelShader, new ShaderFileInfo(GLShaderFile, ShaderType.PixelShader) },
+                {ShaderType.GeometryShader, new ShaderFileInfo(GLShaderFile,ShaderType.GeometryShader) },
+                
             };
         }
 
@@ -182,6 +184,9 @@ namespace CreateSphere
                         SharpDX.D3DCompiler.EffectFlags.None, null, FileIncludeHandler.Default)),
                 PixelShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
                         ShaderFiles[ShaderType.PixelShader].File, ShaderFiles[ShaderType.PixelShader].EntryPoint, ShaderFiles[ShaderType.PixelShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug,
+                        SharpDX.D3DCompiler.EffectFlags.None, null, FileIncludeHandler.Default)),
+                GeometryShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
+                        ShaderFiles[ShaderType.GeometryShader].File, ShaderFiles[ShaderType.GeometryShader].EntryPoint, ShaderFiles[ShaderType.GeometryShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug,
                         SharpDX.D3DCompiler.EffectFlags.None, null, FileIncludeHandler.Default)),
                 RasterizerState = rasterizerStateDesc,
                 BlendState = BlendStateDescription.Default(),

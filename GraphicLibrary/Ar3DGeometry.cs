@@ -16,25 +16,11 @@ namespace GraphicLibrary
     }
 
     public static class Ar3DGeometry
-    {
-        //得到Cube
-        //public static Ar3DModel GetCube(int size = 1, VertexType type = VertexType.Texture)
-        //{
-        //    Ar3DModel model = new Ar3DModel();
-        //    if(type == VertexType.Texture)
-        //    {
-        //        model.Planes = new ArTexturePlane[6];
-        //        model.Planes[0] = new ArTexturePlane
-        //        {
-        //            Vertices = new ArTextureVertex[]
-        //            {
-
-        //            }
-        //        };
-        //        //new ArTexturePlane { }
-        //    }
-        //    return model;
-        //}
+    {        
+        public static (ArTextureVertex[] vertices, int[] indices) GetTextureSphere(int raidus = 1)
+        {
+            return new (null, null);
+        }
 
         public static int[] GetTriangleFromPolygon(ArTextureVertex[] vertices)
         {
