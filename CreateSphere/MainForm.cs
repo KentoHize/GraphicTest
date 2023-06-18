@@ -38,6 +38,7 @@ namespace CreateSphere
                 Handle = pictureBox1.Handle
             });
             sde.LoadTextureFile(textureFile, "Annette");
+            
 
             var aCube = Ar3DGeometry.GetTextureCube(512);
 
@@ -55,8 +56,13 @@ namespace CreateSphere
                         PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
                         TextureVertices = aCube.vertices,
                         Indices = aCube.indices,
-                    }
+                    },
+                    //new SharpDXBundleData
+                    //{
+                        
+                    //}
                 }
+
             };
             sde.LoadModel(data);
             sde.Render();

@@ -22,6 +22,7 @@ namespace GraphicLibrary.Items
         {
             _x = x;
             _y = y;
+            
         }
 
         public float this[int index]
@@ -60,7 +61,7 @@ namespace GraphicLibrary.Items
             => a.Equals(b);
         public static bool operator !=(ArFloatVector2 a, ArFloatVector2 b)
             => !a.Equals(b);
-     
+
         public double GetLength()
             => Math.Sqrt(_x * _x + _y * _y);
         public override string ToString()

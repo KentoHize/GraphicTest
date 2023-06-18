@@ -68,11 +68,17 @@ GSOutput GetVertex(GSOutput a)
 
 [maxvertexcount(12)]
 void GSMain(triangle GSInput input[3], inout TriangleStream<GSOutput> outStream)
-{
-    
-    
+{   
     //提供切的方式
     GSOutput result;
+    
+    for (int i = 0; i < 3; i ++)
+    {   
+        result.position = input[i].position;
+        result.uv = input[i].uv;
+        outStream.Append(result);        
+    }   
+    return;
     
     GSOutput a, b, c;
     GSOutput mid1, mid2, mid3;

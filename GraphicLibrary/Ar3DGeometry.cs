@@ -19,6 +19,7 @@ namespace GraphicLibrary
     {
         public static (ArTextureVertex[] vertices, int[] indices) GetTextureSphere(int raidus = 1, int sliceCount = 12)
         {
+
             return new(null, null);
 
         }

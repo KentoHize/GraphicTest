@@ -32,50 +32,50 @@ namespace CreateSphere
         const string GLShaderFile = @"C:\Programs\GraphicTest\CreateSphere\Shaders\shaders.hlsl";
         internal Dictionary<ShaderType, ShaderFileInfo> ShaderFiles { get; set; }
 
-        Device device;
-        Device11 device11;
-        Device12 device12;
-        DeviceContext deviceContext;
-        Resource11 resource11;
+        Device? device;
+        Device11? device11;
+        Device12? device12;
+        DeviceContext? deviceContext;
+        Resource11? resource11;
 
-        InfoQueue infoQueue;
-        SwapChain3 swapChain;
-        CommandQueue commandQueue;
-        PipelineState graphicPLState;
-        PipelineState computePLState;
+        InfoQueue? infoQueue;
+        SwapChain3? swapChain;
+        CommandQueue? commandQueue;
+        PipelineState? graphicPLState;
+        PipelineState? computePLState;
 
-        GraphicsCommandList commandList;
-        GraphicsCommandList[] bundles;
-        CommandAllocator commandAllocator;
-        Resource[] renderTargets;
-        DescriptorHeap renderTargetViewHeap;
-        DescriptorHeap shaderResourceBufferViewHeap;
+        GraphicsCommandList? commandList;
+        GraphicsCommandList[]? bundles;
+        CommandAllocator? commandAllocator;
+        Resource[]? renderTargets;
+        DescriptorHeap? renderTargetViewHeap;
+        DescriptorHeap? shaderResourceBufferViewHeap;
         int rtvDescriptorSize;
         int cruDescriptorSize;
         CpuDescriptorHandle cruHandle;
         IntPtr ptr;
 
-        RootSignature computeRootSignature;
-        RootSignature graphicRootSignature;
+        RootSignature? computeRootSignature;
+        RootSignature? graphicRootSignature;
 
         ViewportF viewport;
         int frameIndex;
 
-        AutoResetEvent fenceEvent;
-        Fence fence;
+        AutoResetEvent? fenceEvent;
+        Fence? fence;
         int fenceValue;
 
         ArFloatVector4 backgroundColor;
-        ArFloatMatrix44[] transformMatrix;
+        ArFloatMatrix44[]? transformMatrix;
 
-        VertexBufferView[] verticesBufferView;
-        IndexBufferView[] indicesBufferView;
-        Resource[] verticesBuffer;
-        Resource[] indicesBuffer;
-        Resource[] constantBuffer;
-        Resource[] shaderResource;
+        VertexBufferView[]? verticesBufferView;
+        IndexBufferView[]? indicesBufferView;
+        Resource[]? verticesBuffer;
+        Resource[]? indicesBuffer;
+        Resource[]? constantBuffer;
+        Resource[]? shaderResource;
 
-        Resource texture;
+        Resource? texture;
 
         public SharpDXEngine()
         {
