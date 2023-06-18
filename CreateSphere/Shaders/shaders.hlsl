@@ -37,11 +37,11 @@ float4 PSMain(GSOutput input) : SV_TARGET
     return annetteTexture.Sample(normal_sampler, input.uv);
 }
 
-[maxvertexcount(2)]
-void GSMain(line GSInput input[2], inout LineStream<GSOutput> outStream)
-{
-    //To do
-}
+//[maxvertexcount(2)]
+//void GSMain(line GSInput input[2], inout LineStream<GSOutput> outStream)
+//{
+//    //To do
+//}
 
 float4 MidPoint(float4 posa, float4 posb)
 {
@@ -58,9 +58,20 @@ float4 Normal(float4 posa, float4 posb, float4 posc)
     return float4(normalize(cross(c1, c2)), 0);
 }
 
-[maxvertexcount(9)]
+GSOutput GetVertex(GSOutput a)
+{
+    GSOutput result;
+    result.position = a.position;
+    result.uv = a.uv;
+    return result;
+}
+
+[maxvertexcount(12)]
 void GSMain(triangle GSInput input[3], inout TriangleStream<GSOutput> outStream)
 {
+    
+    
+    //提供切的方式
     GSOutput result;
     
     GSOutput a, b, c;
@@ -75,32 +86,38 @@ void GSMain(triangle GSInput input[3], inout TriangleStream<GSOutput> outStream)
     float4 n = Normal(input[0].position, input[1].position, input[2].position);
     n /= 10;
     mid1.position = (input[1].position - input[0].position) / 2 + input[0].position; //a - b
+    mid1.position = (input[1].position + input[0].position) / 2 + n; //a - b
     mid1.uv = (input[0].uv + input[1].uv) / 2;
     mid2.position = (input[2].position - input[0].position) / 2 + input[0].position; //a - c
+    mid2.position = (input[2].position + input[0].position) / 2 + n; //a - c
     mid2.uv = (input[0].uv + input[2].uv) / 2;
     mid3.position = (input[2].position - input[1].position) / 2 + input[1].position; // b - c
+    mid3.position = (input[2].position + input[1].position) / 2 + n; //b - c
     mid3.uv = (input[1].uv + input[2].uv) / 2;
     
     //outStream.Append(a);
     //outStream.Append(b);
     //outStream.Append(c);
     
-    outStream.Append(a);
-    outStream.Append(mid1);
-    outStream.Append(mid2);
+    outStream.Append(GetVertex(mid2));
+    outStream.Append(GetVertex(a));
+    outStream.Append(GetVertex(mid1));
+    outStream.RestartStrip();
     
-    outStream.Append(mid1);
-    outStream.Append(b);
-    outStream.Append(mid3);
+    outStream.Append(GetVertex(mid3));
+    outStream.Append(GetVertex(mid1));
+    outStream.Append(GetVertex(b));
+    outStream.RestartStrip();
     
-    outStream.Append(c);
-    outStream.Append(mid2);
-    outStream.Append(mid3);
+    outStream.Append(GetVertex(mid3));
+    outStream.Append(GetVertex(c));
+    outStream.Append(GetVertex(mid2));
+    outStream.RestartStrip();
     
-    outStream.Append(mid1);    
-    outStream.Append(mid3);
-    outStream.Append(mid2);
-    
+    outStream.Append(GetVertex(mid2));
+    outStream.Append(GetVertex(mid1));
+    outStream.Append(GetVertex(mid3));
+    outStream.RestartStrip();
 }
 
 

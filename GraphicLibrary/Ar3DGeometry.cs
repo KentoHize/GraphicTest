@@ -16,11 +16,17 @@ namespace GraphicLibrary
     }
 
     public static class Ar3DGeometry
-    {        
-        public static (ArTextureVertex[] vertices, int[] indices) GetTextureSphere(int raidus = 1)
+    {
+        public static (ArTextureVertex[] vertices, int[] indices) GetTextureSphere(int raidus = 1, int sliceCount = 12)
         {
-            return new (null, null);
+            return new(null, null);
+
         }
+        //public static (ArTextureVertex[] vertices, int[] indices) GetTextureIcosahedron(int raidus = 1)
+        //{
+
+
+        //}
 
         public static int[] GetTriangleFromPolygon(ArTextureVertex[] vertices)
         {
