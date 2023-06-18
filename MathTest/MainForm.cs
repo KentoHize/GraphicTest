@@ -71,12 +71,41 @@ namespace MathTest
             g.DrawLine(LinePen, dA, dB);
             g.DrawLine(LinePen, dA, dC);
             g.DrawLine(LinePen, dB, dC);
-            //Label lblDescrition = new Label
+
+            //equation
+            Func<Point, Point, Point, Point, double> eq = (Point A, Point B, Point C, Point P) => {
+                return (double)(P.X - C.X + A.X) / (B.X - C.X) -
+                (double)(P.Y - C.Y + A.Y) / (B.Y - C.Y);
+            };
+
+            Func<Point, double> eq2 = (Point A) =>
+            {
+                return A.X + A.Y;
+            };
+
+            for(float u = 0; u < 1; u+=0.01f)
+            {
+                for(float v = 0; v < 1; v+=0.01f)
+                {
+                    if (u + v > 1)
+                        break;
+                    g.FillEllipse(GridPen, GetDrawPoint(new Point((int)(u * (C.X - A.X) + v * (B.X - A.X) + A.X), (int)(u * (C.Y - A.Y) + v * (B.Y - A.Y) + A.Y))));
+                }
+            }
+
+            //for(int i = -1 * Origin.X ; i < Origin.X ; i+=10)
             //{
-            //    Text = $"AF"
+            //    for(int j = -1 * Origin.Y; j < Origin.Y; j+=10)
+            //    {
+            //        //if(eq2(new Point(i, j)) <= 0)
+            //            //g.FillEllipse(GridPen, GetDrawPoint(new Point(i, j)));
+
+            //        if (eq(A, B, C, new Point(i, j)) >= 0)
+            //            g.FillEllipse(GridPen, GetDrawPoint(new Point(i, j)));
+            //    }
             //}
-            //Draw 2 Point
         }
+
 
         private void MainForm_Load(object sender, EventArgs e)
         {
