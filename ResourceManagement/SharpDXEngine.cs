@@ -16,6 +16,7 @@ using System.Diagnostics;
 using System.DirectoryServices.ActiveDirectory;
 using System.Drawing.Imaging;
 using SharpDX.DirectWrite;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ResourceManagement
 {
@@ -35,7 +36,9 @@ namespace ResourceManagement
         public const int DefaultComponentMapping = 5876;
         const string GLShaderFile = @"C:\Programs\GraphicTest\ResourceManagement\Shader\shaders.hlsl";
         internal Dictionary<ShaderType, ShaderFileInfo> ShaderFiles { get; set; }
-        internal Dictionary<string, int> ModelsTable { get; set; }
+        //internal Dictionary<string, Resource> ModelsTable { get; set; }
+
+        internal Dictionary<string, DirectX12Model> ModelsTable { get; set; }
 
         Device device;
         Device11 device11;
@@ -87,7 +90,7 @@ namespace ResourceManagement
 #if DEBUG
             DebugInterface.Get().EnableDebugLayer();
 #endif
-            ModelsTable = new Dictionary<string, int>();
+            ModelsTable = new Dictionary<string, DirectX12Model>();
             ShaderFiles = new Dictionary<ShaderType, ShaderFileInfo>
             {
                 {ShaderType.VertexShader, new ShaderFileInfo(GLShaderFile, ShaderType.VertexShader) },
@@ -234,9 +237,43 @@ namespace ResourceManagement
 
         
 
-        public void Load3DModel (ArDirect3DModel model, string name)
+        public void Load3DModel(string name, ArDirect3DModel model)
         {
+            DirectX12Model d12model = new DirectX12Model();
+            d12model.VertericesCount = model.Vertices.Length;
+            d12model.VertexBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None,
+                ResourceDescription.Buffer(model.Vertices.Length * Marshal.SizeOf(typeof(ArDirect3DVertex))), ResourceStates.VertexAndConstantBuffer);
 
+            d12model.VertexBufferView = new VertexBufferView
+            {
+                BufferLocation = d12model.VertexBuffer.GPUVirtualAddress,
+                StrideInBytes = Marshal.SizeOf(typeof(ArDirect3DVertex)),
+                SizeInBytes = model.Vertices.Length * Marshal.SizeOf(typeof(ArDirect3DVertex))
+            };
+            d12model.IndexBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, 
+                ResourceDescription.Buffer(model.Indices.Length * sizeof(int)), ResourceStates.IndexBuffer);
+
+            d12model.IndexBufferView = new IndexBufferView
+            {
+                BufferLocation = d12model.IndexBuffer.GPUVirtualAddress,
+                SizeInBytes = model.Indices.Length * sizeof(int),
+                Format = Format.R32_UInt
+            };
+
+
+            bundles = new GraphicsCommandList[1];
+            CommandAllocator bundleAllocator = device.CreateCommandAllocator(CommandListType.Bundle);
+            bundles[0] = device.CreateCommandList(0, CommandListType.Bundle, bundleAllocator, graphicPLState);
+            bundles[0].PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
+            bundles[0].SetVertexBuffer(0, d12model.VertexBufferView);
+            bundles[0].SetIndexBuffer(d12model.IndexBufferView);
+            bundles[0].DrawIndexedInstanced(d12model.VertericesCount, 1, 0, 0, 0);
+            bundles[0].Close();
+
+            //backgroundColor = data.BackgroundColor;
+            //ModelsTable.Add(name, model);
+            //var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Width, data.Height);
+            //texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
         }
 
         public void LoadTextureFile(string file, string name)
@@ -337,8 +374,8 @@ namespace ResourceManagement
             commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
             commandList.ClearRenderTargetView(rtvHandle, new Color4(backgroundColor.X, backgroundColor.Y, backgroundColor.Z, backgroundColor.W), 0, null);
 
-            //for (int i = 0; i < bundles.Length; i++)
-            //    commandList.ExecuteBundle(bundles[i]);
+            for (int i = 0; i < bundles.Length; i++)
+                commandList.ExecuteBundle(bundles[i]);
             commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
 
             commandList.Close();

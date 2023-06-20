@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GraphicLibrary.Items
 {
     //DirectX Shader Compatible Int Vector3
-    public struct ArIntVector3 : IEquatable<ArIntVector3>, IFormattable
+    [StructLayout(LayoutKind.Sequential)]
+    public class ArIntVector3 : IEquatable<ArIntVector3>, IFormattable
     {
         int _x, _y, _z;
         public static ArIntVector3 Zero { get => new ArIntVector3(); }

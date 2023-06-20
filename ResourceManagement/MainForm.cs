@@ -45,9 +45,24 @@ namespace ResourceManagement
             //    Data = Ar3DMachine.LoadBitmapFromFile(textureFile, out int width, out int height),
             //    Width = width,
             //    Height = height
-            //});
+            //});            
             sde.LoadStaticData();
             sde.LoadData();
+            sde.Load3DModel("TestObject", new ArDirect3DModel
+            {
+                Vertices = new ArDirect3DVertex[]
+                {
+                    new ArDirect3DVertex{ Position = new ArIntVector3(512, 512, 0), TextureCoordinate = new ArFloatVector3(1, 1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
+                    new ArDirect3DVertex{ Position = new ArIntVector3(0, 0, 0), TextureCoordinate = new ArFloatVector3(1, 1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
+                    new ArDirect3DVertex{ Position = new ArIntVector3(0, 512, 0), TextureCoordinate = new ArFloatVector3(1, 1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) }
+                },
+                Indices = new int[]
+                {
+                    0, 1, 2
+                }
+            });
+            
+            
             sde.Render();
             timer1.Start();
             //sde.LoadTexture(new SharpDXTextureData
