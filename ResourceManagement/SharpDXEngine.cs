@@ -169,6 +169,10 @@ namespace ResourceManagement
             return pc.RawValue;
         }
 
+        
+
+        public void Load3DModel ()
+
         public void LoadTextureFile(string file, string name)
         {
 

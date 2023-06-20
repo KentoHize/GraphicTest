@@ -46,8 +46,8 @@ namespace ResourceManagement
             //    Width = width,
             //    Height = height
             //});
-            //sde.Render();
-            //timer1.Start();
+            sde.Render();
+            timer1.Start();
             //sde.LoadTexture(new SharpDXTextureData
             //{
             //    Data = Ar3DMachine.LoadBitmapFromFile(textureFile2, out int width2, out int height2),
