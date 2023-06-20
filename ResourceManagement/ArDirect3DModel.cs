@@ -17,7 +17,7 @@ namespace ResourceManagement
     public class ArDirect3DModel
     {   
         public ArDirect3DVertex[] Vertices { get; set; }
-        public int[] indices { get; set; }
+        public int[] Indices { get; set; }
 
     }
 }
