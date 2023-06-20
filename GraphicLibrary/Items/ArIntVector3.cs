@@ -9,10 +9,15 @@ using System.Threading.Tasks;
 namespace GraphicLibrary.Items
 {
     //DirectX Shader Compatible Int Vector3
+    //[StructLayout(LayoutKind.Explicit, Size = 12, CharSet = CharSet.Ansi)]
     [StructLayout(LayoutKind.Sequential)]
+    //[Serializable]
     public class ArIntVector3 : IEquatable<ArIntVector3>, IFormattable
     {
-        int _x, _y, _z;
+        public int _x, _y, _z;
+        //[FieldOffset(0)] int _x;
+        //[FieldOffset(4)] int _y;
+        //[FieldOffset(8)] int _z;
         public static ArIntVector3 Zero { get => new ArIntVector3(); }
         public static ArIntVector3 One { get => new ArIntVector3(1, 1, 1); }
         public static ArIntVector3 UnitX { get => new ArIntVector3(1, 0, 0); }

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ResourceManagement": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    }
+  }
+}

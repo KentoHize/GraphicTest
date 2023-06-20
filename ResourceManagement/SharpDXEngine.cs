@@ -17,6 +17,7 @@ using System.DirectoryServices.ActiveDirectory;
 using System.Drawing.Imaging;
 using SharpDX.DirectWrite;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Runtime.CompilerServices;
 
 namespace ResourceManagement
 {
@@ -61,7 +62,7 @@ namespace ResourceManagement
         int rtvDescriptorSize;
         int cruDescriptorSize;
         CpuDescriptorHandle cruHandle;
-        IntPtr ptr;
+        IntPtr ptr, ptr2;
 
         RootSignature computeRootSignature;
         RootSignature graphicRootSignature;
@@ -237,13 +238,78 @@ namespace ResourceManagement
 
         
 
+        /// <summary>
+        /// 必須是單層
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="structArray"></param>
+        /// <param name="ptr"></param>
+        void CopyStructArrayToPtr<T>(T[] structArray, IntPtr ptr)
+        {
+            int structSize = Marshal.SizeOf(typeof(T));
+            for(int i = 0; i < structArray.Length; i++)
+                Marshal.StructureToPtr(structArray[i], ptr + i * structSize, true);
+        }
+
         public void Load3DModel(string name, ArDirect3DModel model)
         {
             DirectX12Model d12model = new DirectX12Model();
-            d12model.VertericesCount = model.Vertices.Length;
+            d12model.IndicesCount = model.Indices.Length;
             d12model.VertexBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None,
                 ResourceDescription.Buffer(model.Vertices.Length * Marshal.SizeOf(typeof(ArDirect3DVertex))), ResourceStates.VertexAndConstantBuffer);
 
+           
+
+            //model.Vertices[0]
+            //var handle = GCHandle.Alloc(model.Vertices, GCHandleType.Pinned);
+            //ptr = Marshal.UnsafeAddrOfPinnedArrayElement(model.Vertices, 0);
+            //ptr2 = d12model.VertexBuffer.Map(0);
+            //Marshal.StructureToPtr(model.Vertices)
+            //Marshal.Str
+            //MemoryStream ms = new MemoryStream();            
+            //Utilities.CopyMemory(ptr2, ptr, model.Vertices.Length * Marshal.SizeOf(typeof(ArDirect3DVertex)));
+            //d12model.VertexBuffer.Unmap(0);
+            //handle.Free();
+            ptr = d12model.VertexBuffer.Map(0);
+            //Marshal
+            CopyStructArrayToPtr(model.Vertices, ptr);
+            d12model.VertexBuffer.Unmap(0);
+            //unsafe
+            //{
+            //    //Marshal.StructureArrayToPtr
+            //    Marshal.StructureToPtr(model.Vertices[0], ptr, true);
+            //    Marshal.StructureToPtr(model.Vertices[1], ptr + 36, true);
+            //    Marshal.StructureToPtr(model.Vertices[2], ptr + 72, true);
+            //    //Utilities.CopyMemory(ptr, );
+            //    //Utilities.CopyMemory(ptr, model.Vertices[0], 36);
+            //}
+
+            //Utilities.Write(ptr, ref model.Vertices[0]);
+            //Utilities.Write(ptr + 36, ref model.Vertices[1]);
+            //Utilities.Write(ptr + 72, ref model.Vertices[2]);
+            //Utilities.Write(ptr, model.Vertices[0], 0, model.Vertices.Length);
+            //unsafe
+            //{
+            //    fixed (ArDirect3DVertex* ptr = &model.Vertices[0])
+            //    {
+            //        _003F val = ptr;
+            //        int num = sizeof(T) * count;
+            //        // IL cpblk instruction
+            //        Unsafe.CopyBlockUnaligned(pDest, val, num);
+            //        return num + (byte*)pDest;
+            //    }
+            //    //Interop.Write((void*)ptr, model.Vertices, 0, model.Vertices.Length);
+            //}
+
+
+
+            //d12model.VertexBuffer
+            //d12model.VertexBuffer.WriteToSubresource(0, null, ptr, Marshal.SizeOf(typeof(ArDirect3DVertex)), model.Vertices.Length);
+
+
+            //d12model.VertexBuffer.WriteToSubresource()
+
+            //Buffer.MemoryCopy()
             d12model.VertexBufferView = new VertexBufferView
             {
                 BufferLocation = d12model.VertexBuffer.GPUVirtualAddress,
@@ -252,6 +318,10 @@ namespace ResourceManagement
             };
             d12model.IndexBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, 
                 ResourceDescription.Buffer(model.Indices.Length * sizeof(int)), ResourceStates.IndexBuffer);
+
+            ptr = d12model.IndexBuffer.Map(0);
+            Utilities.Write(ptr, model.Indices, 0, model.Indices.Length);
+            d12model.IndexBuffer.Unmap(0);
 
             d12model.IndexBufferView = new IndexBufferView
             {
@@ -267,7 +337,7 @@ namespace ResourceManagement
             bundles[0].PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
             bundles[0].SetVertexBuffer(0, d12model.VertexBufferView);
             bundles[0].SetIndexBuffer(d12model.IndexBufferView);
-            bundles[0].DrawIndexedInstanced(d12model.VertericesCount, 1, 0, 0, 0);
+            bundles[0].DrawIndexedInstanced(d12model.IndicesCount, 1, 0, 0, 0);
             bundles[0].Close();
 
             //backgroundColor = data.BackgroundColor;
