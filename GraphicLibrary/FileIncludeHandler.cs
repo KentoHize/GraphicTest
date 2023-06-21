@@ -18,7 +18,7 @@ namespace GraphicLibrary
 
             if (!Path.IsPathRooted(filePath))
             {
-                string selectedFile = Path.Combine(Environment.CurrentDirectory, "Shaders", fileName);
+                string selectedFile = Path.Combine(Environment.CurrentDirectory, "Shader", fileName);
                 if (File.Exists(selectedFile))
                     filePath = selectedFile;
             }

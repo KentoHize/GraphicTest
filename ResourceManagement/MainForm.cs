@@ -58,14 +58,16 @@ namespace ResourceManagement
             sw.Stop();
             Debug.WriteLine($"Load 8 Picture: {sw.ElapsedMilliseconds}");
 
+            sde.PrepareLoadModel();
+
             sde.LoadModel("TestObject", new ArDirect3DModel
             {
                 Vertices = new ArDirect3DVertex[]
                 {
                     new ArDirect3DVertex{ Position = new ArIntVector3(0, 0, 0), ModelTextureIndex = 0, TextureCoordinate = new ArFloatVector2(1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
-                    new ArDirect3DVertex{ Position = new ArIntVector3(512, 0, 0), ModelTextureIndex = 0, TextureCoordinate = new ArFloatVector2(1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },                    
-                    new ArDirect3DVertex{ Position = new ArIntVector3(512, 512, 0), ModelTextureIndex = 0, TextureCoordinate = new ArFloatVector2(1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
-                    new ArDirect3DVertex{ Position = new ArIntVector3(0, 512, 0), ModelTextureIndex = 0, TextureCoordinate = new ArFloatVector2(1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) }
+                    new ArDirect3DVertex{ Position = new ArIntVector3(512, 0, 0), ModelTextureIndex = 0, TextureCoordinate = new ArFloatVector2(0, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },                    
+                    new ArDirect3DVertex{ Position = new ArIntVector3(512, 512, 0), ModelTextureIndex = 0, TextureCoordinate = new ArFloatVector2(0, 0), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
+                    new ArDirect3DVertex{ Position = new ArIntVector3(0, 512, 0), ModelTextureIndex = 0, TextureCoordinate = new ArFloatVector2(1, 0), ShadowCoordinate = new ArFloatVector3(1, 1, 1) }
                 },
                 Indices = new int[]
                 {
@@ -81,10 +83,10 @@ namespace ResourceManagement
             {
                 Vertices = new ArDirect3DVertex[]
                 {
-                    new ArDirect3DVertex{ Position = new ArIntVector3(0, 0, 0), ModelTextureIndex = 0, TextureCoordinate = new ArFloatVector2(1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
-                    new ArDirect3DVertex{ Position = new ArIntVector3(-512, 0, 0), ModelTextureIndex = 0, TextureCoordinate = new ArFloatVector2(1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
+                    new ArDirect3DVertex{ Position = new ArIntVector3(0, 0, 0), ModelTextureIndex = 0, TextureCoordinate = new ArFloatVector2(0, 0), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
+                    new ArDirect3DVertex{ Position = new ArIntVector3(-512, 0, 0), ModelTextureIndex = 0, TextureCoordinate = new ArFloatVector2(1, 0), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
                     new ArDirect3DVertex{ Position = new ArIntVector3(-512, -512, 0), ModelTextureIndex = 0, TextureCoordinate = new ArFloatVector2(1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
-                    new ArDirect3DVertex{ Position = new ArIntVector3(0, -512, 0), ModelTextureIndex = 0, TextureCoordinate = new ArFloatVector2(1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) }
+                    new ArDirect3DVertex{ Position = new ArIntVector3(0, -512, 0), ModelTextureIndex = 0, TextureCoordinate = new ArFloatVector2(0, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) }
                 },
                 Indices = new int[]
                 {
@@ -95,19 +97,19 @@ namespace ResourceManagement
                     1
                 }
             });
+
+            sde.PrepareSetModel();
             //設置攝影機
             //sde.SetPerspectiveCamera()
             //設置光
             sde.SetModel("TestObject", new ArIntVector3(100, 100, 100));
             sde.SetModel("TestObject2", new ArIntVector3(100, 100, 100));
-            sde.SetModel("TestObject2", new ArIntVector3(200, 200, 200));
+            sde.SetModel("TestObject2", new ArIntVector3(-200, 200, 200));
             //CreateVertex
             //CountShadow
             //Draw
             //結合模組/Texture
             sde.PrepareRender();
-
-          
 
             sde.Render();
             timer1.Start();

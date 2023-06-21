@@ -14,7 +14,6 @@ using Factory4 = SharpDX.DXGI.Factory4;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Drawing.Imaging;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace ResourceManagement
@@ -83,7 +82,7 @@ namespace ResourceManagement
         IndexBufferView[] indicesBufferView;
         Resource[] verticesBuffer;
         Resource[] indicesBuffer;
-        Resource[] constantBuffer;
+        List<Resource> constantBuffer;        
         Resource[] shaderResource;
 
         Resource texture;
@@ -95,6 +94,7 @@ namespace ResourceManagement
 #endif
             ModelTable = new Dictionary<string, DirectX12Model>();
             TextureTable = new Dictionary<int, Resource>();
+            constantBuffer = new List<Resource>();
             ShaderFiles = new Dictionary<ShaderType, ShaderFileInfo>
             {
                 {ShaderType.VertexShader, new ShaderFileInfo(GLShaderFile, ShaderType.VertexShader) },
@@ -155,16 +155,11 @@ namespace ResourceManagement
             fenceValue = 1;
             fenceEvent = new AutoResetEvent(false);
 
+            CreatePipleLine();
+
             commandAllocator = device.CreateCommandAllocator(CommandListType.Direct);
             commandList = device.CreateCommandList(CommandListType.Direct, commandAllocator, graphicPLState);
-
             commandList.Close();
-
-
-            bundles = new GraphicsCommandList[1];
-            CommandAllocator bundleAllocator = device.CreateCommandAllocator(CommandListType.Bundle);
-            bundles[0] = device.CreateCommandList(0, CommandListType.Bundle, bundleAllocator, graphicPLState);
-
         }
 
         void CreatePipleLine()
@@ -174,8 +169,10 @@ namespace ResourceManagement
              {   
                  new RootParameter(ShaderVisibility.All, new RootDescriptor(0, 0), RootParameterType.ConstantBufferView),
                  //new RootParameter(ShaderVisibility.All, new RootDescriptor(1, 0), RootParameterType.ConstantBufferView),
+                 //new RootParameter(ShaderVisibility.All,
+                 //           new DescriptorRange(DescriptorRangeType.ShaderResourceView, TextureTable.Count, 0))
                  new RootParameter(ShaderVisibility.All,
-                            new DescriptorRange(DescriptorRangeType.ShaderResourceView, TextureTable.Count, 0))
+                            new DescriptorRange(DescriptorRangeType.ShaderResourceView, 8, 0))
              },
              new StaticSamplerDescription[]
              {
@@ -228,11 +225,18 @@ namespace ResourceManagement
             };
             psoDesc.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
             graphicPLState = device.CreateGraphicsPipelineState(psoDesc);
+
+
         }
 
-        public void LoadStaticData()
+        public void PrepareLoadModel()
         {
-           
+            
+
+            bundles = new GraphicsCommandList[1];
+            CommandAllocator bundleAllocator = device.CreateCommandAllocator(CommandListType.Bundle);            
+            bundles[0] = device.CreateCommandList(0, CommandListType.Bundle, bundleAllocator, graphicPLState);
+            bundles[0].SetGraphicsRootSignature(graphicRootSignature);
         }
 
         long GetMemoryUsage(Device device)
@@ -280,17 +284,6 @@ namespace ResourceManagement
             d12model.IndicesCount = model.Indices.Length;
             d12model.VertexBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None,
                 ResourceDescription.Buffer(model.Vertices.Length * Marshal.SizeOf(typeof(ArDirect3DVertex))), ResourceStates.VertexAndConstantBuffer);
-            
-            //var handle = GCHandle.Alloc(model.Vertices, GCHandleType.Pinned);
-            //ptr = Marshal.UnsafeAddrOfPinnedArrayElement(model.Vertices, 0);
-            //ptr2 = d12model.VertexBuffer.Map(0);
-            //Marshal.StructureToPtr(model.Vertices)
-            //Marshal.Str
-            //MemoryStream ms = new MemoryStream();            
-            //Utilities.CopyMemory(ptr2, ptr, model.Vertices.Length * Marshal.SizeOf(typeof(ArDirect3DVertex)));
-            //d12model.VertexBuffer.Unmap(0);
-            //handle.Free();
-            
 
             ptr = d12model.VertexBuffer.Map(0);
             Stopwatch sw = Stopwatch.StartNew();
@@ -299,14 +292,6 @@ namespace ResourceManagement
             sw.Stop();
             Debug.WriteLine($"CSAP: {sw.ElapsedTicks}");
             d12model.VertexBuffer.Unmap(0);
-
-            //d12model.VertexBuffer
-            //d12model.VertexBuffer.WriteToSubresource(0, null, ptr, Marshal.SizeOf(typeof(ArDirect3DVertex)), model.Vertices.Length);
-
-
-            //d12model.VertexBuffer.WriteToSubresource()
-
-            //Buffer.MemoryCopy()
             d12model.VertexBufferView = new VertexBufferView
             {
                 BufferLocation = d12model.VertexBuffer.GPUVirtualAddress,
@@ -357,6 +342,7 @@ namespace ResourceManagement
             commandQueue.ExecuteCommandList(commandList);
 
             TextureTable.Add(index, texture);
+            WaitForPreviousFrame();
         }
 
         public void DeleteTexture(int index)
@@ -417,16 +403,24 @@ namespace ResourceManagement
         {
             if (!ModelTable.ContainsKey(name))
                 throw new ArgumentException(nameof(name));
-            bundles[0].SetGraphicsRootConstantBufferView(0, constantBuffer[0].GPUVirtualAddress);
+            
+            Resource cb = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.GenericRead);
+            ptr = cb.Map(0);
+            Utilities.Write(ptr, new ArFloatMatrix44[] { Ar3DMachine.ProduceTransformMatrix(position ?? ArIntVector3.Zero,
+                rotation ?? ArFloatVector3.Zero, scaling ?? ArFloatVector3.One) }, 0, 1);
+            constantBuffer.Add(cb);
+            cb.Unmap(0);
+            bundles[0].SetGraphicsRootConstantBufferView(0, cb.GPUVirtualAddress);            
             bundles[0].SetVertexBuffer(0, ModelTable[name].VertexBufferView);
             bundles[0].SetIndexBuffer(ModelTable[name].IndexBufferView);
-            bundles[0].DrawIndexedInstanced(ModelTable[name].IndicesCount, 1, 0, 0, 0);
+            bundles[0].DrawIndexedInstanced(ModelTable[name].IndicesCount, 1, 0, 0, 0);            
         }
 
         public void DeleteModel(string name)
         {
             if (!ModelTable.ContainsKey(name))
                 throw new ArgumentException(nameof(name));
+            
             //砍Model
             ModelTable.Remove(name);
         }
@@ -438,16 +432,28 @@ namespace ResourceManagement
         }
             
 
+        public void PrepareSetModel()
+        {
+            commandAllocator.Reset();
+            commandList.Reset(commandAllocator, graphicPLState);
+
+            for (int i = 0; i < constantBuffer.Count; i++)
+                commandList.DiscardResource(constantBuffer[i], null);
+
+            commandList.Close();
+            commandQueue.ExecuteCommandList(commandList);
+            constantBuffer = new List<Resource>();
+        }
+
         public void PrepareRender()
         {
-            CreatePipleLine();
+         
 
-
-            constantBuffer = new Resource[1];
-            constantBuffer[0] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.GenericRead);
-            ptr = constantBuffer[0].Map(0);
-            Utilities.Write(ptr, new ArFloatMatrix44[] { ArFloatMatrix44.One }, 0, 1);
-            constantBuffer[0].Unmap(0);
+            //constantBuffer = new Resource[1];
+            //constantBuffer[0] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.GenericRead);
+            //ptr = constantBuffer[0].Map(0);
+            //Utilities.Write(ptr, new ArFloatMatrix44[] { ArFloatMatrix44.One }, 0, 1);
+            //constantBuffer[0].Unmap(0);
 
             DescriptorHeapDescription csuHeapDesc = new DescriptorHeapDescription()
             {
@@ -511,7 +517,11 @@ namespace ResourceManagement
             commandList.SetViewport(viewport);
             commandList.SetScissorRectangles(new SharpDX.Mathematics.Interop.RawRectangle(0, 0, (int)viewport.Width, (int)viewport.Height));
 
-            //commandList.SetGraphicsRootConstantBufferView(0, constantBuffer[0].GPUVirtualAddress);
+            //Resource cb = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.GenericRead);
+            //ptr = cb.Map(0);
+            //Utilities.Write(ptr, new ArFloatMatrix44[] { ArFloatMatrix44.One }, 0, 1);
+            //cb.Unmap(0);
+            //commandList.SetGraphicsRootConstantBufferView(0, cb.GPUVirtualAddress);
             //commandList.SetGraphicsRootConstantBufferView(1, constantBuffer[1].GPUVirtualAddress);
             commandList.SetDescriptorHeaps(new DescriptorHeap[] { shaderResourceViewHeap });
             commandList.SetGraphicsRootDescriptorTable(1, shaderResourceViewHeap.GPUDescriptorHandleForHeapStart);
@@ -523,7 +533,9 @@ namespace ResourceManagement
             commandList.ClearRenderTargetView(rtvHandle, new Color4(backgroundColor.X, backgroundColor.Y, backgroundColor.Z, backgroundColor.W), 0, null);
             commandList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
             for (int i = 0; i < bundles.Length; i++)
+            {
                 commandList.ExecuteBundle(bundles[i]);
+            }   
             commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
 
             commandList.Close();

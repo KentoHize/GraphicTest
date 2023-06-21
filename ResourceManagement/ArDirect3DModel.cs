@@ -12,10 +12,11 @@ namespace ResourceManagement
     public struct ArDirect3DVertex
     { 
         ArIntVector3 _position;
+        int _modelTextureIndex;
         ArFloatVector2 _textureCoordinate;        
         ArFloatVector3 _shadowCoordinate;
         public ArIntVector3 Position { get => _position; set => _position = value; }        
-        public int ModelTextureIndex { get; set; }
+        public int ModelTextureIndex { get => _modelTextureIndex; set => _modelTextureIndex = value; }
         public ArFloatVector2 TextureCoordinate { get => _textureCoordinate; set => _textureCoordinate = value; }
         public ArFloatVector3 ShadowCoordinate { get => _shadowCoordinate; set => _shadowCoordinate = value; }
     }
