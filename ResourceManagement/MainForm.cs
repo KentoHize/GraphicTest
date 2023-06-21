@@ -22,6 +22,7 @@ namespace ResourceManagement
         SharpDXData data;
         //float rx = 0, ry = 0, rz = 0;
 
+        const string textureFolder = @"C:\Programs\GraphicTest\ResourceManagement\Texture\";
         const string textureFile = @"C:\Programs\GraphicTest\ResourceManagement\Texture\AnnetteSquare.bmp";
         const string textureFile2 = @"C:\Programs\GraphicTest\ResourceManagement\Texture\ClacierSquare.bmp";
         public MainForm()
@@ -42,14 +43,15 @@ namespace ResourceManagement
                 Handle = pictureBox1.Handle
             });
 
-            //sde.LoadTexture(new SharpDXTextureData
-            //{
-            //    Data = Ar3DMachine.LoadBitmapFromFile(textureFile, out int width, out int height),
-            //    Width = width,
-            //    Height = height
-            //});            
-            sde.LoadStaticData();
-           
+            sde.LoadTextureFromFile("t1", Path.Combine(textureFolder, "AnnetteSquare.bmp"));
+            sde.LoadTextureFromFile("t2", Path.Combine(textureFolder, "Ayane.bmp"));
+            sde.LoadTextureFromFile("t3", Path.Combine(textureFolder, "ClacierSquare.bmp"));
+            sde.LoadTextureFromFile("t4", Path.Combine(textureFolder, "Kanade.bmp"));
+            sde.LoadTextureFromFile("t5", Path.Combine(textureFolder, "Sento.bmp"));
+            sde.LoadTextureFromFile("t6", Path.Combine(textureFolder, "Sonia.bmp"));
+            sde.LoadTextureFromFile("t7", Path.Combine(textureFolder, "Sophia.bmp"));
+            sde.LoadTextureFromFile("t8", Path.Combine(textureFolder, "Yuri.bmp"));
+
             sde.LoadModel("TestObject", new ArDirect3DModel
             {
                 Vertices = new ArDirect3DVertex[]
@@ -80,6 +82,7 @@ namespace ResourceManagement
                 }
             });
             //設置攝影機
+            //sde.SetPerspectiveCamera()
             //設置光
             sde.SetModel("TestObject", new ArIntVector3(100, 100, 100));
             sde.SetModel("TestObject2", new ArIntVector3(100, 100, 100));

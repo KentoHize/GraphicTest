@@ -39,7 +39,8 @@ namespace ResourceManagement
         internal Dictionary<ShaderType, ShaderFileInfo> ShaderFiles { get; set; }
         //internal Dictionary<string, Resource> ModelsTable { get; set; }
 
-        internal Dictionary<string, DirectX12Model> ModelsTable { get; set; }
+        internal Dictionary<string, DirectX12Model> ModelTable { get; set; }
+        internal Dictionary<string, Resource> TextureTable { get; set; }
 
         Device device;
         Device11 device11;
@@ -54,8 +55,10 @@ namespace ResourceManagement
         PipelineState computePLState;
 
         GraphicsCommandList commandList;
+        GraphicsCommandList commandList2;
         GraphicsCommandList[] bundles;
         CommandAllocator commandAllocator;
+        CommandAllocator commandAllocator2;
         Resource[] renderTargets;
         DescriptorHeap renderTargetViewHeap;
         DescriptorHeap shaderResourceBufferViewHeap;
@@ -91,7 +94,8 @@ namespace ResourceManagement
 #if DEBUG
             DebugInterface.Get().EnableDebugLayer();
 #endif
-            ModelsTable = new Dictionary<string, DirectX12Model>();
+            ModelTable = new Dictionary<string, DirectX12Model>();
+            TextureTable = new Dictionary<string, Resource>();
             ShaderFiles = new Dictionary<ShaderType, ShaderFileInfo>
             {
                 {ShaderType.VertexShader, new ShaderFileInfo(GLShaderFile, ShaderType.VertexShader) },
@@ -270,7 +274,7 @@ namespace ResourceManagement
 
         public void LoadModel(string name, ArDirect3DModel model)
         {
-            if (ModelsTable.ContainsKey(name))
+            if (ModelTable.ContainsKey(name))
                 throw new ArgumentException(nameof(name));
             DirectX12Model d12model = new DirectX12Model();
             
@@ -325,7 +329,7 @@ namespace ResourceManagement
             };
 
 
-            ModelsTable.Add(name, d12model);
+            ModelTable.Add(name, d12model);
 
             //backgroundColor = data.BackgroundColor;
             //ModelsTable.Add(name, model);
@@ -333,10 +337,40 @@ namespace ResourceManagement
             //texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
         }
 
-        public void LoadTextureFile(string file, string name)
+        /// <summary>
+        /// Bitmap only
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="file"></param>
+        public void LoadTextureFromFile(string name, string file)
         {
+            Resource uploadHeap = LoadBitmapToUploadHeap(file);
+            
+            CommandQueueDescription queueDesc = new CommandQueueDescription(CommandListType.Direct);
+            commandAllocator2 = device.CreateCommandAllocator(CommandListType.Direct);
+            commandList2 = device.CreateCommandList(CommandListType.Direct, commandAllocator2, graphicPLState);
 
+            ResourceDescription textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, uploadHeap.Description.Width, uploadHeap.Description.Height);
+            texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
+           
+            commandList2.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(uploadHeap, 0), null);
+            commandList2.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
+            commandList2.DiscardResource(uploadHeap, null);
+            commandList2.Close();
+            commandQueue.ExecuteCommandList(commandList2);
+
+            TextureTable.Add(name, texture);
         }
+
+        public void DeleteTexture(string name)
+        {
+            if (!TextureTable.ContainsKey(name))
+                throw new ArgumentException(nameof(name));
+            TextureTable.Remove(name);
+        }
+
+        public void ClearTextures()
+            => TextureTable.Clear();
 
         Resource LoadBitmapToUploadHeap(string fileName)
         {
@@ -357,27 +391,22 @@ namespace ResourceManagement
             Stopwatch sw = Stopwatch.StartNew();
             CommandQueueDescription queueDesc = new CommandQueueDescription(CommandListType.Direct);
             commandQueue = device.CreateCommandQueue(queueDesc);
-            commandAllocator = device.CreateCommandAllocator(CommandListType.Direct);
-            commandList = device.CreateCommandList(CommandListType.Direct, commandAllocator, graphicPLState);
+            commandAllocator2 = device.CreateCommandAllocator(CommandListType.Direct);
+            commandList2 = device.CreateCommandList(CommandListType.Direct, commandAllocator2, graphicPLState);
             shaderResource = new Resource[2];
             
             var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Width, data.Height);
             texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
-            
-            //texture.
-            //sw.Stop();
-            //MessageBox.Show($"CreateCommittedResource1:{sw.ElapsedMilliseconds} ms");
-            //sw.Restart();
+         
             var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, textureDesc, ResourceStates.CopySource);
-            //var a = textureUploadHeap.Map(0);
 
             var handle = GCHandle.Alloc(data.Data, GCHandleType.Pinned);
             ptr = Marshal.UnsafeAddrOfPinnedArrayElement(data.Data, 0);            
             textureUploadHeap.WriteToSubresource(0, null, ptr, 4 * data.Width, data.Data.Length);            
             handle.Free();
             
-            commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(textureUploadHeap, 0), null);
-            commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
+            commandList2.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(textureUploadHeap, 0), null);
+            commandList2.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
             //commandList.ResourceBarrierTransition(textureUploadHeap, ResourceStates.CopySource, ResourceStates.Common);
             //textureUploadHeap.Unmap(0);
             
@@ -393,16 +422,16 @@ namespace ResourceManagement
             //    cruHandle += cruDescriptorSize;
             
 
-            commandList.Close();
-            commandQueue.ExecuteCommandList(commandList);
-            sw.Stop();
+            commandList2.Close();
+            commandQueue.ExecuteCommandList(commandList2);
+         
 
             
             //textureUploadHeap.
             //MessageBox.Show(a.CurrentUsage.ToString());
             //MessageBox.Show(adp4.QueryVideoMemoryInfo(0, MemorySegmentGroup.NonLocal).CurrentUsage.ToString());
             //MessageBox.Show($"Upload Annette:{sw.ElapsedMilliseconds} ms");
-            sw.Restart();
+         
             //MessageBox.Show(pc.RawValue.ToString());
         }
 
@@ -420,23 +449,23 @@ namespace ResourceManagement
 
         public void SetModel(string name, ArIntVector3? position = null, ArFloatVector3? rotation = null, ArFloatVector3? scaling = null)
         {
-            if (!ModelsTable.ContainsKey(name))
+            if (!ModelTable.ContainsKey(name))
                 throw new ArgumentException(nameof(name));
 
-            bundles[0].SetVertexBuffer(0, ModelsTable[name].VertexBufferView);
-            bundles[0].SetIndexBuffer(ModelsTable[name].IndexBufferView);
-            bundles[0].DrawIndexedInstanced(ModelsTable[name].IndicesCount, 1, 0, 0, 0);
+            bundles[0].SetVertexBuffer(0, ModelTable[name].VertexBufferView);
+            bundles[0].SetIndexBuffer(ModelTable[name].IndexBufferView);
+            bundles[0].DrawIndexedInstanced(ModelTable[name].IndicesCount, 1, 0, 0, 0);
         }
 
         public void DeleteModel(string name)
         {
-            if (!ModelsTable.ContainsKey(name))
+            if (!ModelTable.ContainsKey(name))
                 throw new ArgumentException(nameof(name));
-            ModelsTable.Remove(name);
+            ModelTable.Remove(name);
         }
 
         public void ClearModels()
-            => ModelsTable.Clear();
+            => ModelTable.Clear();
 
         public void CombineModel()
         {
@@ -464,6 +493,11 @@ namespace ResourceManagement
 
         public void SetSpotLight()
         { }
+
+        public void WriteTextOnScreen(string text)
+        {
+
+        }
 
         public void Render()
         {
