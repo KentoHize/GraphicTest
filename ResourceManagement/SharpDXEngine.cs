@@ -39,6 +39,8 @@ namespace ResourceManagement
         internal Dictionary<string, DirectX12Model> ModelTable { get; set; }
         internal Dictionary<int, Resource> TextureTable { get; set; }
 
+        internal 
+
         Device device;
         Device11 device11;
         Device12 device12;
@@ -310,6 +312,7 @@ namespace ResourceManagement
                 Format = Format.R32_UInt
             };
 
+            //d12model.MaterialIndices = model.MaterialIndices;
 
             ModelTable.Add(name, d12model);
 
@@ -401,22 +404,30 @@ namespace ResourceManagement
             commandQueue.ExecuteCommandList(commandList);
             TextureTable.Add(index, texture);
         }
-     
-        public void SetModel(string name, ArIntVector3? position = null, ArFloatVector3? rotation = null, ArFloatVector3? scaling = null)
+
+        public void CreateModel(string name, int[] materialIndices, ArIntVector3? position = null, ArFloatVector3? rotation = null, ArFloatVector3? scaling = null)
         {
             if (!ModelTable.ContainsKey(name))
                 throw new ArgumentException(nameof(name));
-            
             Resource cb = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.GenericRead);
             ptr = cb.Map(0);
             Utilities.Write(ptr, new ArFloatMatrix44[] { Ar3DMachine.ProduceTransformMatrix(position ?? ArIntVector3.Zero,
                 rotation ?? ArFloatVector3.Zero, scaling ?? ArFloatVector3.One) }, 0, 1);
             constantBuffer.Add(cb);
             cb.Unmap(0);
-            bundles[0].SetGraphicsRootConstantBufferView(0, cb.GPUVirtualAddress);            
+            bundles[0].SetGraphicsRootConstantBufferView(0, cb.GPUVirtualAddress);
             bundles[0].SetVertexBuffer(0, ModelTable[name].VertexBufferView);
             bundles[0].SetIndexBuffer(ModelTable[name].IndexBufferView);
-            bundles[0].DrawIndexedInstanced(ModelTable[name].IndicesCount, 1, 0, 0, 0);            
+            bundles[0].DrawIndexedInstanced(ModelTable[name].IndicesCount, 1, 0, 0, 0);
+        }
+     
+        public void SetModel(string name, ArIntVector3? position = null, ArFloatVector3? rotation = null, ArFloatVector3? scaling = null)
+        {
+            if (!ModelTable.ContainsKey(name))
+                throw new ArgumentException(nameof(name));
+
+            //ModelTable[0]
+               
         }
 
         public void DeleteModel(string name)

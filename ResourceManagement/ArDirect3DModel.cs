@@ -29,7 +29,7 @@ namespace ResourceManagement
         int[] _indices;
         public ArDirect3DVertex[] Vertices { get => _vertices; set => _vertices = value; }
         public int[] Indices { get => _indices; set => _indices = value; }        
-        public int[] MaterialIndices { get; set; }
+        //public int[] MaterialIndices { get; set; }
 
     }
 

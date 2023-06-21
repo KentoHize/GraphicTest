@@ -83,8 +83,8 @@ namespace ResourceManagement
                 {
                     0, 1, 2, 0, 2, 3
                 },
-                MaterialIndices = new int[]
-                { 0 }
+                //MaterialIndices = new int[]
+                //{ 0 }
             });
 
             sde.LoadModel("TestObject2", new ArDirect3DModel
@@ -100,8 +100,8 @@ namespace ResourceManagement
                 {
                     0, 1, 2, 0, 2, 3
                 },
-                MaterialIndices = new int[]
-                { 1 }
+                //MaterialIndices = new int[]
+                //{ 1 }
             });
 
             sde.PrepareSetModel();
