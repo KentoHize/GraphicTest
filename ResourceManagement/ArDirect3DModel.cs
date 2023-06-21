@@ -8,15 +8,11 @@ using System.Threading.Tasks;
 
 namespace ResourceManagement
 {
-    //[StructLayout(LayoutKind.Explicit, Size = 36, CharSet = CharSet.Ansi)]
     [StructLayout(LayoutKind.Sequential)]
     public struct ArDirect3DVertex
-    {
-        //[FieldOffset(0)]
+    { 
         public ArIntVector3 _position;
-        //[FieldOffset(12)]
-        public ArFloatVector3 _textureCoordinate;
-        //[FieldOffset(24)]
+        public ArFloatVector3 _textureCoordinate;        
         public ArFloatVector3 _shadowCoordinate;
         public ArIntVector3 Position { get => _position; set => _position = value; }        
         public ArFloatVector3 TextureCoordinate { get => _textureCoordinate; set => _textureCoordinate = value; }

@@ -255,12 +255,13 @@ namespace ResourceManagement
             }
 
             while (!Task.WhenAll(task).IsCompleted)
-                ;
+                Thread.Sleep(1);
         }
 
-        public void Load3DModel(string name, ArDirect3DModel model)
+        public void LoadModel(string name, ArDirect3DModel model)
         {
             DirectX12Model d12model = new DirectX12Model();
+            
             d12model.IndicesCount = model.Indices.Length;
             d12model.VertexBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None,
                 ResourceDescription.Buffer(model.Vertices.Length * Marshal.SizeOf(typeof(ArDirect3DVertex))), ResourceStates.VertexAndConstantBuffer);
@@ -283,34 +284,6 @@ namespace ResourceManagement
             sw.Stop();
             Debug.WriteLine($"CSAP: {sw.ElapsedTicks}");
             d12model.VertexBuffer.Unmap(0);
-            //unsafe
-            //{
-            //    //Marshal.StructureArrayToPtr
-            //    Marshal.StructureToPtr(model.Vertices[0], ptr, true);
-            //    Marshal.StructureToPtr(model.Vertices[1], ptr + 36, true);
-            //    Marshal.StructureToPtr(model.Vertices[2], ptr + 72, true);
-            //    //Utilities.CopyMemory(ptr, );
-            //    //Utilities.CopyMemory(ptr, model.Vertices[0], 36);
-            //}
-
-            //Utilities.Write(ptr, ref model.Vertices[0]);
-            //Utilities.Write(ptr + 36, ref model.Vertices[1]);
-            //Utilities.Write(ptr + 72, ref model.Vertices[2]);
-            //Utilities.Write(ptr, model.Vertices[0], 0, model.Vertices.Length);
-            //unsafe
-            //{
-            //    fixed (ArDirect3DVertex* ptr = &model.Vertices[0])
-            //    {
-            //        _003F val = ptr;
-            //        int num = sizeof(T) * count;
-            //        // IL cpblk instruction
-            //        Unsafe.CopyBlockUnaligned(pDest, val, num);
-            //        return num + (byte*)pDest;
-            //    }
-            //    //Interop.Write((void*)ptr, model.Vertices, 0, model.Vertices.Length);
-            //}
-
-
 
             //d12model.VertexBuffer
             //d12model.VertexBuffer.WriteToSubresource(0, null, ptr, Marshal.SizeOf(typeof(ArDirect3DVertex)), model.Vertices.Length);
@@ -319,12 +292,12 @@ namespace ResourceManagement
             //d12model.VertexBuffer.WriteToSubresource()
 
             //Buffer.MemoryCopy()
-            d12model.VertexBufferView = new VertexBufferView
-            {
-                BufferLocation = d12model.VertexBuffer.GPUVirtualAddress,
-                StrideInBytes = Marshal.SizeOf(typeof(ArDirect3DVertex)),
-                SizeInBytes = model.Vertices.Length * Marshal.SizeOf(typeof(ArDirect3DVertex))
-            };
+            //d12model.VertexBufferView = new VertexBufferView
+            //{
+            //    BufferLocation = d12model.VertexBuffer.GPUVirtualAddress,
+            //    StrideInBytes = Marshal.SizeOf(typeof(ArDirect3DVertex)),
+            //    SizeInBytes = model.Vertices.Length * Marshal.SizeOf(typeof(ArDirect3DVertex))
+            //};
             d12model.IndexBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, 
                 ResourceDescription.Buffer(model.Indices.Length * sizeof(int)), ResourceStates.IndexBuffer);
 
@@ -332,22 +305,15 @@ namespace ResourceManagement
             Utilities.Write(ptr, model.Indices, 0, model.Indices.Length);
             d12model.IndexBuffer.Unmap(0);
 
-            d12model.IndexBufferView = new IndexBufferView
-            {
-                BufferLocation = d12model.IndexBuffer.GPUVirtualAddress,
-                SizeInBytes = model.Indices.Length * sizeof(int),
-                Format = Format.R32_UInt
-            };
+            //d12model.IndexBufferView = new IndexBufferView
+            //{
+            //    BufferLocation = d12model.IndexBuffer.GPUVirtualAddress,
+            //    SizeInBytes = model.Indices.Length * sizeof(int),
+            //    Format = Format.R32_UInt
+            //};
 
 
-            bundles = new GraphicsCommandList[1];
-            CommandAllocator bundleAllocator = device.CreateCommandAllocator(CommandListType.Bundle);
-            bundles[0] = device.CreateCommandList(0, CommandListType.Bundle, bundleAllocator, graphicPLState);
-            bundles[0].PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
-            bundles[0].SetVertexBuffer(0, d12model.VertexBufferView);
-            bundles[0].SetIndexBuffer(d12model.IndexBufferView);
-            bundles[0].DrawIndexedInstanced(d12model.IndicesCount, 1, 0, 0, 0);
-            bundles[0].Close();
+            ModelsTable.Add(name, d12model);
 
             //backgroundColor = data.BackgroundColor;
             //ModelsTable.Add(name, model);
@@ -402,7 +368,7 @@ namespace ResourceManagement
             commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
             //commandList.ResourceBarrierTransition(textureUploadHeap, ResourceStates.CopySource, ResourceStates.Common);
             //textureUploadHeap.Unmap(0);
-
+            
 
             //var srvDesc = new ShaderResourceViewDescription
             //    {
@@ -428,10 +394,49 @@ namespace ResourceManagement
             //MessageBox.Show(pc.RawValue.ToString());
         }
 
-        public void LoadData()
-        {
-            
+        protected void CombineModel(string name)
+        { 
+             bundles = new GraphicsCommandList[1];
+            CommandAllocator bundleAllocator = device.CreateCommandAllocator(CommandListType.Bundle);
+            bundles[0] = device.CreateCommandList(0, CommandListType.Bundle, bundleAllocator, graphicPLState);
+            bundles[0].PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
+            bundles[0].SetVertexBuffer(0, d12model.VertexBufferView);
+            bundles[0].SetIndexBuffer(d12model.IndexBufferView);
+            bundles[0].DrawIndexedInstanced(d12model.IndicesCount, 1, 0, 0, 0);
+            bundles[0].Close();
         }
+
+        public void SetModel(string name, ArIntVector3? position = null, ArFloatVector3? rotation = null, ArFloatVector3? scaling = null)
+        {
+            if (!ModelsTable.ContainsKey(name))
+                throw new ArgumentException(nameof(name));
+
+            CombineModel();
+
+       
+        }
+
+        public void SetOrthographicCamera(string name, int width, int height, long depth, ArIntVector3? position = null, ArFloatVector3? rotation = null)
+        {
+
+        }
+
+        public void SetPerspectiveCamera(string name, int width, int height, long depth, ArIntVector3? position = null, ArFloatVector3? rotation = null)
+        {
+
+        }
+
+        public void SetAmbientLight()
+        { }
+
+        public void SetDirectionalLight()
+        { }
+
+        public void SetPointLight()
+        { }
+
+        public void SetSpotLight()
+        { }
 
         public void Render()
         {

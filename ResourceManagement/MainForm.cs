@@ -49,8 +49,8 @@ namespace ResourceManagement
             //    Height = height
             //});            
             sde.LoadStaticData();
-            sde.LoadData();
-            sde.Load3DModel("TestObject", new ArDirect3DModel
+           
+            sde.LoadModel("TestObject", new ArDirect3DModel
             {
                 Vertices = new ArDirect3DVertex[]
                 {
@@ -64,8 +64,13 @@ namespace ResourceManagement
                     0, 1, 2, 0, 2, 3
                 }
             });
+            //設置攝影機
+            //設置光
+            sde.SetModel("TestObject", new ArIntVector3(100, 100, 100));
+            //CreateVertex
+            //CountShadow
+            //Draw
 
-            
             unsafe
             {
                 ArDirect3DModel ad3m = new ArDirect3DModel();
