@@ -10,7 +10,7 @@ namespace ResourceManagement
 {
     //[StructLayout(LayoutKind.Explicit, Size = 36, CharSet = CharSet.Ansi)]
     [StructLayout(LayoutKind.Sequential)]
-    public class ArDirect3DVertex
+    public struct ArDirect3DVertex
     {
         //[FieldOffset(0)]
         public ArIntVector3 _position;
@@ -24,7 +24,7 @@ namespace ResourceManagement
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public class ArDirect3DModel
+    public struct ArDirect3DModel
     {
         public ArDirect3DVertex[] _vertices;
         public int[] _indices;

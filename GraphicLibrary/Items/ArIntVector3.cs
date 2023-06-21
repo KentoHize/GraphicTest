@@ -12,7 +12,7 @@ namespace GraphicLibrary.Items
     //[StructLayout(LayoutKind.Explicit, Size = 12, CharSet = CharSet.Ansi)]
     [StructLayout(LayoutKind.Sequential)]
     //[Serializable]
-    public class ArIntVector3 : IEquatable<ArIntVector3>, IFormattable
+    public struct ArIntVector3 : IEquatable<ArIntVector3>, IFormattable
     {
         public int _x, _y, _z;
         //[FieldOffset(0)] int _x;

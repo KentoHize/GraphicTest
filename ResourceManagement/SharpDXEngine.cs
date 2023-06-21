@@ -239,7 +239,7 @@ namespace ResourceManagement
         
 
         /// <summary>
-        /// 必須是單層
+        /// 必須是單層陣列，內部為簡單結構
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="structArray"></param>
@@ -247,8 +247,15 @@ namespace ResourceManagement
         void CopyStructArrayToPtr<T>(T[] structArray, IntPtr ptr)
         {
             int structSize = Marshal.SizeOf(typeof(T));
+            Task[] task = new Task[structArray.Length];
             for(int i = 0; i < structArray.Length; i++)
-                Marshal.StructureToPtr(structArray[i], ptr + i * structSize, true);
+            {
+                T localstruct = structArray[i];                                
+                task[i] = Task.Factory.StartNew((index) => Marshal.StructureToPtr(localstruct, ptr + (int)index * structSize, true), i);
+            }
+
+            while (!Task.WhenAll(task).IsCompleted)
+                ;
         }
 
         public void Load3DModel(string name, ArDirect3DModel model)
@@ -258,9 +265,6 @@ namespace ResourceManagement
             d12model.VertexBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None,
                 ResourceDescription.Buffer(model.Vertices.Length * Marshal.SizeOf(typeof(ArDirect3DVertex))), ResourceStates.VertexAndConstantBuffer);
 
-           
-
-            //model.Vertices[0]
             //var handle = GCHandle.Alloc(model.Vertices, GCHandleType.Pinned);
             //ptr = Marshal.UnsafeAddrOfPinnedArrayElement(model.Vertices, 0);
             //ptr2 = d12model.VertexBuffer.Map(0);
@@ -270,9 +274,14 @@ namespace ResourceManagement
             //Utilities.CopyMemory(ptr2, ptr, model.Vertices.Length * Marshal.SizeOf(typeof(ArDirect3DVertex)));
             //d12model.VertexBuffer.Unmap(0);
             //handle.Free();
+            
+
             ptr = d12model.VertexBuffer.Map(0);
-            //Marshal
+            Stopwatch sw = Stopwatch.StartNew();
+            //Utilities.Write(ptr, model.Vertices, 0, model.Vertices.Length);
             CopyStructArrayToPtr(model.Vertices, ptr);
+            sw.Stop();
+            Debug.WriteLine($"CSAP: {sw.ElapsedTicks}");
             d12model.VertexBuffer.Unmap(0);
             //unsafe
             //{
