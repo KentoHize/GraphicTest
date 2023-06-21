@@ -213,17 +213,23 @@ namespace ResourceManagement
             fence = device.CreateFence(0, FenceFlags.None);
             fenceValue = 1;
             fenceEvent = new AutoResetEvent(false);
-        }
 
-        public void LoadStaticData()
-        {
             commandAllocator = device.CreateCommandAllocator(CommandListType.Direct);
             commandList = device.CreateCommandList(CommandListType.Direct, commandAllocator, graphicPLState);
 
             commandList.Close();
-            commandQueue.ExecuteCommandList(commandList);
+            //commandQueue.ExecuteCommandList(commandList);
+
+            bundles = new GraphicsCommandList[1];
+            CommandAllocator bundleAllocator = device.CreateCommandAllocator(CommandListType.Bundle);
+            bundles[0] = device.CreateCommandList(0, CommandListType.Bundle, bundleAllocator, graphicPLState);
 
             WaitForPreviousFrame();
+        }
+
+        public void LoadStaticData()
+        {
+           
         }
 
         long GetMemoryUsage(Device device)
@@ -235,8 +241,6 @@ namespace ResourceManagement
             PerformanceCounter pc2 = new PerformanceCounter("GPU Adapter Memory", "Shared Usage", currentInstance, true);
             return pc.RawValue;
         }
-
-        
 
         /// <summary>
         /// 必須是單層陣列，內部為簡單結構
@@ -258,8 +262,16 @@ namespace ResourceManagement
                 Thread.Sleep(1);
         }
 
+        public void LoadModels(IDictionary<string, ArDirect3DModel> modelDictionary)
+        {
+            foreach (KeyValuePair<string, ArDirect3DModel> kvp in modelDictionary)
+                LoadModel(kvp.Key, kvp.Value);
+        }
+
         public void LoadModel(string name, ArDirect3DModel model)
         {
+            if (ModelsTable.ContainsKey(name))
+                throw new ArgumentException(nameof(name));
             DirectX12Model d12model = new DirectX12Model();
             
             d12model.IndicesCount = model.Indices.Length;
@@ -292,12 +304,12 @@ namespace ResourceManagement
             //d12model.VertexBuffer.WriteToSubresource()
 
             //Buffer.MemoryCopy()
-            //d12model.VertexBufferView = new VertexBufferView
-            //{
-            //    BufferLocation = d12model.VertexBuffer.GPUVirtualAddress,
-            //    StrideInBytes = Marshal.SizeOf(typeof(ArDirect3DVertex)),
-            //    SizeInBytes = model.Vertices.Length * Marshal.SizeOf(typeof(ArDirect3DVertex))
-            //};
+            d12model.VertexBufferView = new VertexBufferView
+            {
+                BufferLocation = d12model.VertexBuffer.GPUVirtualAddress,
+                StrideInBytes = Marshal.SizeOf(typeof(ArDirect3DVertex)),
+                SizeInBytes = model.Vertices.Length * Marshal.SizeOf(typeof(ArDirect3DVertex)),                
+            };
             d12model.IndexBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, 
                 ResourceDescription.Buffer(model.Indices.Length * sizeof(int)), ResourceStates.IndexBuffer);
 
@@ -305,12 +317,12 @@ namespace ResourceManagement
             Utilities.Write(ptr, model.Indices, 0, model.Indices.Length);
             d12model.IndexBuffer.Unmap(0);
 
-            //d12model.IndexBufferView = new IndexBufferView
-            //{
-            //    BufferLocation = d12model.IndexBuffer.GPUVirtualAddress,
-            //    SizeInBytes = model.Indices.Length * sizeof(int),
-            //    Format = Format.R32_UInt
-            //};
+            d12model.IndexBufferView = new IndexBufferView
+            {
+                BufferLocation = d12model.IndexBuffer.GPUVirtualAddress,
+                SizeInBytes = model.Indices.Length * sizeof(int),
+                Format = Format.R32_UInt
+            };
 
 
             ModelsTable.Add(name, d12model);
@@ -394,26 +406,41 @@ namespace ResourceManagement
             //MessageBox.Show(pc.RawValue.ToString());
         }
 
-        protected void CombineModel(string name)
-        { 
-             bundles = new GraphicsCommandList[1];
-            CommandAllocator bundleAllocator = device.CreateCommandAllocator(CommandListType.Bundle);
-            bundles[0] = device.CreateCommandList(0, CommandListType.Bundle, bundleAllocator, graphicPLState);
-            bundles[0].PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
-            bundles[0].SetVertexBuffer(0, d12model.VertexBufferView);
-            bundles[0].SetIndexBuffer(d12model.IndexBufferView);
-            bundles[0].DrawIndexedInstanced(d12model.IndicesCount, 1, 0, 0, 0);
-            bundles[0].Close();
-        }
+        //protected void CombineModel(string name)
+        //{ 
+        //    bundles = new GraphicsCommandList[1];
+        //    CommandAllocator bundleAllocator = device.CreateCommandAllocator(CommandListType.Bundle);
+        //    bundles[0] = device.CreateCommandList(0, CommandListType.Bundle, bundleAllocator, graphicPLState);
+        //    bundles[0].PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
+        //    //bundles[0].SetVertexBuffer(0, d12model.VertexBufferView);
+        //    //bundles[0].SetIndexBuffer(d12model.IndexBufferView);
+        //    //bundles[0].DrawIndexedInstanced(d12model.IndicesCount, 1, 0, 0, 0);
+        //    bundles[0].Close();            
+        //}
 
         public void SetModel(string name, ArIntVector3? position = null, ArFloatVector3? rotation = null, ArFloatVector3? scaling = null)
         {
             if (!ModelsTable.ContainsKey(name))
                 throw new ArgumentException(nameof(name));
 
-            CombineModel();
+            bundles[0].SetVertexBuffer(0, ModelsTable[name].VertexBufferView);
+            bundles[0].SetIndexBuffer(ModelsTable[name].IndexBufferView);
+            bundles[0].DrawIndexedInstanced(ModelsTable[name].IndicesCount, 1, 0, 0, 0);
+        }
 
-       
+        public void DeleteModel(string name)
+        {
+            if (!ModelsTable.ContainsKey(name))
+                throw new ArgumentException(nameof(name));
+            ModelsTable.Remove(name);
+        }
+
+        public void ClearModels()
+            => ModelsTable.Clear();
+
+        public void CombineModel()
+        {
+            bundles[0].Close();
         }
 
         public void SetOrthographicCamera(string name, int width, int height, long depth, ArIntVector3? position = null, ArFloatVector3? rotation = null)
@@ -440,6 +467,7 @@ namespace ResourceManagement
 
         public void Render()
         {
+            
             commandAllocator.Reset();
             commandList.Reset(commandAllocator, graphicPLState);
             commandList.SetGraphicsRootSignature(graphicRootSignature);
@@ -457,7 +485,7 @@ namespace ResourceManagement
             commandList.SetRenderTargets(rtvHandle, null);
             commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
             commandList.ClearRenderTargetView(rtvHandle, new Color4(backgroundColor.X, backgroundColor.Y, backgroundColor.Z, backgroundColor.W), 0, null);
-
+            commandList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
             for (int i = 0; i < bundles.Length; i++)
                 commandList.ExecuteBundle(bundles[i]);
             commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);

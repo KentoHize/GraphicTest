@@ -64,58 +64,58 @@ namespace ResourceManagement
                     0, 1, 2, 0, 2, 3
                 }
             });
+
+            sde.LoadModel("TestObject2", new ArDirect3DModel
+            {
+                Vertices = new ArDirect3DVertex[]
+                {
+                    new ArDirect3DVertex{ Position = new ArIntVector3(0, 0, 0), TextureCoordinate = new ArFloatVector3(1, 1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
+                    new ArDirect3DVertex{ Position = new ArIntVector3(-512, 0, 0), TextureCoordinate = new ArFloatVector3(1, 1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
+                    new ArDirect3DVertex{ Position = new ArIntVector3(-512, -512, 0), TextureCoordinate = new ArFloatVector3(1, 1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
+                    new ArDirect3DVertex{ Position = new ArIntVector3(0, -512, 0), TextureCoordinate = new ArFloatVector3(1, 1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) }
+                },
+                Indices = new int[]
+                {
+                    0, 1, 2, 0, 2, 3
+                }
+            });
             //設置攝影機
             //設置光
             sde.SetModel("TestObject", new ArIntVector3(100, 100, 100));
+            sde.SetModel("TestObject2", new ArIntVector3(100, 100, 100));
+            sde.SetModel("TestObject2", new ArIntVector3(200, 200, 200));
             //CreateVertex
             //CountShadow
             //Draw
+            sde.CombineModel();
 
-            unsafe
-            {
-                ArDirect3DModel ad3m = new ArDirect3DModel();
-                ArDirect3DVertex ad3 = new ArDirect3DVertex();
-                ad3.Position = new ArIntVector3(1, 1, 1);
-                ad3.TextureCoordinate = new ArFloatVector3(1, 1, 1);
-                ad3.ShadowCoordinate = new ArFloatVector3(1, 1, 1);
-                //ArIntVector3 ex = new ArIntVector3(1, 1, 1);
-                //byte* addr = (byte*)&ex;
-                ad3m._vertices = new ArDirect3DVertex[] { ad3 };
-                //Debug.WriteLine("Size:      {0}", Marshal.SizeOf<ArIntVector3>());
-                //Debug.WriteLine("_x Offset: {0}", Marshal.OffsetOf<ArIntVector3>("_x"));
-                //Debug.WriteLine("_y Offset: {0}", Marshal.OffsetOf<ArIntVector3>("_y"));
-                //Debug.WriteLine("_z Offset: {0}", Marshal.OffsetOf<ArIntVector3>("_z"));
+            //unsafe
+            //{
+            //    ArDirect3DModel ad3m = new ArDirect3DModel();
+            //    ArDirect3DVertex ad3 = new ArDirect3DVertex();
+            //    ad3.Position = new ArIntVector3(1, 1, 1);
+            //    ad3.TextureCoordinate = new ArFloatVector3(1, 1, 1);
+            //    ad3.ShadowCoordinate = new ArFloatVector3(1, 1, 1);
+            //    //ArIntVector3 ex = new ArIntVector3(1, 1, 1);
+            //    //byte* addr = (byte*)&ex;
+            //    ad3m._vertices = new ArDirect3DVertex[] { ad3 };
+            //    //Debug.WriteLine("Size:      {0}", Marshal.SizeOf<ArIntVector3>());
+            //    //Debug.WriteLine("_x Offset: {0}", Marshal.OffsetOf<ArIntVector3>("_x"));
+            //    //Debug.WriteLine("_y Offset: {0}", Marshal.OffsetOf<ArIntVector3>("_y"));
+            //    //Debug.WriteLine("_z Offset: {0}", Marshal.OffsetOf<ArIntVector3>("_z"));
 
-                //Debug.WriteLine("Size:      {0}", Marshal.SizeOf<ArDirect3DVertex>());
-                //Debug.WriteLine("_position Offset: {0}", Marshal.OffsetOf<ArDirect3DVertex>("_position"));
-                //Debug.WriteLine("_textureCoordinate Offset: {0}", Marshal.OffsetOf<ArDirect3DVertex>("_textureCoordinate"));
-                //Debug.WriteLine("_shadowCoordinate Offset: {0}", Marshal.OffsetOf<ArDirect3DVertex>("_shadowCoordinate"));
+            //    //Debug.WriteLine("Size:      {0}", Marshal.SizeOf<ArDirect3DVertex>());
+            //    //Debug.WriteLine("_position Offset: {0}", Marshal.OffsetOf<ArDirect3DVertex>("_position"));
+            //    //Debug.WriteLine("_textureCoordinate Offset: {0}", Marshal.OffsetOf<ArDirect3DVertex>("_textureCoordinate"));
+            //    //Debug.WriteLine("_shadowCoordinate Offset: {0}", Marshal.OffsetOf<ArDirect3DVertex>("_shadowCoordinate"));
 
-                //Debug.WriteLine("Size:      {0}", Marshal.SizeOf<ArDirect3DModel>());
-                //Debug.WriteLine("_vertices Offset: {0}", Marshal.OffsetOf<ArDirect3DModel>("_vertices"));
-                //Debug.WriteLine("_indices Offset: {0}", Marshal.OffsetOf<ArDirect3DModel>("_indices"));
-            }
+            //    //Debug.WriteLine("Size:      {0}", Marshal.SizeOf<ArDirect3DModel>());
+            //    //Debug.WriteLine("_vertices Offset: {0}", Marshal.OffsetOf<ArDirect3DModel>("_vertices"));
+            //    //Debug.WriteLine("_indices Offset: {0}", Marshal.OffsetOf<ArDirect3DModel>("_indices"));
+            //}
 
             sde.Render();
             timer1.Start();
-            //sde.LoadTexture(new SharpDXTextureData
-            //{
-            //    Data = Ar3DMachine.LoadBitmapFromFile(textureFile2, out int width2, out int height2),
-            //    Width = width2,
-            //    Height = height2
-            //});
-            //sde.LoadStaticData(new SharpDXStaticData
-            //{
-            //    Textures = new SharpDXTextureData[]
-            //    {
-            //        new SharpDXTextureData
-            //        {
-            //            Data = Ar3DMachine.LoadBitmapFromFile(textureFile, out int width, out int height),
-            //            Width = width,
-            //            Height = height
-            //        }
-            //    }
-            //});
 
             //var aCube = Ar3DGeometry.GetTextureCube(512);
 
