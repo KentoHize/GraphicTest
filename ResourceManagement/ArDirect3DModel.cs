@@ -11,21 +11,23 @@ namespace ResourceManagement
     [StructLayout(LayoutKind.Sequential)]
     public struct ArDirect3DVertex
     { 
-        public ArIntVector3 _position;
-        public ArFloatVector3 _textureCoordinate;        
-        public ArFloatVector3 _shadowCoordinate;
+        ArIntVector3 _position;
+        ArFloatVector2 _textureCoordinate;        
+        ArFloatVector3 _shadowCoordinate;
         public ArIntVector3 Position { get => _position; set => _position = value; }        
-        public ArFloatVector3 TextureCoordinate { get => _textureCoordinate; set => _textureCoordinate = value; }
+        public int ModelTextureIndex { get; set; }
+        public ArFloatVector2 TextureCoordinate { get => _textureCoordinate; set => _textureCoordinate = value; }
         public ArFloatVector3 ShadowCoordinate { get => _shadowCoordinate; set => _shadowCoordinate = value; }
     }
 
     [StructLayout(LayoutKind.Sequential)]
     public struct ArDirect3DModel
     {
-        public ArDirect3DVertex[] _vertices;
-        public int[] _indices;
+        ArDirect3DVertex[] _vertices;
+        int[] _indices;
         public ArDirect3DVertex[] Vertices { get => _vertices; set => _vertices = value; }
         public int[] Indices { get => _indices; set => _indices = value; }
+        public int[] TextureIndices { get; set; }
 
     }
 }

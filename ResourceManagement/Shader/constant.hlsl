@@ -1,8 +1,8 @@
-//struct TranformMatrix
-//{
-//    float4x4 transformMatrix;
-//};
-//ConstantBuffer<TranformMatrix> tm : register(b0);
+struct FrameVariables
+{
+    float4x4 transformMatrix;
+};
+ConstantBuffer<FrameVariables> tm : register(b0);
 
 //struct DrawingSetting
 //{
@@ -15,5 +15,5 @@
 //    int2 ResourceTable[];
 //};
 //ConstantBuffer<Common> cm : register(b0);
-//Texture2D fontTexture : register(t0);
-//SamplerState normal_sampler : register(s0);
+Texture2D textures[10] : register(t0);
+SamplerState normal_sampler : register(s0);

@@ -3,11 +3,12 @@
 struct PSInput
 {
 	float4 position : SV_POSITION;    
-    float3 tex : TEXCOORD;
+    uint texIndex : TEXINDEX;
+    float2 tex : TEXCOORD;
     float3 shadow : SHADOWCOORD;
 };
 
-PSInput VSMain(int3 position : POSITION, float3 tex : TEXCOORD, float3 shadow : SHADOWCOORD)
+PSInput VSMain(int3 position : POSITION, uint texIndex : TEXINDEX, float2 tex : TEXCOORD, float3 shadow : SHADOWCOORD)
 {
 	PSInput result;   
     int4 p = int4(position[0], position[1], position[2], 1);
@@ -18,6 +19,7 @@ PSInput VSMain(int3 position : POSITION, float3 tex : TEXCOORD, float3 shadow : 
     result.position = p2;  
     result.shadow = shadow;
     result.tex = tex;
+    result.texIndex = texIndex;
 	return result;
 }
 
