@@ -18,6 +18,8 @@ namespace ResourceManagement
         public IndexBufferView IndexBufferView { get; set; }
         public VertexBufferView VertexBufferView { get; set; }
 
+        public int[] MaterialIndices { get; set; }
+
         //public ArFloatMatrix44 TransformMatrix { get; set; }
         //必要Bytes
         //必要Texture

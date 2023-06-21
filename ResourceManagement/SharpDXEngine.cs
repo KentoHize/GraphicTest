@@ -231,8 +231,6 @@ namespace ResourceManagement
 
         public void PrepareLoadModel()
         {
-            
-
             bundles = new GraphicsCommandList[1];
             CommandAllocator bundleAllocator = device.CreateCommandAllocator(CommandListType.Bundle);            
             bundles[0] = device.CreateCommandList(0, CommandListType.Bundle, bundleAllocator, graphicPLState);
@@ -279,7 +277,7 @@ namespace ResourceManagement
         {
             if (ModelTable.ContainsKey(name))
                 throw new ArgumentException(nameof(name));
-            DirectX12Model d12model = new DirectX12Model();
+            DirectX12Model d12model = new DirectX12Model();            
             
             d12model.IndicesCount = model.Indices.Length;
             d12model.VertexBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None,
@@ -374,6 +372,11 @@ namespace ResourceManagement
             return textureUploadHeap;
         }
 
+        public void LoadMaterial(int index, ArMaterial material)
+        {
+            
+        }
+
         public void LoadTexture(int index, SharpDXTextureData data)
         {   
             commandAllocator.Reset();
@@ -447,14 +450,6 @@ namespace ResourceManagement
 
         public void PrepareRender()
         {
-         
-
-            //constantBuffer = new Resource[1];
-            //constantBuffer[0] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.GenericRead);
-            //ptr = constantBuffer[0].Map(0);
-            //Utilities.Write(ptr, new ArFloatMatrix44[] { ArFloatMatrix44.One }, 0, 1);
-            //constantBuffer[0].Unmap(0);
-
             DescriptorHeapDescription csuHeapDesc = new DescriptorHeapDescription()
             {
                 DescriptorCount = TextureTable.Count,

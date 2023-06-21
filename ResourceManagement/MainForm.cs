@@ -58,44 +58,50 @@ namespace ResourceManagement
             sw.Stop();
             Debug.WriteLine($"Load 8 Picture: {sw.ElapsedMilliseconds}");
 
+            sde.LoadMaterial(0, new ArMaterial
+            {
+                TextureIndex = 0
+            });
+
+            sde.LoadMaterial(1, new ArMaterial
+            {
+                TextureIndex = 1
+            });
+
             sde.PrepareLoadModel();
 
             sde.LoadModel("TestObject", new ArDirect3DModel
             {
                 Vertices = new ArDirect3DVertex[]
                 {
-                    new ArDirect3DVertex{ Position = new ArIntVector3(0, 0, 0), ModelTextureIndex = 0, TextureCoordinate = new ArFloatVector2(1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
-                    new ArDirect3DVertex{ Position = new ArIntVector3(512, 0, 0), ModelTextureIndex = 0, TextureCoordinate = new ArFloatVector2(0, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },                    
-                    new ArDirect3DVertex{ Position = new ArIntVector3(512, 512, 0), ModelTextureIndex = 0, TextureCoordinate = new ArFloatVector2(0, 0), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
-                    new ArDirect3DVertex{ Position = new ArIntVector3(0, 512, 0), ModelTextureIndex = 0, TextureCoordinate = new ArFloatVector2(1, 0), ShadowCoordinate = new ArFloatVector3(1, 1, 1) }
+                    new ArDirect3DVertex{ Position = new ArIntVector3(0, 0, 0), MaterialIndex = 0, TextureCoordinate = new ArFloatVector2(1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
+                    new ArDirect3DVertex{ Position = new ArIntVector3(512, 0, 0), MaterialIndex = 0, TextureCoordinate = new ArFloatVector2(0, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },                    
+                    new ArDirect3DVertex{ Position = new ArIntVector3(512, 512, 0), MaterialIndex = 0, TextureCoordinate = new ArFloatVector2(0, 0), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
+                    new ArDirect3DVertex{ Position = new ArIntVector3(0, 512, 0), MaterialIndex = 0, TextureCoordinate = new ArFloatVector2(1, 0), ShadowCoordinate = new ArFloatVector3(1, 1, 1) }
                 },
                 Indices = new int[]
                 {
                     0, 1, 2, 0, 2, 3
                 },
-                TextureIndices = new int[]
-                {
-                    0
-                }
+                MaterialIndices = new int[]
+                { 0 }
             });
 
             sde.LoadModel("TestObject2", new ArDirect3DModel
             {
                 Vertices = new ArDirect3DVertex[]
                 {
-                    new ArDirect3DVertex{ Position = new ArIntVector3(0, 0, 0), ModelTextureIndex = 0, TextureCoordinate = new ArFloatVector2(0, 0), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
-                    new ArDirect3DVertex{ Position = new ArIntVector3(-512, 0, 0), ModelTextureIndex = 0, TextureCoordinate = new ArFloatVector2(1, 0), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
-                    new ArDirect3DVertex{ Position = new ArIntVector3(-512, -512, 0), ModelTextureIndex = 0, TextureCoordinate = new ArFloatVector2(1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
-                    new ArDirect3DVertex{ Position = new ArIntVector3(0, -512, 0), ModelTextureIndex = 0, TextureCoordinate = new ArFloatVector2(0, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) }
+                    new ArDirect3DVertex{ Position = new ArIntVector3(0, 0, 0), MaterialIndex = 0, TextureCoordinate = new ArFloatVector2(0, 0), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
+                    new ArDirect3DVertex{ Position = new ArIntVector3(-512, 0, 0), MaterialIndex = 0, TextureCoordinate = new ArFloatVector2(1, 0), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
+                    new ArDirect3DVertex{ Position = new ArIntVector3(-512, -512, 0), MaterialIndex = 0, TextureCoordinate = new ArFloatVector2(1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
+                    new ArDirect3DVertex{ Position = new ArIntVector3(0, -512, 0), MaterialIndex = 0, TextureCoordinate = new ArFloatVector2(0, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) }
                 },
                 Indices = new int[]
                 {
                     0, 1, 2, 0, 2, 3
                 },
-                TextureIndices = new int[]
-                {
-                    1
-                }
+                MaterialIndices = new int[]
+                { 1 }
             });
 
             sde.PrepareSetModel();
