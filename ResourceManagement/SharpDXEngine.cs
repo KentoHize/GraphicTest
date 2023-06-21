@@ -55,10 +55,10 @@ namespace ResourceManagement
         PipelineState computePLState;
 
         GraphicsCommandList commandList;
-        GraphicsCommandList commandList2;
+        //GraphicsCommandList commandList2;
         GraphicsCommandList[] bundles;
         CommandAllocator commandAllocator;
-        CommandAllocator commandAllocator2;
+        //CommandAllocator commandAllocator2;
         Resource[] renderTargets;
         DescriptorHeap renderTargetViewHeap;
         DescriptorHeap shaderResourceBufferViewHeap;
@@ -345,19 +345,17 @@ namespace ResourceManagement
         public void LoadTextureFromFile(string name, string file)
         {
             Resource uploadHeap = LoadBitmapToUploadHeap(file);
-            
-            CommandQueueDescription queueDesc = new CommandQueueDescription(CommandListType.Direct);
-            commandAllocator2 = device.CreateCommandAllocator(CommandListType.Direct);
-            commandList2 = device.CreateCommandList(CommandListType.Direct, commandAllocator2, graphicPLState);
+            commandAllocator.Reset();
+            commandList.Reset(commandAllocator, graphicPLState);
 
             ResourceDescription textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, uploadHeap.Description.Width, uploadHeap.Description.Height);
             texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
            
-            commandList2.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(uploadHeap, 0), null);
-            commandList2.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
-            commandList2.DiscardResource(uploadHeap, null);
-            commandList2.Close();
-            commandQueue.ExecuteCommandList(commandList2);
+            commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(uploadHeap, 0), null);
+            commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
+            commandList.DiscardResource(uploadHeap, null);
+            commandList.Close();
+            commandQueue.ExecuteCommandList(commandList);
 
             TextureTable.Add(name, texture);
         }
@@ -389,10 +387,10 @@ namespace ResourceManagement
         public void LoadTexture(SharpDXTextureData data)
         {
             Stopwatch sw = Stopwatch.StartNew();
-            CommandQueueDescription queueDesc = new CommandQueueDescription(CommandListType.Direct);
-            commandQueue = device.CreateCommandQueue(queueDesc);
-            commandAllocator2 = device.CreateCommandAllocator(CommandListType.Direct);
-            commandList2 = device.CreateCommandList(CommandListType.Direct, commandAllocator2, graphicPLState);
+            //CommandQueueDescription queueDesc = new CommandQueueDescription(CommandListType.Direct);
+            //commandQueue = device.CreateCommandQueue(queueDesc);
+            commandAllocator.Reset();
+            commandList.Reset(commandAllocator, graphicPLState);
             shaderResource = new Resource[2];
             
             var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Width, data.Height);
@@ -405,8 +403,8 @@ namespace ResourceManagement
             textureUploadHeap.WriteToSubresource(0, null, ptr, 4 * data.Width, data.Data.Length);            
             handle.Free();
             
-            commandList2.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(textureUploadHeap, 0), null);
-            commandList2.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
+            commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(textureUploadHeap, 0), null);
+            commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
             //commandList.ResourceBarrierTransition(textureUploadHeap, ResourceStates.CopySource, ResourceStates.Common);
             //textureUploadHeap.Unmap(0);
             
@@ -422,8 +420,8 @@ namespace ResourceManagement
             //    cruHandle += cruDescriptorSize;
             
 
-            commandList2.Close();
-            commandQueue.ExecuteCommandList(commandList2);
+            commandList.Close();
+            commandQueue.ExecuteCommandList(commandList);
          
 
             
