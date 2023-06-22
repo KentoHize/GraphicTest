@@ -14,7 +14,7 @@ PSInput VSMain(int3 position : POSITION, uint texIndex : TEXINDEX, float2 tex : 
     int4 p = int4(position[0], position[1], position[2], 1);
     float4 p2;
     float4x4 normalTF = float4x4(0.001, 0, 0, 0, 0, 0.001, 0, 0, 0, 0, 0.001, 0, 0, 0, 0, 1);    
-    p2 = mul(p, tm.transformMatrix);
+    p2 = mul(p, fv.transformMatrix);
     //p2 = mul(p, normalTF);
     result.position = p2;  
     result.shadow = shadow;
@@ -29,5 +29,7 @@ float4 PSMain(PSInput input) : SV_TARGET
     //if(input.color[3] != 0)
     //    return input.color;
     //else
-    return float4(input.tex[0], input.tex[1], 0, 1);
+    //return textureA.Sample(normal_sampler, input.texIndex);
+    return textures[0].Sample(normal_sampler, input.texIndex);
+    //return float4(input.tex[0], input.tex[1], 0, 1);
 }

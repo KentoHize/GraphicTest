@@ -22,6 +22,8 @@ namespace ResourceManagement
         SharpDXData data;
         //float rx = 0, ry = 0, rz = 0;
 
+        ArIntVector3 p1, p2, p3;
+
         const string textureFolder = @"C:\Programs\GraphicTest\ResourceManagement\Texture\";
         const string textureFile = @"C:\Programs\GraphicTest\ResourceManagement\Texture\AnnetteSquare.bmp";
         const string textureFile2 = @"C:\Programs\GraphicTest\ResourceManagement\Texture\ClacierSquare.bmp";
@@ -75,7 +77,7 @@ namespace ResourceManagement
                 Vertices = new ArDirect3DVertex[]
                 {
                     new ArDirect3DVertex{ Position = new ArIntVector3(0, 0, 0), MaterialIndex = 0, TextureCoordinate = new ArFloatVector2(1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
-                    new ArDirect3DVertex{ Position = new ArIntVector3(512, 0, 0), MaterialIndex = 0, TextureCoordinate = new ArFloatVector2(0, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },                    
+                    new ArDirect3DVertex{ Position = new ArIntVector3(512, 0, 0), MaterialIndex = 0, TextureCoordinate = new ArFloatVector2(0, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
                     new ArDirect3DVertex{ Position = new ArIntVector3(512, 512, 0), MaterialIndex = 0, TextureCoordinate = new ArFloatVector2(0, 0), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
                     new ArDirect3DVertex{ Position = new ArIntVector3(0, 512, 0), MaterialIndex = 0, TextureCoordinate = new ArFloatVector2(1, 0), ShadowCoordinate = new ArFloatVector3(1, 1, 1) }
                 },
@@ -91,10 +93,10 @@ namespace ResourceManagement
             {
                 Vertices = new ArDirect3DVertex[]
                 {
-                    new ArDirect3DVertex{ Position = new ArIntVector3(0, 0, 0), MaterialIndex = 0, TextureCoordinate = new ArFloatVector2(0, 0), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
-                    new ArDirect3DVertex{ Position = new ArIntVector3(-512, 0, 0), MaterialIndex = 0, TextureCoordinate = new ArFloatVector2(1, 0), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
-                    new ArDirect3DVertex{ Position = new ArIntVector3(-512, -512, 0), MaterialIndex = 0, TextureCoordinate = new ArFloatVector2(1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
-                    new ArDirect3DVertex{ Position = new ArIntVector3(0, -512, 0), MaterialIndex = 0, TextureCoordinate = new ArFloatVector2(0, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) }
+                    new ArDirect3DVertex{ Position = new ArIntVector3(0, 0, 0), MaterialIndex = 1, TextureCoordinate = new ArFloatVector2(0, 0), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
+                    new ArDirect3DVertex{ Position = new ArIntVector3(-512, 0, 0), MaterialIndex = 1, TextureCoordinate = new ArFloatVector2(1, 0), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
+                    new ArDirect3DVertex{ Position = new ArIntVector3(-512, -512, 0), MaterialIndex = 1, TextureCoordinate = new ArFloatVector2(1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
+                    new ArDirect3DVertex{ Position = new ArIntVector3(0, -512, 0), MaterialIndex = 1, TextureCoordinate = new ArFloatVector2(0, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) }
                 },
                 Indices = new int[]
                 {
@@ -104,13 +106,16 @@ namespace ResourceManagement
                 //{ 1 }
             });
 
-            sde.PrepareSetModel();
+            sde.PrepareCreateInstance();
             //設置攝影機
             //sde.SetPerspectiveCamera()
             //設置光
-            sde.SetModel("TestObject", new ArIntVector3(100, 100, 100));
-            sde.SetModel("TestObject2", new ArIntVector3(100, 100, 100));
-            sde.SetModel("TestObject2", new ArIntVector3(-200, 200, 200));
+            p1 = new ArIntVector3(100, 100, 100);
+            sde.CreateInstance("TestObject", 0, p1);
+            p2 = new ArIntVector3(100, 100, 100);
+            sde.CreateInstance("TestObject2", 1, p2);
+            p3 = new ArIntVector3(-200, 200, 100);
+            sde.CreateInstance("TestObject2", 2, p3);
             //CreateVertex
             //CountShadow
             //Draw
@@ -177,7 +182,12 @@ namespace ResourceManagement
         {
             lblCPUMemory.Text = $"{sde.AdapterName} Shared Memory Use: {GetMB(sde.SharedMemoryUsage)}/{GetMB(sde.SaredSystemMemory)} Mb. Dedicated Memory Use: {GetMB(sde.DedicatedMemoryUsage)}/{GetMB(sde.DedicatedVideoMemory)} Mb";
             GC.Collect();
-            
+
+            p3[0] += 10;
+            if (p3[0] > pictureBox1.ClientSize.Width)
+                p3[0] = 0;
+            sde.SetInstance(2, p3);
+            sde.Render();
         }
 
         double GetMB(long byteCount, int reservedDigits = 2)

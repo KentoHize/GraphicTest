@@ -15,7 +15,6 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Drawing.Imaging;
 
-
 namespace ResourceManagement
 {
     public class SharpDXEngine
@@ -34,12 +33,9 @@ namespace ResourceManagement
         public const int DefaultComponentMapping = 5876;
         const string GLShaderFile = @"C:\Programs\GraphicTest\ResourceManagement\Shader\shaders.hlsl";
         internal Dictionary<ShaderType, ShaderFileInfo> ShaderFiles { get; set; }
-        //internal Dictionary<string, Resource> ModelsTable { get; set; }
-
         internal Dictionary<string, DirectX12Model> ModelTable { get; set; }
         internal Dictionary<int, Resource> TextureTable { get; set; }
-
-        internal 
+        internal Dictionary<int, DirectX12FrameVariables> InstanceFrameVariables { get; set; }
 
         Device device;
         Device11 device11;
@@ -97,6 +93,7 @@ namespace ResourceManagement
             ModelTable = new Dictionary<string, DirectX12Model>();
             TextureTable = new Dictionary<int, Resource>();
             constantBuffer = new List<Resource>();
+            InstanceFrameVariables = new Dictionary<int, DirectX12FrameVariables>();
             ShaderFiles = new Dictionary<ShaderType, ShaderFileInfo>
             {
                 {ShaderType.VertexShader, new ShaderFileInfo(GLShaderFile, ShaderType.VertexShader) },
@@ -405,29 +402,61 @@ namespace ResourceManagement
             TextureTable.Add(index, texture);
         }
 
-        public void CreateModel(string name, int[] materialIndices, ArIntVector3? position = null, ArFloatVector3? rotation = null, ArFloatVector3? scaling = null)
+        public int GetNewInstanceIndex()
         {
+            for(int i = 0; true;  i++)
+            {
+                if (!InstanceFrameVariables.ContainsKey(i))
+                    return i;
+                //May Improved
+            }
+        }
+
+        public int CreateInstance(string name, int index = -1, ArIntVector3? position = null, ArFloatVector3? rotation = null, ArFloatVector3? scaling = null, Dictionary<int, int> replaceMaterialIndices = null)
+        {   
             if (!ModelTable.ContainsKey(name))
                 throw new ArgumentException(nameof(name));
-            Resource cb = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.GenericRead);
-            ptr = cb.Map(0);
+            if (InstanceFrameVariables.ContainsKey(index))
+                throw new ArgumentException(nameof(index));
+            if (index == -1)
+                index = GetNewInstanceIndex();           
+
+            DirectX12FrameVariables d12fv = new DirectX12FrameVariables();
+            d12fv.ReplaceMaterialIndices = replaceMaterialIndices;
+            d12fv.TransformMatrix = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.Common);
+            ptr = d12fv.TransformMatrix.Map(0);
             Utilities.Write(ptr, new ArFloatMatrix44[] { Ar3DMachine.ProduceTransformMatrix(position ?? ArIntVector3.Zero,
                 rotation ?? ArFloatVector3.Zero, scaling ?? ArFloatVector3.One) }, 0, 1);
-            constantBuffer.Add(cb);
-            cb.Unmap(0);
-            bundles[0].SetGraphicsRootConstantBufferView(0, cb.GPUVirtualAddress);
+            d12fv.TransformMatrix.Unmap(0);
+            bundles[0].SetGraphicsRootConstantBufferView(0, d12fv.TransformMatrix.GPUVirtualAddress);
             bundles[0].SetVertexBuffer(0, ModelTable[name].VertexBufferView);
             bundles[0].SetIndexBuffer(ModelTable[name].IndexBufferView);
             bundles[0].DrawIndexedInstanced(ModelTable[name].IndicesCount, 1, 0, 0, 0);
+            InstanceFrameVariables.Add(index, d12fv);
+            return index;
         }
      
-        public void SetModel(string name, ArIntVector3? position = null, ArFloatVector3? rotation = null, ArFloatVector3? scaling = null)
+        public void SetInstance(int index, ArIntVector3? position = null, ArFloatVector3? rotation = null, ArFloatVector3? scaling = null, Dictionary<int, int> replaceMaterialIndices = null)
         {
-            if (!ModelTable.ContainsKey(name))
-                throw new ArgumentException(nameof(name));
+            if (!InstanceFrameVariables.ContainsKey(index))
+                throw new ArgumentException(nameof(index));
+            ptr = InstanceFrameVariables[index].TransformMatrix.Map(0);
+            Utilities.Write(ptr, new ArFloatMatrix44[] { Ar3DMachine.ProduceTransformMatrix(position ?? ArIntVector3.Zero,
+                rotation ?? ArFloatVector3.Zero, scaling ?? ArFloatVector3.One) }, 0, 1);
+            InstanceFrameVariables[index].TransformMatrix.Unmap(0);
+        }
 
-            //ModelTable[0]
-               
+        public void DeleteInstance(int index)
+        {
+            if (!InstanceFrameVariables.ContainsKey(index))
+                throw new ArgumentException(nameof(index));
+            //砍Instance
+        }
+
+        public void ClearInstance()
+        {
+            InstanceFrameVariables.Clear();
+            //砍Instance
         }
 
         public void DeleteModel(string name)
@@ -446,13 +475,13 @@ namespace ResourceManagement
         }
             
 
-        public void PrepareSetModel()
+        public void PrepareCreateInstance()
         {
             commandAllocator.Reset();
             commandList.Reset(commandAllocator, graphicPLState);
 
-            for (int i = 0; i < constantBuffer.Count; i++)
-                commandList.DiscardResource(constantBuffer[i], null);
+            //for (int i = 0; i < constantBuffer.Count; i++)
+            //    commandList.DiscardResource(constantBuffer[i], null);
 
             commandList.Close();
             commandQueue.ExecuteCommandList(commandList);
@@ -461,6 +490,7 @@ namespace ResourceManagement
 
         public void PrepareRender()
         {
+            WaitForPreviousFrame();
             DescriptorHeapDescription csuHeapDesc = new DescriptorHeapDescription()
             {
                 DescriptorCount = TextureTable.Count,
@@ -471,19 +501,19 @@ namespace ResourceManagement
             cruDescriptorSize = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
             cruHandle = shaderResourceViewHeap.CPUDescriptorHandleForHeapStart;
 
-            for(int i = 0; i < TextureTable.Count; i++)
-            {   
+            for (int i = 0; i < TextureTable.Count; i++)
+            {
                 var srvDesc = new ShaderResourceViewDescription
                 {
                     Shader4ComponentMapping = Ar3DMachine.DefaultComponentMapping,
-                    Format = TextureTable[i].Description.Format,
+                    Format = TextureTable[0].Description.Format,
                     Dimension = ShaderResourceViewDimension.Texture2D,
-                    Texture2D = { MipLevels = 1 },
+                    Texture2D = { MipLevels = TextureTable[0].Description.MipLevels },
                 };
                 device.CreateShaderResourceView(TextureTable[i], srvDesc, cruHandle);
                 cruHandle += cruDescriptorSize;
             }
-            
+
             bundles[0].Close();
         }
 
