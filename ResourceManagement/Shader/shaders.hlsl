@@ -29,7 +29,8 @@ float4 PSMain(PSInput input) : SV_TARGET
     //if(input.color[3] != 0)
     //    return input.color;
     //else
-    //return textureA.Sample(normal_sampler, input.texIndex);
-    return textures[0].Sample(normal_sampler, input.texIndex);
+    
+    //return textureA.Sample(normal_sampler, input.tex);
+    return textures[0].Sample(normal_sampler, input.tex);
     //return float4(input.tex[0], input.tex[1], 0, 1);
 }

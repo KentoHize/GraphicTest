@@ -92,7 +92,7 @@ namespace ResourceManagement
 #endif
             ModelTable = new Dictionary<string, DirectX12Model>();
             TextureTable = new Dictionary<int, Resource>();
-            constantBuffer = new List<Resource>();
+            //constantBuffer = new List<Resource>();
             InstanceFrameVariables = new Dictionary<int, DirectX12FrameVariables>();
             ShaderFiles = new Dictionary<ShaderType, ShaderFileInfo>
             {
@@ -168,8 +168,9 @@ namespace ResourceManagement
              {   
                  new RootParameter(ShaderVisibility.All, new RootDescriptor(0, 0), RootParameterType.ConstantBufferView),
                  //new RootParameter(ShaderVisibility.All, new RootDescriptor(1, 0), RootParameterType.ConstantBufferView),
-                 //new RootParameter(ShaderVisibility.All,
-                 //           new DescriptorRange(DescriptorRangeType.ShaderResourceView, TextureTable.Count, 0))
+                 //new RootParameter(ShaderVisibility.Pixel,
+                 //           new DescriptorRange(DescriptorRangeType.ShaderResourceView, 1, 0)),
+                 //new RootParameter(ShaderVisibility.All, new RootDescriptor(0, 0), RootParameterType.ShaderResourceView),
                  new RootParameter(ShaderVisibility.All,
                             new DescriptorRange(DescriptorRangeType.ShaderResourceView, 8, 0))
              },
@@ -224,8 +225,6 @@ namespace ResourceManagement
             };
             psoDesc.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
             graphicPLState = device.CreateGraphicsPipelineState(psoDesc);
-
-
         }
 
         public void PrepareLoadModel()
@@ -234,6 +233,7 @@ namespace ResourceManagement
             CommandAllocator bundleAllocator = device.CreateCommandAllocator(CommandListType.Bundle);            
             bundles[0] = device.CreateCommandList(0, CommandListType.Bundle, bundleAllocator, graphicPLState);
             bundles[0].SetGraphicsRootSignature(graphicRootSignature);
+            bundles[0].PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
         }
 
         long GetMemoryUsage(Device device)
@@ -332,15 +332,14 @@ namespace ResourceManagement
 
             ResourceDescription textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, uploadHeap.Description.Width, uploadHeap.Description.Height);
             texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
-           
+            
             commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(uploadHeap, 0), null);
             commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
-            commandList.DiscardResource(uploadHeap, null);
+            //commandList.DiscardResource(uploadHeap, null);
             commandList.Close();
-            commandQueue.ExecuteCommandList(commandList);
-
-            TextureTable.Add(index, texture);
+            commandQueue.ExecuteCommandList(commandList);            
             WaitForPreviousFrame();
+            TextureTable.Add(index, texture);
         }
 
         public void DeleteTexture(int index)
@@ -381,7 +380,7 @@ namespace ResourceManagement
         {   
             commandAllocator.Reset();
             commandList.Reset(commandAllocator, graphicPLState);
-            shaderResource = new Resource[2];
+            //shaderResource = new Resource[2];
             
             var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Width, data.Height);
             texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
@@ -428,6 +427,9 @@ namespace ResourceManagement
             Utilities.Write(ptr, new ArFloatMatrix44[] { Ar3DMachine.ProduceTransformMatrix(position ?? ArIntVector3.Zero,
                 rotation ?? ArFloatVector3.Zero, scaling ?? ArFloatVector3.One) }, 0, 1);
             d12fv.TransformMatrix.Unmap(0);
+            //bundles[0].SetDescriptorHeaps(new DescriptorHeap[] { shaderResourceViewHeap });
+            //bundles[0].SetGraphicsRootDescriptorTable(1, shaderResourceViewHeap.GPUDescriptorHandleForHeapStart);
+
             bundles[0].SetGraphicsRootConstantBufferView(0, d12fv.TransformMatrix.GPUVirtualAddress);
             bundles[0].SetVertexBuffer(0, ModelTable[name].VertexBufferView);
             bundles[0].SetIndexBuffer(ModelTable[name].IndexBufferView);
@@ -490,10 +492,10 @@ namespace ResourceManagement
 
         public void PrepareRender()
         {
-            WaitForPreviousFrame();
+           
             DescriptorHeapDescription csuHeapDesc = new DescriptorHeapDescription()
             {
-                DescriptorCount = TextureTable.Count,
+                DescriptorCount = 8,
                 Flags = DescriptorHeapFlags.ShaderVisible,
                 Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView
             };
@@ -505,16 +507,17 @@ namespace ResourceManagement
             {
                 var srvDesc = new ShaderResourceViewDescription
                 {
-                    Shader4ComponentMapping = Ar3DMachine.DefaultComponentMapping,
-                    Format = TextureTable[0].Description.Format,
+                    Shader4ComponentMapping = D3DXUtilities.DefaultComponentMapping(),
+                    Format = TextureTable[i].Description.Format,
                     Dimension = ShaderResourceViewDimension.Texture2D,
-                    Texture2D = { MipLevels = TextureTable[0].Description.MipLevels },
+                    Texture2D = { MipLevels = 1 },                    
                 };
                 device.CreateShaderResourceView(TextureTable[i], srvDesc, cruHandle);
                 cruHandle += cruDescriptorSize;
             }
 
             bundles[0].Close();
+            WaitForPreviousFrame();
         }
 
         public void SetOrthographicCamera(string name, int width, int height, long depth, ArIntVector3? position = null, ArFloatVector3? rotation = null)
@@ -559,8 +562,10 @@ namespace ResourceManagement
             //cb.Unmap(0);
             //commandList.SetGraphicsRootConstantBufferView(0, cb.GPUVirtualAddress);
             //commandList.SetGraphicsRootConstantBufferView(1, constantBuffer[1].GPUVirtualAddress);
+            //commandList.SetGraphicsRootConstantBufferView(0, InstanceFrameVariables[0].TransformMatrix.GPUVirtualAddress);
             commandList.SetDescriptorHeaps(new DescriptorHeap[] { shaderResourceViewHeap });
             commandList.SetGraphicsRootDescriptorTable(1, shaderResourceViewHeap.GPUDescriptorHandleForHeapStart);
+            //commandList.SetGraphicsRootDescriptorTable(2, shaderResourceViewHeap.GPUDescriptorHandleForHeapStart);
 
             CpuDescriptorHandle rtvHandle = renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
             rtvHandle += frameIndex * rtvDescriptorSize;

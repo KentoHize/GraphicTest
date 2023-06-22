@@ -34,8 +34,10 @@ PSInput VSMain(int3 position : POSITION, float4 color : COLOR, float2 texCoord :
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
+    
     if(input.color[3] != 0) // detect have color
         return input.color;
     else
+        return float4(input.uv[0], input.uv[1], 0, 1);
         return t2d_Annette.Sample(normal_sampler, input.uv);
 }
