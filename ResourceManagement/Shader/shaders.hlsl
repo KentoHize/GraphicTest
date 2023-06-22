@@ -31,6 +31,6 @@ float4 PSMain(PSInput input) : SV_TARGET
     //else
     
     //return textureA.Sample(normal_sampler, input.tex);
-    return textures[0].Sample(normal_sampler, input.tex);
+    return textures[input.texIndex].Sample(normal_sampler, input.tex);
     //return float4(input.tex[0], input.tex[1], 0, 1);
 }

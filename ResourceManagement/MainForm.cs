@@ -50,13 +50,13 @@ namespace ResourceManagement
             sw.Stop();
             sw.Restart();
             sde.LoadTextureFromFile(0, Path.Combine(textureFolder, "AnnetteSquare.bmp"));
-            //sde.LoadTextureFromFile(1, Path.Combine(textureFolder, "Ayane.bmp"));
-            //sde.LoadTextureFromFile(2, Path.Combine(textureFolder, "ClacierSquare.bmp"));
-            //sde.LoadTextureFromFile(3, Path.Combine(textureFolder, "Kanade.bmp"));
-            //sde.LoadTextureFromFile(4, Path.Combine(textureFolder, "Sento.bmp"));
-            //sde.LoadTextureFromFile(5, Path.Combine(textureFolder, "Sonia.bmp"));
-            //sde.LoadTextureFromFile(6, Path.Combine(textureFolder, "Sophia.bmp"));
-            //sde.LoadTextureFromFile(7, Path.Combine(textureFolder, "Yuri.bmp"));
+            sde.LoadTextureFromFile(1, Path.Combine(textureFolder, "Ayane.bmp"));
+            sde.LoadTextureFromFile(2, Path.Combine(textureFolder, "ClacierSquare.bmp"));
+            sde.LoadTextureFromFile(3, Path.Combine(textureFolder, "Kanade.bmp"));
+            sde.LoadTextureFromFile(4, Path.Combine(textureFolder, "Sento.bmp"));
+            sde.LoadTextureFromFile(5, Path.Combine(textureFolder, "Sonia.bmp"));
+            sde.LoadTextureFromFile(6, Path.Combine(textureFolder, "Sophia.bmp"));
+            sde.LoadTextureFromFile(7, Path.Combine(textureFolder, "Yuri.bmp"));
             sw.Stop();
             Debug.WriteLine($"Load 8 Picture: {sw.ElapsedMilliseconds}");
 
@@ -93,10 +93,10 @@ namespace ResourceManagement
             {
                 Vertices = new ArDirect3DVertex[]
                 {
-                    new ArDirect3DVertex{ Position = new ArIntVector3(0, 0, 0), MaterialIndex = 1, TextureCoordinate = new ArFloatVector2(0, 0), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
-                    new ArDirect3DVertex{ Position = new ArIntVector3(-512, 0, 0), MaterialIndex = 1, TextureCoordinate = new ArFloatVector2(1, 0), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
-                    new ArDirect3DVertex{ Position = new ArIntVector3(-512, -512, 0), MaterialIndex = 1, TextureCoordinate = new ArFloatVector2(1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
-                    new ArDirect3DVertex{ Position = new ArIntVector3(0, -512, 0), MaterialIndex = 1, TextureCoordinate = new ArFloatVector2(0, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) }
+                    new ArDirect3DVertex{ Position = new ArIntVector3(0, 0, 0), MaterialIndex = 2, TextureCoordinate = new ArFloatVector2(1, 0), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
+                    new ArDirect3DVertex{ Position = new ArIntVector3(-512, 0, 0), MaterialIndex = 2, TextureCoordinate = new ArFloatVector2(0, 0), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
+                    new ArDirect3DVertex{ Position = new ArIntVector3(-512, -512, 0), MaterialIndex = 2, TextureCoordinate = new ArFloatVector2(0, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) },
+                    new ArDirect3DVertex{ Position = new ArIntVector3(0, -512, 0), MaterialIndex = 2, TextureCoordinate = new ArFloatVector2(1, 1), ShadowCoordinate = new ArFloatVector3(1, 1, 1) }
                 },
                 Indices = new int[]
                 {

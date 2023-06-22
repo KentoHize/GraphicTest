@@ -92,7 +92,6 @@ namespace ResourceManagement
 #endif
             ModelTable = new Dictionary<string, DirectX12Model>();
             TextureTable = new Dictionary<int, Resource>();
-            //constantBuffer = new List<Resource>();
             InstanceFrameVariables = new Dictionary<int, DirectX12FrameVariables>();
             ShaderFiles = new Dictionary<ShaderType, ShaderFileInfo>
             {
@@ -167,10 +166,6 @@ namespace ResourceManagement
              new RootParameter[]
              {   
                  new RootParameter(ShaderVisibility.All, new RootDescriptor(0, 0), RootParameterType.ConstantBufferView),
-                 //new RootParameter(ShaderVisibility.All, new RootDescriptor(1, 0), RootParameterType.ConstantBufferView),
-                 //new RootParameter(ShaderVisibility.Pixel,
-                 //           new DescriptorRange(DescriptorRangeType.ShaderResourceView, 1, 0)),
-                 //new RootParameter(ShaderVisibility.All, new RootDescriptor(0, 0), RootParameterType.ShaderResourceView),
                  new RootParameter(ShaderVisibility.All,
                             new DescriptorRange(DescriptorRangeType.ShaderResourceView, 8, 0))
              },
@@ -335,9 +330,9 @@ namespace ResourceManagement
             
             commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(uploadHeap, 0), null);
             commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
-            //commandList.DiscardResource(uploadHeap, null);
+            commandList.DiscardResource(uploadHeap, null);
             commandList.Close();
-            commandQueue.ExecuteCommandList(commandList);            
+            commandQueue.ExecuteCommandList(commandList);
             WaitForPreviousFrame();
             TextureTable.Add(index, texture);
         }
@@ -427,8 +422,6 @@ namespace ResourceManagement
             Utilities.Write(ptr, new ArFloatMatrix44[] { Ar3DMachine.ProduceTransformMatrix(position ?? ArIntVector3.Zero,
                 rotation ?? ArFloatVector3.Zero, scaling ?? ArFloatVector3.One) }, 0, 1);
             d12fv.TransformMatrix.Unmap(0);
-            //bundles[0].SetDescriptorHeaps(new DescriptorHeap[] { shaderResourceViewHeap });
-            //bundles[0].SetGraphicsRootDescriptorTable(1, shaderResourceViewHeap.GPUDescriptorHandleForHeapStart);
 
             bundles[0].SetGraphicsRootConstantBufferView(0, d12fv.TransformMatrix.GPUVirtualAddress);
             bundles[0].SetVertexBuffer(0, ModelTable[name].VertexBufferView);
