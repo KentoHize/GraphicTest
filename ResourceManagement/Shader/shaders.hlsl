@@ -26,23 +26,23 @@ PSInput VSMain(int3 position : POSITION, uint texIndex : TEXINDEX, float2 tex : 
     
     //rotate
 
-    //float4x4 i = float4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-    //float cosa = cos(fv.rotateVector.x);
-    //float sina = sin(fv.rotateVector.x);
-    //float4x4 r = float4x4(cosa, -sina, 0, 0, sina, cosa, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-    //i = mul(i, r);
-    //cosa = cos(fv.rotateVector.y);
-    //sina = sin(fv.rotateVector.y);
-    //r = float4x4(cosa, 0, -sina, 0, 0, 1, 0, 0, sina, 0, cosa, 0, 0, 0, 0, 1);
-    //i = mul(i, r);
-    //cosa = cos(fv.rotateVector.z);
-    //sina = sin(fv.rotateVector.z);
-    //r = float4x4(1, 0, 0, 0, 0, cosa, -sina, 0, 0, sina, cosa, 0, 0, 0, 0, 1);
-    //i = mul(i, r);
-    //p2 = mul(p2, i);
+    float4x4 i = float4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    float cosa = cos(fv.rotateVector.x);
+    float sina = sin(fv.rotateVector.x);
+    float4x4 r = float4x4(cosa, -sina, 0, 0, sina, cosa, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    i = mul(i, r);
+    cosa = cos(fv.rotateVector.y);
+    sina = sin(fv.rotateVector.y);
+    r = float4x4(cosa, 0, -sina, 0, 0, 1, 0, 0, sina, 0, cosa, 0, 0, 0, 0, 1);
+    i = mul(i, r);
+    cosa = cos(fv.rotateVector.z);
+    sina = sin(fv.rotateVector.z);
+    r = float4x4(1, 0, 0, 0, 0, cosa, -sina, 0, 0, sina, cosa, 0, 0, 0, 0, 1);
+    i = mul(i, r);
+    p2 = mul(p2, i);
     
     //rotate2
-    p2 = mul(fv.rotateMatrix, p2);
+    //p2 = mul(fv.rotateMatrix, p2);
     
     //transform
     p2.x += (float) fv.translateVector.x / 1024;

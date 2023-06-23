@@ -59,6 +59,7 @@ namespace GraphicLibrary
                 cosb * sinc,
                 cosb * cosc
             );
+            //wrong
         }
 
         public static ArFloatMatrix44 ProduceTransformMatrix(ArIntVector3 translateVector, ArFloatVector3 rotateVector, ArFloatVector3 scaleVector)
