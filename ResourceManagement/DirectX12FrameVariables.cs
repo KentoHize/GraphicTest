@@ -4,13 +4,14 @@ using System.Runtime.InteropServices;
 namespace ResourceManagement
 {
     [StructLayout(LayoutKind.Explicit, Size = 28)]
+    //[StructLayout(LayoutKind.Sequential, Pack = 4)]
     public struct DirectX12FrameVariables
     {
         [FieldOffset(0)]
         ArIntVector3 _TranslateVector;
         [FieldOffset(16)]
         ArFloatVector3 _RotateVector;
-        [FieldOffset(24)]
+        [FieldOffset(28)]
         float _Scale;
         //public Dictionary<int, int> ReplaceMaterialIndices { get; set; }        
         public ArIntVector3 TranslateVector { get => _TranslateVector; set => _TranslateVector = value; }

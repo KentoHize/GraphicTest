@@ -477,6 +477,9 @@ namespace ResourceManagement
             Resource r = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.Common);
             ptr = r.Map(0);
             Utilities.Write(ptr, ref d12fv);
+            //Utilities.Write(ptr, new int[] { d12fv.TranslateVector[0], d12fv.TranslateVector[1], d12fv.TranslateVector[2] }, 0, 3);
+            //Utilities.Write(ptr + 16, new float[] { d12fv.RotateVector[0], d12fv.RotateVector[1], d12fv.RotateVector[2] }, 0, 3);
+            //Utilities.Write(ptr + 28, new float[] { d12fv.Scale }, 0, 1);
             r.Unmap(0);
             
             if (ModelTable[name].PrimitiveTopology != SharpDX.Direct3D.PrimitiveTopology.TriangleList)

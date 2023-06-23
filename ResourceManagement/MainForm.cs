@@ -234,7 +234,7 @@ namespace ResourceManagement
             p4[0] += 10;
             if (p4[0] > pictureBox1.ClientSize.Width)
                 p4[0] = 0;
-            //v1[0] += 0.1f;
+            v1[0] += 0.1f;
 
             //if (p3[0] >= 300)
 
