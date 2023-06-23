@@ -1,0 +1,28 @@
+¶–½TŠú
+
+Initialize
+
+Load Setting => Create Swapchain
+
+Load Texture
+
+Load Material
+
+Set Camera
+
+Set Light
+
+Prepare Load Model => Create Pipeline
+
+Load Model
+
+Prepare Create Instance
+
+Create Instance 
+
+Prepare Render => Create ShadowViewHeaps
+				=> Caculate Shdaow
+
+Render
+
+Wait

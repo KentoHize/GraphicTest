@@ -27,10 +27,15 @@ namespace ResourceManagement
     {
         ArDirect3DVertex[] _vertices;
         int[] _indices;
+        PrimitiveTopology _primitiveTopology;
         public ArDirect3DVertex[] Vertices { get => _vertices; set => _vertices = value; }
         public int[] Indices { get => _indices; set => _indices = value; }        
-        //public int[] MaterialIndices { get; set; }
+        public PrimitiveTopology PrimitiveTopology { get => _primitiveTopology; set => _primitiveTopology = value; }
 
+        public ArDirect3DModel()
+        {
+            _primitiveTopology = PrimitiveTopology.TriangleList;
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -42,5 +47,15 @@ namespace ResourceManagement
         //float4 DiffuseAlbedo;
         //float3 FresnelR0;
         //float Roughness;
+    }
+
+    public enum PrimitiveTopology
+    {
+        Undefined = 0,
+        PointList = 1,
+        LineList = 2,
+        LineStrip = 3,
+        TriangleList = 4,
+        TriangleStrip = 5
     }
 }

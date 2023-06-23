@@ -121,6 +121,7 @@ namespace ResourceManagement
                     SwapEffect = setting.SwapEffect,
                     OutputHandle = setting.Handle,
                     SampleDescription = new SampleDescription(1, 0),
+                    //Flags = SwapChainFlags.
                     IsWindowed = true
                 };
 
@@ -153,7 +154,7 @@ namespace ResourceManagement
             fenceValue = 1;
             fenceEvent = new AutoResetEvent(false);
 
-            CreatePipleLine();
+            
 
             commandAllocator = device.CreateCommandAllocator(CommandListType.Direct);
             commandList = device.CreateCommandList(CommandListType.Direct, commandAllocator, graphicPLState);
@@ -177,6 +178,7 @@ namespace ResourceManagement
                          AddressUVW = TextureAddressMode.Border,
                     }
              });
+            //rootSignatureDesc.Parameters[0].
             graphicRootSignature = device.CreateRootSignature(rootSignatureDesc.Serialize());
             //graphicRootSignature = device.CreateRootSignature(new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout).Serialize());
 
@@ -204,6 +206,7 @@ namespace ResourceManagement
                 VertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
                         ShaderFiles[ShaderType.VertexShader].File, ShaderFiles[ShaderType.VertexShader].EntryPoint, ShaderFiles[ShaderType.VertexShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug,
                         SharpDX.D3DCompiler.EffectFlags.None, null, FileIncludeHandler.Default)),
+                //SharpDX.D3DCompiler.ShaderBytecode.Compile()
                 PixelShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
                         ShaderFiles[ShaderType.PixelShader].File, ShaderFiles[ShaderType.PixelShader].EntryPoint, ShaderFiles[ShaderType.PixelShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug,
                         SharpDX.D3DCompiler.EffectFlags.None, null, FileIncludeHandler.Default)),
@@ -224,6 +227,8 @@ namespace ResourceManagement
 
         public void PrepareLoadModel()
         {
+            CreatePipleLine();
+
             bundles = new GraphicsCommandList[1];
             CommandAllocator bundleAllocator = device.CreateCommandAllocator(CommandListType.Bundle);            
             bundles[0] = device.CreateCommandList(0, CommandListType.Bundle, bundleAllocator, graphicPLState);
@@ -303,9 +308,8 @@ namespace ResourceManagement
                 SizeInBytes = model.Indices.Length * sizeof(int),
                 Format = Format.R32_UInt
             };
-
-            //d12model.MaterialIndices = model.MaterialIndices;
-
+            
+            d12model.PrimitiveTopology = (SharpDX.Direct3D.PrimitiveTopology)model.PrimitiveTopology;
             ModelTable.Add(name, d12model);
 
             //backgroundColor = data.BackgroundColor;
@@ -423,10 +427,14 @@ namespace ResourceManagement
                 rotation ?? ArFloatVector3.Zero, scaling ?? ArFloatVector3.One) }, 0, 1);
             d12fv.TransformMatrix.Unmap(0);
 
+            if (ModelTable[name].PrimitiveTopology != SharpDX.Direct3D.PrimitiveTopology.TriangleList)
+                bundles[0].PrimitiveTopology = ModelTable[name].PrimitiveTopology;
             bundles[0].SetGraphicsRootConstantBufferView(0, d12fv.TransformMatrix.GPUVirtualAddress);
             bundles[0].SetVertexBuffer(0, ModelTable[name].VertexBufferView);
             bundles[0].SetIndexBuffer(ModelTable[name].IndexBufferView);
             bundles[0].DrawIndexedInstanced(ModelTable[name].IndicesCount, 1, 0, 0, 0);
+            if (ModelTable[name].PrimitiveTopology != SharpDX.Direct3D.PrimitiveTopology.TriangleList)
+                bundles[0].PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
             InstanceFrameVariables.Add(index, d12fv);
             return index;
         }

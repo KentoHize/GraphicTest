@@ -27,7 +27,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ResourceManagement", "Resou
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CreateSphere", "CreateSphere\CreateSphere.csproj", "{9B3784F2-9585-41AD-BB0F-8D9CE352619D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathTest", "MathTest\MathTest.csproj", "{AC6BBB5B-B651-45A3-B176-9B151FF58114}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MathTest", "MathTest\MathTest.csproj", "{AC6BBB5B-B651-45A3-B176-9B151FF58114}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{2D580CD5-40B0-4999-A7E8-2F48F4B77AB3}"
+	ProjectSection(SolutionItems) = preProject
+		Design.txt = Design.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

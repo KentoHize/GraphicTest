@@ -25,8 +25,6 @@ namespace ResourceManagement
         ArIntVector3 p1, p2, p3;
 
         const string textureFolder = @"C:\Programs\GraphicTest\ResourceManagement\Texture\";
-        const string textureFile = @"C:\Programs\GraphicTest\ResourceManagement\Texture\AnnetteSquare.bmp";
-        const string textureFile2 = @"C:\Programs\GraphicTest\ResourceManagement\Texture\ClacierSquare.bmp";
         public MainForm()
         {
             sde = new SharpDXEngine();
@@ -84,9 +82,7 @@ namespace ResourceManagement
                 Indices = new int[]
                 {
                     0, 1, 2, 0, 2, 3
-                },
-                //MaterialIndices = new int[]
-                //{ 0 }
+                },                
             });
 
             sde.LoadModel("TestObject2", new ArDirect3DModel
@@ -101,20 +97,18 @@ namespace ResourceManagement
                 Indices = new int[]
                 {
                     0, 1, 2, 0, 2, 3
-                },
-                //MaterialIndices = new int[]
-                //{ 1 }
+                },                
             });
 
             sde.PrepareCreateInstance();
             //設置攝影機
             //sde.SetPerspectiveCamera()
             //設置光
-            p1 = new ArIntVector3(100, 100, 100);
-            sde.CreateInstance("TestObject", 0, p1);
-            p2 = new ArIntVector3(100, 100, 100);
+            p1 = new ArIntVector3(100, 100, 0);
+            sde.CreateInstance("TestObject", 0, p1);            
+            p2 = new ArIntVector3(0, 0, 0);
             sde.CreateInstance("TestObject2", 1, p2);
-            p3 = new ArIntVector3(-200, 200, 100);
+            p3 = new ArIntVector3(300, 200, -10);
             sde.CreateInstance("TestObject2", 2, p3);
             //CreateVertex
             //CountShadow
@@ -186,6 +180,9 @@ namespace ResourceManagement
             p3[0] += 10;
             if (p3[0] > pictureBox1.ClientSize.Width)
                 p3[0] = 0;
+
+            //if (p3[0] >= 300)
+
             sde.SetInstance(2, p3);
             sde.Render();
         }
