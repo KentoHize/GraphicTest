@@ -47,6 +47,8 @@ namespace ResourceManagement
         SwapChain3 swapChain;
         CommandQueue commandQueue;
         PipelineState graphicPLState;
+        PipelineState graphicPLStatePoint;
+        PipelineState graphicPLStateLine;
         PipelineState computePLState;
 
         GraphicsCommandList commandList;
@@ -154,8 +156,6 @@ namespace ResourceManagement
             fenceValue = 1;
             fenceEvent = new AutoResetEvent(false);
 
-            
-
             commandAllocator = device.CreateCommandAllocator(CommandListType.Direct);
             commandList = device.CreateCommandList(CommandListType.Direct, commandAllocator, graphicPLState);
             commandList.Close();
@@ -221,8 +221,58 @@ namespace ResourceManagement
                 SampleDescription = new SampleDescription(1, 0),
                 StreamOutput = new StreamOutputDescription()
             };
-            psoDesc.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
+            psoDesc.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;            
             graphicPLState = device.CreateGraphicsPipelineState(psoDesc);
+
+            GraphicsPipelineStateDescription gpsDesc = new GraphicsPipelineStateDescription
+            {
+                InputLayout = new InputLayoutDescription(inputElementDescs),
+                RootSignature = graphicRootSignature,
+                VertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
+                        ShaderFiles[ShaderType.VertexShader].File, ShaderFiles[ShaderType.VertexShader].EntryPoint, ShaderFiles[ShaderType.VertexShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug,
+                        SharpDX.D3DCompiler.EffectFlags.None, null, FileIncludeHandler.Default)),
+                //SharpDX.D3DCompiler.ShaderBytecode.Compile()
+                PixelShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
+                        ShaderFiles[ShaderType.PixelShader].File, ShaderFiles[ShaderType.PixelShader].EntryPoint, ShaderFiles[ShaderType.PixelShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug,
+                        SharpDX.D3DCompiler.EffectFlags.None, null, FileIncludeHandler.Default)),
+                RasterizerState = rasterizerStateDesc,
+                BlendState = BlendStateDescription.Default(),
+                DepthStencilFormat = Format.D32_Float,
+                DepthStencilState = new DepthStencilStateDescription() { IsDepthEnabled = false, IsStencilEnabled = false },
+                SampleMask = int.MaxValue,
+                PrimitiveTopologyType = PrimitiveTopologyType.Point,
+                RenderTargetCount = 1,
+                Flags = PipelineStateFlags.None,
+                SampleDescription = new SampleDescription(1, 0),
+                StreamOutput = new StreamOutputDescription()
+            };
+            gpsDesc.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
+            graphicPLStatePoint = device.CreateGraphicsPipelineState(gpsDesc);
+
+            GraphicsPipelineStateDescription gpsDesc3 = new GraphicsPipelineStateDescription
+            {
+                InputLayout = new InputLayoutDescription(inputElementDescs),
+                RootSignature = graphicRootSignature,
+                VertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
+                        ShaderFiles[ShaderType.VertexShader].File, ShaderFiles[ShaderType.VertexShader].EntryPoint, ShaderFiles[ShaderType.VertexShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug,
+                        SharpDX.D3DCompiler.EffectFlags.None, null, FileIncludeHandler.Default)),
+                //SharpDX.D3DCompiler.ShaderBytecode.Compile()
+                PixelShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
+                        ShaderFiles[ShaderType.PixelShader].File, ShaderFiles[ShaderType.PixelShader].EntryPoint, ShaderFiles[ShaderType.PixelShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug,
+                        SharpDX.D3DCompiler.EffectFlags.None, null, FileIncludeHandler.Default)),
+                RasterizerState = rasterizerStateDesc,
+                BlendState = BlendStateDescription.Default(),
+                DepthStencilFormat = Format.D32_Float,
+                DepthStencilState = new DepthStencilStateDescription() { IsDepthEnabled = false, IsStencilEnabled = false },
+                SampleMask = int.MaxValue,
+                PrimitiveTopologyType = PrimitiveTopologyType.Line,
+                RenderTargetCount = 1,
+                Flags = PipelineStateFlags.None,
+                SampleDescription = new SampleDescription(1, 0),
+                StreamOutput = new StreamOutputDescription()
+            };
+            gpsDesc3.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
+            graphicPLStateLine = device.CreateGraphicsPipelineState(gpsDesc3);
         }
 
         public void PrepareLoadModel()
@@ -428,13 +478,24 @@ namespace ResourceManagement
             d12fv.TransformMatrix.Unmap(0);
 
             if (ModelTable[name].PrimitiveTopology != SharpDX.Direct3D.PrimitiveTopology.TriangleList)
+            {
+                if (ModelTable[name].PrimitiveTopology == SharpDX.Direct3D.PrimitiveTopology.LineList)
+                    bundles[0].PipelineState = graphicPLStateLine;
+                else
+                    bundles[0].PipelineState = graphicPLStatePoint;
                 bundles[0].PrimitiveTopology = ModelTable[name].PrimitiveTopology;
+            }
+                
             bundles[0].SetGraphicsRootConstantBufferView(0, d12fv.TransformMatrix.GPUVirtualAddress);
             bundles[0].SetVertexBuffer(0, ModelTable[name].VertexBufferView);
             bundles[0].SetIndexBuffer(ModelTable[name].IndexBufferView);
             bundles[0].DrawIndexedInstanced(ModelTable[name].IndicesCount, 1, 0, 0, 0);
             if (ModelTable[name].PrimitiveTopology != SharpDX.Direct3D.PrimitiveTopology.TriangleList)
+            {
+                bundles[0].PipelineState = graphicPLState;
                 bundles[0].PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
+            }
+                
             InstanceFrameVariables.Add(index, d12fv);
             return index;
         }
@@ -493,7 +554,6 @@ namespace ResourceManagement
 
         public void PrepareRender()
         {
-           
             DescriptorHeapDescription csuHeapDesc = new DescriptorHeapDescription()
             {
                 DescriptorCount = 8,

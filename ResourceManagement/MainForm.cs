@@ -20,7 +20,8 @@ namespace ResourceManagement
     {
         SharpDXEngine sde;
         SharpDXData data;
-        //float rx = 0, ry = 0, rz = 0;
+        float rx = 0, ry = 0, rz = 0;
+        float scaling = 1;
 
         ArIntVector3 p1, p2, p3;
 
@@ -39,7 +40,7 @@ namespace ResourceManagement
             {
                 CullTwoFace = false,
                 DrawClockwise = false,
-                Viewport = new SharpDX.ViewportF(0, 0, pictureBox1.ClientSize.Width, pictureBox1.ClientSize.Height),
+                Viewport = new SharpDX.ViewportF(0, 0, pictureBox1.ClientSize.Width, pictureBox1.ClientSize.Height, 0, 0),
                 FrameCount = 2,
                 SwapEffect = SharpDX.DXGI.SwapEffect.FlipDiscard,
                 Handle = pictureBox1.Handle
@@ -82,7 +83,7 @@ namespace ResourceManagement
                 Indices = new int[]
                 {
                     0, 1, 2, 0, 2, 3
-                },                
+                }
             });
 
             sde.LoadModel("TestObject2", new ArDirect3DModel
@@ -97,7 +98,49 @@ namespace ResourceManagement
                 Indices = new int[]
                 {
                     0, 1, 2, 0, 2, 3
-                },                
+                },
+            });
+
+            List<ArDirect3DVertex> gridv = new List<ArDirect3DVertex>();
+            List<int> gridi = new List<int>();
+
+            for (int i = 0; i < 100; i++)
+            {
+                gridv.Add(new ArDirect3DVertex { Position = new ArIntVector3(-5000, 0, -5000 + 100 * i), MaterialIndex = -1, TextureCoordinate = ArFloatVector2.Zero });
+                gridv.Add(new ArDirect3DVertex { Position = new ArIntVector3(5000, 0, -5000 + 100 * i), MaterialIndex = -1, TextureCoordinate = ArFloatVector2.Zero });
+            }
+            for (int i = 0; i < 100; i++)
+            {
+                gridv.Add(new ArDirect3DVertex { Position = new ArIntVector3(-5000 + 100 * i, 0, -5000), MaterialIndex = -1, TextureCoordinate = ArFloatVector2.Zero });
+                gridv.Add(new ArDirect3DVertex { Position = new ArIntVector3(-5000 + 100 * i, 0, 5000), MaterialIndex = -1, TextureCoordinate = ArFloatVector2.Zero });
+            }
+            
+            for (int i = 0; i < gridv.Count; i++)
+                gridi.Add(i);
+
+            sde.LoadModel("GridLine", new ArDirect3DModel
+            {
+                Vertices = gridv.ToArray(),
+                Indices = gridi.ToArray(),
+                PrimitiveTopology = PrimitiveTopology.LineList
+            });
+
+            gridv.Clear();
+            gridi.Clear();
+            for (int i = 0; i < 100; i++)
+                for (int j = 0; j < 100; j++)
+                    for(int k = 0; k < 10; k++)
+                        gridv.Add(new ArDirect3DVertex { Position = new ArIntVector3(-5000 + 100 * i, 100 + 100 * k, -5000 + j * 100), MaterialIndex = -1, TextureCoordinate = ArFloatVector2.Zero });
+
+            for (int i = 0; i < gridv.Count; i++)
+                gridi.Add(i);
+            
+
+            sde.LoadModel("GridPoint", new ArDirect3DModel
+            {
+                Vertices = gridv.ToArray(),
+                Indices = gridi.ToArray(),
+                PrimitiveTopology = PrimitiveTopology.PointList
             });
 
             sde.PrepareCreateInstance();
@@ -105,7 +148,7 @@ namespace ResourceManagement
             //sde.SetPerspectiveCamera()
             //設置光
             p1 = new ArIntVector3(100, 100, 0);
-            sde.CreateInstance("TestObject", 0, p1);            
+            sde.CreateInstance("TestObject", 0, p1);
             p2 = new ArIntVector3(0, 0, 0);
             sde.CreateInstance("TestObject2", 1, p2);
             p3 = new ArIntVector3(300, 200, -10);
@@ -189,6 +232,87 @@ namespace ResourceManagement
 
         double GetMB(long byteCount, int reservedDigits = 2)
             => Math.Round((double)byteCount / 1024 / 1024, reservedDigits);
+
+        private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            switch (e.KeyChar)
+            {
+                case ' ':
+                    timer1.Enabled = !timer1.Enabled;
+                    break;
+                case '1':
+                    timer1.Enabled = false;
+                    sde.PrepareLoadModel();
+                    sde.CreateInstance("GridLine", 3, null);
+                    sde.CreateInstance("GridPoint", 4, null);
+                    sde.PrepareRender();
+                    sde.Render();
+                    break;
+                case '2':
+                    //timer1.Enabled = false;
+                    //sde.PrepareLoadModel();
+                    //sde.CreateInstance("GridPoint", 4, null);
+                    //sde.PrepareRender();
+                    //sde.Render();
+                    break;
+                case 'q':
+                    rx += 0.1f;
+                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.Render();
+                    break;
+                case 'e':
+                    rx -= 0.1f;
+                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.Render();
+                    break;
+                case 'z':
+                    ry += 0.1f;
+                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.Render();
+                    break;
+                case 'c':
+                    ry -= 0.1f;
+                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.Render();
+                    break;
+                case 'w':
+                    break;
+                case 'a':
+                    break;
+                case 's':
+                    break;
+                case 'd':
+                    break;
+                case 'r':
+                    rz += 0.1f;
+                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.Render();
+                    break;
+                case 'f':
+                    rz -= 0.1f;
+                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.Render();
+                    break;
+                case 't':
+                    scaling *= 1.1f;
+                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.Render();
+                    break;
+                case 'g':
+                    scaling *= 0.9f;
+                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.Render();
+                    break;
+            }
+        }
     }
 
     //unsafe

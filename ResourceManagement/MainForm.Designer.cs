@@ -68,6 +68,7 @@
             Name = "MainForm";
             Text = "MainForm";
             Load += MainForm_Load;
+            KeyPress += MainForm_KeyPress;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
             PerformLayout();

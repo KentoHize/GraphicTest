@@ -1,5 +1,5 @@
 struct FrameVariables
-{
+{   
     float4x4 transformMatrix;
 };
 ConstantBuffer<FrameVariables> fv : register(b0);
