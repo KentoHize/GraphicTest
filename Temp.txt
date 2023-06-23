@@ -1,0 +1,13 @@
+ //(cos(fv.rotateVector.x + fv.rotateVector.y) + cos(fv.rotateVector.x - fv.rotateVector.y)) / 2
+    //(cos(fv.rotateVector.x + fv.rotateVector.y + fv.rotateVector.z) - cos(fv.rotateVector.x - fv.rotateVector.y + fv.rotateVector.z) - cos(fv.rotateVector.x + fv.rotateVector.y - fv.rotateVector.z) + cos(fv.rotateVector.x - fv.rotateVector.y - fv.rotateVector.z) - 2 * sin(fv.rotateVector.x + fv.rotateVector.z) - 2 * sin(fv.rotateVector.x - fv.rotateVector.z)) / 4
+    //(-2 * cos(fv.rotateVector.x + fv.rotateVector.z) + 2 * cos(fv.rotateVector.x - fv.rotateVector.z) - sin(fv.rotateVector.x + fv.rotateVector.y + fv.rotateVector.z) + sin(fv.rotateVector.x - fv.rotateVector.y + fv.rotateVector.z) - sin(fv.rotateVector.x + fv.rotateVector.y - fv.rotateVector.z) + sin(fv.rotateVector.x - fv.rotateVector.y - fv.rotateVector.z)) / 4
+    //0
+
+    //(sin(fv.rotateVector.x + fv.rotateVector.y) + sin(fv.rotateVector.x - fv.rotateVector.y)) / 2
+    //(2 * cos(fv.rotateVector.x + fv.rotateVector.z) + 2 * cos(fv.rotateVector.x - fv.rotateVector.z) + sin(fv.rotateVector.x + fv.rotateVector.y + fv.rotateVector.z) - sin(fv.rotateVector.x - fv.rotateVector.y + fv.rotateVector.z) - sin(fv.rotateVector.x + fv.rotateVector.y - fv.rotateVector.z) + sin(fv.rotateVector.x - fv.rotateVector.y - fv.rotateVector.z)) / 4
+    //(cos(fv.rotateVector.x + fv.rotateVector.y + fv.rotateVector.z) - cos(fv.rotateVector.x - fv.rotateVector.y + fv.rotateVector.z) + cos(fv.rotateVector.x + fv.rotateVector.y - fv.rotateVector.z) - cos(fv.rotateVector.x - fv.rotateVector.y - fv.rotateVector.z) - 2 * sin(fv.rotateVector.x + fv.rotateVector.z) + 2 * sin(fv.rotateVector.x - fv.rotateVector.z)) / 4
+    //0
+
+    //sin(fv.rotateVector.y)
+    //(sin(fv.rotateVector.y + fv.rotateVector.z) - sin(fv.rotateVector.y - fv.rotateVector.z)) / 2
+    //(cos(fv.rotateVector.y + fv.rotateVector.z) + cos(fv.rotateVector.y - fv.rotateVector.z)) / 2

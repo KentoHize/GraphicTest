@@ -1,0 +1,5 @@
+
+(cos(A+B)+cos(A-B))/2	(cos(A+B+C)-cos(A-B+C)-cos(A+B-C)+cos(A-B-C)-2*sin(A+C)-2*sin(A-C))/4	(-2*cos(A+C)+2*cos(A-C)-sin(A+B+C)+sin(A-B+C)-sin(A+B-C)+sin(A-B-C))/4	0
+(sin(A+B)+sin(A-B))/2	(2*cos(A+C)+2*cos(A-C)+sin(A+B+C)-sin(A-B+C)-sin(A+B-C)+sin(A-B-C))/4	 (cos(A+B+C)-cos(A-B+C)+cos(A+B-C)-cos(A-B-C)-2*sin(A+C)+2*sin(A-C))/4	0
+               sin(B)	                                                (sin(B+C)-sin(B-C))/2	                                                 (cos(B+C)+cos(B-C))/2	0
+                    0	                                                                    0	                                                                     0	1

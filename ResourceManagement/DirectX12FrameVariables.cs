@@ -1,17 +1,20 @@
 ﻿using GraphicLibrary.Items;
-using SharpDX.Direct3D12;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace ResourceManagement
 {
+    [StructLayout(LayoutKind.Explicit, Size = 28)]
     public struct DirectX12FrameVariables
     {
-        public Dictionary<int, int> ReplaceMaterialIndices { get; set; }
-        //public ArFloatMatrix44 TransformMatrix { get; set; }
-        public Resource TransformMatrix { get; set; }
+        [FieldOffset(0)]
+        ArIntVector3 _TranslateVector;
+        [FieldOffset(16)]
+        ArFloatVector3 _RotateVector;
+        [FieldOffset(24)]
+        float _Scale;
+        //public Dictionary<int, int> ReplaceMaterialIndices { get; set; }        
+        public ArIntVector3 TranslateVector { get => _TranslateVector; set => _TranslateVector = value; }
+        public ArFloatVector3 RotateVector { get => _RotateVector; set => _RotateVector = value; }
+        public float Scale { get => _Scale; set => _Scale = value; }
     }
 }

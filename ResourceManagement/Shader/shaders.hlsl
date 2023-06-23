@@ -14,8 +14,63 @@ PSInput VSMain(int3 position : POSITION, uint texIndex : TEXINDEX, float2 tex : 
     int4 p = int4(position[0], position[1], position[2], 1);
     float4 p2;
     float4x4 normalTF = float4x4(0.001, 0, 0, 0, 0, 0.001, 0, 0, 0, 0, 0.001, 0, 0, 0, 0, 1);    
-    p2 = mul(p, fv.transformMatrix);
+    //p2 = mul(p, fv.transformMatrix);
+    p2 = mul(p, normalTF);
+    
+    //scaling
+    if(fv.scale != 1)
+    //////    p2 = float4(p[0] * 0.001, p[1] * 0.001, p[2] * 0.001, 1);
+        p2 = float4(p.x * 0.001 * fv.scale, p.y * 0.001 * fv.scale, p.z * 0.001 * fv.scale, 1);
+    //else
+    else 
+        p2 = float4(p.x * 0.001, p.y * 0.001, p.z * 0.001, 1);
+    
+    //rotate  
+    
+ //(cos(fv.rotateVector.x + fv.rotateVector.y) + cos(fv.rotateVector.x - fv.rotateVector.y)) / 2
+    //(cos(fv.rotateVector.x + fv.rotateVector.y + fv.rotateVector.z) - cos(fv.rotateVector.x - fv.rotateVector.y + fv.rotateVector.z) - cos(fv.rotateVector.x + fv.rotateVector.y - fv.rotateVector.z) + cos(fv.rotateVector.x - fv.rotateVector.y - fv.rotateVector.z) - 2 * sin(fv.rotateVector.x + fv.rotateVector.z) - 2 * sin(fv.rotateVector.x - fv.rotateVector.z)) / 4
+    //(-2 * cos(fv.rotateVector.x + fv.rotateVector.z) + 2 * cos(fv.rotateVector.x - fv.rotateVector.z) - sin(fv.rotateVector.x + fv.rotateVector.y + fv.rotateVector.z) + sin(fv.rotateVector.x - fv.rotateVector.y + fv.rotateVector.z) - sin(fv.rotateVector.x + fv.rotateVector.y - fv.rotateVector.z) + sin(fv.rotateVector.x - fv.rotateVector.y - fv.rotateVector.z)) / 4
+    //0
+
+    //(sin(fv.rotateVector.x + fv.rotateVector.y) + sin(fv.rotateVector.x - fv.rotateVector.y)) / 2
+    //(2 * cos(fv.rotateVector.x + fv.rotateVector.z) + 2 * cos(fv.rotateVector.x - fv.rotateVector.z) + sin(fv.rotateVector.x + fv.rotateVector.y + fv.rotateVector.z) - sin(fv.rotateVector.x - fv.rotateVector.y + fv.rotateVector.z) - sin(fv.rotateVector.x + fv.rotateVector.y - fv.rotateVector.z) + sin(fv.rotateVector.x - fv.rotateVector.y - fv.rotateVector.z)) / 4
+    //(cos(fv.rotateVector.x + fv.rotateVector.y + fv.rotateVector.z) - cos(fv.rotateVector.x - fv.rotateVector.y + fv.rotateVector.z) + cos(fv.rotateVector.x + fv.rotateVector.y - fv.rotateVector.z) - cos(fv.rotateVector.x - fv.rotateVector.y - fv.rotateVector.z) - 2 * sin(fv.rotateVector.x + fv.rotateVector.z) + 2 * sin(fv.rotateVector.x - fv.rotateVector.z)) / 4
+    //0
+
+    //sin(fv.rotateVector.y)
+    //(sin(fv.rotateVector.y + fv.rotateVector.z) - sin(fv.rotateVector.y - fv.rotateVector.z)) / 2
+    //(cos(fv.rotateVector.y + fv.rotateVector.z) + cos(fv.rotateVector.y - fv.rotateVector.z)) / 2
+    if (!(fv.rotateVector.x == 0 && fv.rotateVector.y == 0 && fv.rotateVector.z == 0))
+    {
+        float _11 = (cos(fv.rotateVector.x + fv.rotateVector.y) + cos(fv.rotateVector.x - fv.rotateVector.y)) / 2;
+        float _12 = (cos(fv.rotateVector.x + fv.rotateVector.y + fv.rotateVector.z) - cos(fv.rotateVector.x - fv.rotateVector.y + fv.rotateVector.z) - cos(fv.rotateVector.x + fv.rotateVector.y - fv.rotateVector.z) + cos(fv.rotateVector.x - fv.rotateVector.y - fv.rotateVector.z) - 2 * sin(fv.rotateVector.x + fv.rotateVector.z) - 2 * sin(fv.rotateVector.x - fv.rotateVector.z)) / 4;
+        float _13 = (-2 * cos(fv.rotateVector.x + fv.rotateVector.z) + 2 * cos(fv.rotateVector.x - fv.rotateVector.z) - sin(fv.rotateVector.x + fv.rotateVector.y + fv.rotateVector.z) + sin(fv.rotateVector.x - fv.rotateVector.y + fv.rotateVector.z) - sin(fv.rotateVector.x + fv.rotateVector.y - fv.rotateVector.z) + sin(fv.rotateVector.x - fv.rotateVector.y - fv.rotateVector.z)) / 4;
+    ////float _14 = 0;
+        float _21 = (sin(fv.rotateVector.x + fv.rotateVector.y) + sin(fv.rotateVector.x - fv.rotateVector.y)) / 2;
+        float _22 = (2 * cos(fv.rotateVector.x + fv.rotateVector.z) + 2 * cos(fv.rotateVector.x - fv.rotateVector.z) + sin(fv.rotateVector.x + fv.rotateVector.y + fv.rotateVector.z) - sin(fv.rotateVector.x - fv.rotateVector.y + fv.rotateVector.z) - sin(fv.rotateVector.x + fv.rotateVector.y - fv.rotateVector.z) + sin(fv.rotateVector.x - fv.rotateVector.y - fv.rotateVector.z)) / 4;
+        float _23 = (cos(fv.rotateVector.x + fv.rotateVector.y + fv.rotateVector.z) - cos(fv.rotateVector.x - fv.rotateVector.y + fv.rotateVector.z) + cos(fv.rotateVector.x + fv.rotateVector.y - fv.rotateVector.z) - cos(fv.rotateVector.x - fv.rotateVector.y - fv.rotateVector.z) - 2 * sin(fv.rotateVector.x + fv.rotateVector.z) + 2 * sin(fv.rotateVector.x - fv.rotateVector.z)) / 4;
+    ////float _24 = 0;
+        float _31 = sin(fv.rotateVector.y);
+        float _32 = (sin(fv.rotateVector.y + fv.rotateVector.z) - sin(fv.rotateVector.y - fv.rotateVector.z)) / 2;
+        float _33 = (cos(fv.rotateVector.y + fv.rotateVector.z) + cos(fv.rotateVector.y - fv.rotateVector.z)) / 2;
+    //float _34 = 0;
+    
+        p2.x = _11 * p2.x + _12 * p2.y + _13 * p2.z;
+        p2.y = _21 * p2.x + _22 * p2.y + _23 * p2.z;
+        p2.z = _31 * p2.x + _32 * p2.y + _33 * p2.z;
+    }
+    
+    
     //p2 = mul(p, normalTF);
+    //transform
+
+    
+    
+    p2.x += fv.translateVector.x * 0.001;
+    p2.y += fv.translateVector.y * 0.001;
+    p2.z += fv.translateVector.z * 0.001;
+    //if (fv.rotateVector.z == 1)
+    //    p2 = (1, 0, 0, 1);
     result.position = p2;  
     result.shadow = shadow;
     result.tex = tex;
@@ -26,9 +81,9 @@ PSInput VSMain(int3 position : POSITION, uint texIndex : TEXINDEX, float2 tex : 
 float4 PSMain(PSInput input) : SV_TARGET
 {
     //return float4(1, 0, 0, 1);
-    //if(input.color[3] != 0)
-    //    return input.color;
-    //else
+    //return float4(fv.scale, input.shadow[1], input.shadow[2], 1);
+    //return float4(input.shadow[0], input.shadow[1], input.shadow[2], 1);
+    
     if(input.texIndex == -1)
         return float4(1, 1, 1, 1);
     else

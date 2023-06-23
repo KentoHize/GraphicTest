@@ -13,6 +13,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Xml.Schema;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using SharpDX.Direct2D1.Effects;
 
 namespace ResourceManagement
 {
@@ -23,17 +24,25 @@ namespace ResourceManagement
         float rx = 0, ry = 0, rz = 0;
         float scaling = 1;
 
-        ArIntVector3 p1, p2, p3;
+        ArIntVector3 p1, p2, p3, p4;
+        ArFloatVector3 v1;
 
         const string textureFolder = @"C:\Programs\GraphicTest\ResourceManagement\Texture\";
         public MainForm()
         {
             sde = new SharpDXEngine();
             InitializeComponent();
+
         }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            //DirectX12FrameVariables d12fv = new DirectX12FrameVariables();
+            //Debug.WriteLine(Marshal.OffsetOf(typeof(DirectX12FrameVariables), "_TranslateVector"));
+            //Debug.WriteLine(Marshal.OffsetOf(typeof(DirectX12FrameVariables), "_RotateVector"));
+            //Debug.WriteLine(Marshal.OffsetOf(typeof(DirectX12FrameVariables), "_Scale"));
+            ////, , )
+
             Stopwatch sw = new Stopwatch();
             sw.Start();
             sde.LoadSetting(new SharpDXSetting
@@ -147,12 +156,14 @@ namespace ResourceManagement
             //設置攝影機
             //sde.SetPerspectiveCamera()
             //設置光
-            p1 = new ArIntVector3(100, 100, 0);
+            p1 = new ArIntVector3(100, 100, 0);            
             sde.CreateInstance("TestObject", 0, p1);
             p2 = new ArIntVector3(0, 0, 0);
             sde.CreateInstance("TestObject2", 1, p2);
             p3 = new ArIntVector3(300, 200, -10);
             sde.CreateInstance("TestObject2", 2, p3);
+            p4 = new ArIntVector3();
+            v1 = new ArFloatVector3();
             //CreateVertex
             //CountShadow
             //Draw
@@ -220,13 +231,14 @@ namespace ResourceManagement
             lblCPUMemory.Text = $"{sde.AdapterName} Shared Memory Use: {GetMB(sde.SharedMemoryUsage)}/{GetMB(sde.SaredSystemMemory)} Mb. Dedicated Memory Use: {GetMB(sde.DedicatedMemoryUsage)}/{GetMB(sde.DedicatedVideoMemory)} Mb";
             GC.Collect();
 
-            p3[0] += 10;
-            if (p3[0] > pictureBox1.ClientSize.Width)
-                p3[0] = 0;
+            p4[0] += 10;
+            if (p4[0] > pictureBox1.ClientSize.Width)
+                p4[0] = 0;
+            //v1[0] += 0.1f;
 
             //if (p3[0] >= 300)
 
-            sde.SetInstance(2, p3);
+            sde.SetInstance(2, p4, v1);
             sde.Render();
         }
 
@@ -257,26 +269,26 @@ namespace ResourceManagement
                     break;
                 case 'q':
                     rx += 0.1f;
-                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
-                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), scaling);
+                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), scaling);
                     sde.Render();
                     break;
                 case 'e':
                     rx -= 0.1f;
-                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
-                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), scaling);
+                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), scaling);
                     sde.Render();
                     break;
                 case 'z':
                     ry += 0.1f;
-                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
-                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), scaling);
+                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), scaling);
                     sde.Render();
                     break;
                 case 'c':
                     ry -= 0.1f;
-                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
-                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), scaling);
+                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), scaling);
                     sde.Render();
                     break;
                 case 'w':
@@ -289,26 +301,26 @@ namespace ResourceManagement
                     break;
                 case 'r':
                     rz += 0.1f;
-                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
-                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), scaling);
+                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), scaling);
                     sde.Render();
                     break;
                 case 'f':
                     rz -= 0.1f;
-                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
-                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), scaling);
+                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), scaling);
                     sde.Render();
                     break;
                 case 't':
                     scaling *= 1.1f;
-                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
-                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), scaling);
+                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), scaling);
                     sde.Render();
                     break;
                 case 'g':
                     scaling *= 0.9f;
-                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
-                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), new ArFloatVector3(scaling, scaling, scaling));
+                    sde.SetInstance(3, null, new ArFloatVector3(rx, ry, rz), scaling);
+                    sde.SetInstance(4, null, new ArFloatVector3(rx, ry, rz), scaling);
                     sde.Render();
                     break;
             }

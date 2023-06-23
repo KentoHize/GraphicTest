@@ -40,8 +40,12 @@
             lblPointB = new Label();
             lblPointA = new Label();
             erpMain = new ErrorProvider(components);
+            menuStrip1 = new MenuStrip();
+            功能ToolStripMenuItem = new ToolStripMenuItem();
+            矩陣簡化ToolStripMenuItem = new ToolStripMenuItem();
             pnlMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)erpMain).BeginInit();
+            menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
             // pnlMain
@@ -147,12 +151,38 @@
             // 
             erpMain.ContainerControl = this;
             // 
+            // menuStrip1
+            // 
+            menuStrip1.ImageScalingSize = new Size(20, 20);
+            menuStrip1.Items.AddRange(new ToolStripItem[] { 功能ToolStripMenuItem });
+            menuStrip1.Location = new Point(0, 0);
+            menuStrip1.Name = "menuStrip1";
+            menuStrip1.Size = new Size(979, 28);
+            menuStrip1.TabIndex = 1;
+            menuStrip1.Text = "menuStrip1";
+            // 
+            // 功能ToolStripMenuItem
+            // 
+            功能ToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { 矩陣簡化ToolStripMenuItem });
+            功能ToolStripMenuItem.Name = "功能ToolStripMenuItem";
+            功能ToolStripMenuItem.Size = new Size(53, 24);
+            功能ToolStripMenuItem.Text = "功能";
+            // 
+            // 矩陣簡化ToolStripMenuItem
+            // 
+            矩陣簡化ToolStripMenuItem.Name = "矩陣簡化ToolStripMenuItem";
+            矩陣簡化ToolStripMenuItem.Size = new Size(224, 26);
+            矩陣簡化ToolStripMenuItem.Text = "矩陣簡化";
+            矩陣簡化ToolStripMenuItem.Click += 矩陣簡化ToolStripMenuItem_Click;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(9F, 19F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(979, 543);
             Controls.Add(pnlMain);
+            Controls.Add(menuStrip1);
+            MainMenuStrip = menuStrip1;
             Name = "MainForm";
             Text = "Form1";
             Load += MainForm_Load;
@@ -161,7 +191,10 @@
             pnlMain.ResumeLayout(false);
             pnlMain.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)erpMain).EndInit();
+            menuStrip1.ResumeLayout(false);
+            menuStrip1.PerformLayout();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -177,5 +210,8 @@
         private ErrorProvider erpMain;
         private TextBox txtPointP;
         private Label lblPointP;
+        private MenuStrip menuStrip1;
+        private ToolStripMenuItem 功能ToolStripMenuItem;
+        private ToolStripMenuItem 矩陣簡化ToolStripMenuItem;
     }
 }

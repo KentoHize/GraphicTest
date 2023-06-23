@@ -32,6 +32,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{2D580CD5-40B0-4999-A7E8-2F48F4B77AB3}"
 	ProjectSection(SolutionItems) = preProject
 		Design.txt = Design.txt
+		Record.txt = Record.txt
+		Temp.txt = Temp.txt
 	EndProjectSection
 EndProject
 Global

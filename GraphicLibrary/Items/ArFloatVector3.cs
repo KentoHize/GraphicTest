@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GraphicLibrary.Items
 {
     //DirectX Shader Compatible Float Vector3
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
     public struct ArFloatVector3 : IEquatable<ArFloatVector3>, IFormattable
     {
         float _x, _y, _z;

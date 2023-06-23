@@ -10,7 +10,7 @@ namespace GraphicLibrary.Items
 {
     //DirectX Shader Compatible Int Vector3
     //[StructLayout(LayoutKind.Explicit, Size = 12, CharSet = CharSet.Ansi)]
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
     //[Serializable]
     public struct ArIntVector3 : IEquatable<ArIntVector3>, IFormattable
     {

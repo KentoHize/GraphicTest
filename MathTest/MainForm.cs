@@ -73,7 +73,8 @@ namespace MathTest
             g.DrawLine(LinePen, dB, dC);
 
             //equation
-            Func<Point, Point, Point, Point, double> eq = (Point A, Point B, Point C, Point P) => {
+            Func<Point, Point, Point, Point, double> eq = (Point A, Point B, Point C, Point P) =>
+            {
                 return (double)(P.X - C.X + A.X) / (B.X - C.X) -
                 (double)(P.Y - C.Y + A.Y) / (B.Y - C.Y);
             };
@@ -83,9 +84,9 @@ namespace MathTest
                 return A.X + A.Y;
             };
 
-            for(float u = 0; u < 1; u+=0.01f)
+            for (float u = 0; u < 1; u += 0.01f)
             {
-                for(float v = 0; v < 1; v+=0.01f)
+                for (float v = 0; v < 1; v += 0.01f)
                 {
                     if (u + v > 1)
                         break;
@@ -162,6 +163,11 @@ namespace MathTest
         public Point GetDrawPoint(Point a)
             => new Point(Origin.X + a.X, Origin.Y - a.Y);
 
+        private void ãÈêwä»âªToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MatrixSimplification ms = new MatrixSimplification();
+            ms.ShowDialog();
+        }
     }
 
     public static class Extension
