@@ -11,8 +11,8 @@ struct PSInput
 PSInput VSMain(int3 position : POSITION, uint texIndex : TEXINDEX, float2 tex : TEXCOORD, float3 shadow : SHADOWCOORD)
 {
 	PSInput result;   
-    int4 p = int4(position[0], position[1], position[2], 1);
-    float4 p2;
+    //int3 p = int4(position[0], position[1], position[2], 1);
+    float3 p2;
     float4x4 normalTF = float4x4(0.001, 0, 0, 0, 0, 0.001, 0, 0, 0, 0, 0.001, 0, 0, 0, 0, 1);    
     //p2 = mul(p, fv.transformMatrix);
     //p2 = mul(p, normalTF);
@@ -20,34 +20,36 @@ PSInput VSMain(int3 position : POSITION, uint texIndex : TEXINDEX, float2 tex : 
     
     //scaling
     if (fv.scale != 1)
-        p2 = float4((float) p.x / 1024 / fv.scale, (float) p.y / 1024 / fv.scale, (float) p.z / 1024 / fv.scale, 1);
-    else
-        p2 = float4((float) p.x / 1024, (float) p.y / 1024, (float) p.z / 1024, 1);
+        p2 = float3((float) position.x / 1024 * fv.scale, (float) position.y / 1024 * fv.scale, (float) position.z / 1024 * fv.scale);
+    else    
+        p2 = float3((float) position.x / 1024, (float) position.y / 1024, (float) position.z / 1024);
     
     //rotate
-    float4x4 i = float4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-    float cosa = cos(fv.rotateVector.x);
-    float sina = sin(fv.rotateVector.x);
-    float4x4 r = float4x4(cosa, -sina, 0, 0, sina, cosa, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);    
-    i = mul(i, r);
-    cosa = cos(fv.rotateVector.y);
-    sina = sin(fv.rotateVector.y);
-    r = float4x4(cosa, 0, -sina, 0, 0, 1, 0, 0, sina, 0, cosa, 0, 0, 0, 0, 1);
-    i = mul(i, r);
-    cosa = cos(fv.rotateVector.z);
-    sina = sin(fv.rotateVector.z);
-    r = float4x4(1, 0, 0, 0, 0, cosa, -sina, 0, 0, sina, cosa, 0, 0, 0, 0, 1);
-    i = mul(i, r);
+
+    //float4x4 i = float4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    //float cosa = cos(fv.rotateVector.x);
+    //float sina = sin(fv.rotateVector.x);
+    //float4x4 r = float4x4(cosa, -sina, 0, 0, sina, cosa, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    //i = mul(i, r);
+    //cosa = cos(fv.rotateVector.y);
+    //sina = sin(fv.rotateVector.y);
+    //r = float4x4(cosa, 0, -sina, 0, 0, 1, 0, 0, sina, 0, cosa, 0, 0, 0, 0, 1);
+    //i = mul(i, r);
+    //cosa = cos(fv.rotateVector.z);
+    //sina = sin(fv.rotateVector.z);
+    //r = float4x4(1, 0, 0, 0, 0, cosa, -sina, 0, 0, sina, cosa, 0, 0, 0, 0, 1);
+    //i = mul(i, r);
+    //p2 = mul(p2, i);
     
-    p2 = mul(p2, i);
-    
+    //rotate2
+    p2 = mul(fv.rotateMatrix, p2);
     
     //transform
     p2.x += (float) fv.translateVector.x / 1024;
     p2.y += (float) fv.translateVector.y / 1024;
     p2.z += (float) fv.translateVector.z / 1024;
     
-    result.position = p2;  
+    result.position = float4(p2.x, p2.y, p2.z, 1);
     result.shadow = shadow;
     result.tex = tex;
     result.texIndex = texIndex;
@@ -101,3 +103,30 @@ float4 PSMain(PSInput input) : SV_TARGET
     //    p2.y = _21 * p2.x + _22 * p2.y + _23 * p2.z;
     //    p2.z = _31 * p2.x + _32 * p2.y + _33 * p2.z;
     //}
+
+//[CosA, -SinA, 0, 0]
+//[SinA, CosA, 0, 0]
+//[0, 0, 1, 0]
+//[0, 0, 0, 1]
+//的答案是
+
+//[CosB, 0, -SinB, 0]
+//[0, 1, 0, 0]
+//[SinB, 0, CosB, 0]
+//[0, 0, 0, 1]
+
+//1, 0, 0, 0,
+//0, cos, sin * -1, 0,
+//0, sin, cos, 0,
+//0, 0, 0, 1
+
+//CosA * CosB	-SinA * CosC+ CosA * -SinB * SinC	-SinA * -SinC+ CosA * -SinB *
+//CosC0	
+//SinA*
+//CosB CosA* CosC+ SinA * -SinB *
+//SinC CosA* -SinC+ SinA * -SinB *
+//CosC0	
+//SinBCosB *
+//SinC CosB*
+//CosC0	
+//0	0	0	1	

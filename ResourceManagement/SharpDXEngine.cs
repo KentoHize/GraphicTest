@@ -471,7 +471,8 @@ namespace ResourceManagement
 
             DirectX12FrameVariables d12fv = new DirectX12FrameVariables();
             d12fv.TranslateVector = position ?? ArIntVector3.Zero;
-            d12fv.RotateVector = rotation ?? ArFloatVector3.Zero;
+            d12fv.RotateVector = rotation ?? ArFloatVector3.Zero;            
+            d12fv.RotateMatrix = Ar3DMachine.GetRotateMatrix(d12fv.RotateVector);
             d12fv.Scale = scaling;            
 
             Resource r = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.Common);
@@ -511,7 +512,8 @@ namespace ResourceManagement
                 throw new ArgumentException(nameof(index));
             DirectX12FrameVariables d12fv = new DirectX12FrameVariables();
             d12fv.TranslateVector = position ?? ArIntVector3.Zero;
-            d12fv.RotateVector = rotation ?? ArFloatVector3.Zero;
+            d12fv.RotateVector = rotation ?? ArFloatVector3.Zero;            
+            d12fv.RotateMatrix = Ar3DMachine.GetRotateMatrix(d12fv.RotateVector);
             d12fv.Scale = scaling;
             ptr = InstanceFrameVariables[index].Map(0);
             Utilities.Write(ptr, ref d12fv);

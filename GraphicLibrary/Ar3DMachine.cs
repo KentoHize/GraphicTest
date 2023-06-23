@@ -38,6 +38,29 @@ namespace GraphicLibrary
         //    return new ArFloatVector3(v4[0], v4[1], v4[2]);
         //}
 
+        public static ArFloatMatrix33 GetRotateMatrix(ArFloatVector3 rotateVector)
+        {
+            if (rotateVector == ArFloatVector3.Zero)
+                return ArFloatMatrix33.One;
+            float cosa = (float)Math.Cos(rotateVector[0]);
+            float sina = (float)Math.Sin(rotateVector[0]);
+            float cosb = (float)Math.Cos(rotateVector[1]);
+            float sinb = (float)Math.Sin(rotateVector[1]);
+            float cosc = (float)Math.Cos(rotateVector[2]);
+            float sinc = (float)Math.Sin(rotateVector[2]);
+            return new ArFloatMatrix33(
+                cosa * cosb,
+                -sina * cosc + cosa * -sinb * sinc,
+                sina * sinc + cosa * -sinb * cosc,
+                sina * cosb,
+                cosa * cosc + sina * -sinb * sinc,
+                cosa * -sinc + sina * -sinb * cosc,
+                sinb,
+                cosb * sinc,
+                cosb * cosc
+            );
+        }
+
         public static ArFloatMatrix44 ProduceTransformMatrix(ArIntVector3 translateVector, ArFloatVector3 rotateVector, ArFloatVector3 scaleVector)
         {
             ArFloatMatrix44 result = ArFloatMatrix44.One;
