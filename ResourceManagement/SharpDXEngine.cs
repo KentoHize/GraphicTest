@@ -97,6 +97,7 @@ namespace ResourceManagement
             InstanceFrameVariables = new Dictionary<int, Resource>();
             ShaderFiles = new Dictionary<ShaderType, ShaderFileInfo>
             {
+                
                 {ShaderType.VertexShader, new ShaderFileInfo(GLShaderFile, ShaderType.VertexShader) },
                 {ShaderType.PixelShader, new ShaderFileInfo(GLShaderFile, ShaderType.PixelShader) },
             };
@@ -564,6 +565,7 @@ namespace ResourceManagement
 
         public void PrepareRender()
         {
+            //初步計算不需要畫的Model
             DescriptorHeapDescription csuHeapDesc = new DescriptorHeapDescription()
             {
                 DescriptorCount = 8,
@@ -637,8 +639,6 @@ namespace ResourceManagement
             commandList.SetDescriptorHeaps(new DescriptorHeap[] { shaderResourceViewHeap });
             commandList.SetGraphicsRootDescriptorTable(1, shaderResourceViewHeap.GPUDescriptorHandleForHeapStart);
             //commandList.SetGraphicsRootDescriptorTable(2, shaderResourceViewHeap.GPUDescriptorHandleForHeapStart);
-            
-            
 
             CpuDescriptorHandle rtvHandle = renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
             rtvHandle += frameIndex * rtvDescriptorSize;
