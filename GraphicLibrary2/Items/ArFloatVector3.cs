@@ -70,7 +70,7 @@ namespace GraphicLibrary2.Items
         public bool Equals(ArFloatVector3 other)
             => _x == other._x && _y == other._y && _z == other._z;
         public int CompareTo(ArFloatVector3 other)
-            => _x > other._x ? 1 : _x < other._x ? -1 : _y > other._y ? 1 : _y < other._y ? -1 : _z > other._z ? 1 : -1;
+            => Equals(other) ? 0 : _x > other._x ? 1 : _x < other._x ? -1 : _y > other._y ? 1 : _y < other._y ? -1 : _z > other._z ? 1 : -1;
         public static bool operator ==(ArFloatVector3 left, ArFloatVector3 right)
             => left.Equals(right);
         public static bool operator !=(ArFloatVector3 left, ArFloatVector3 right)
@@ -103,9 +103,7 @@ namespace GraphicLibrary2.Items
             => _x * a._x + _y * a._y + _z * a._z;
         public override bool Equals(object? obj)
         {
-            if (ReferenceEquals(this, obj))
-                return true;
-            else if (!(obj is ArFloatVector3))
+            if (!(obj is ArFloatVector3))
                 return false;
             return Equals((ArFloatVector3)obj);
         }

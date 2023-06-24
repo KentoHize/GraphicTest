@@ -68,13 +68,13 @@ namespace GraphicLibrary2.Items
             => ToString("G");
         public string ToString(string format)
             => $"({_x.ToString(format)}, {_y.ToString(format)}, {_z.ToString(format)})";
-        public bool Equals(ArIntVector3? other)
-            => ReferenceEquals(other, null) ? false : _x == other._x && _y == other._y && _z == other._z;
-        public int CompareTo(ArIntVector3? other)
-            => ReferenceEquals(other, null) ? 1 : Equals(other) ? 0 : _x > other._x ? 1 : _x < other._x ? -1 : _y > other._y ? 1 : _y < other._y ? -1 : _z > other._z ? 1 : -1;
-        public static bool operator ==(ArIntVector3? left, ArIntVector3? right)
-            => ReferenceEquals(left, right) ? true : ReferenceEquals(left, null) ? false : left.Equals(right);
-        public static bool operator !=(ArIntVector3? left, ArIntVector3? right)
+        public bool Equals(ArIntVector3 other)
+            => _x == other._x && _y == other._y && _z == other._z;
+        public int CompareTo(ArIntVector3 other)
+            => Equals(other) ? 0 : _x > other._x ? 1 : _x < other._x ? -1 : _y > other._y ? 1 : _y < other._y ? -1 : _z > other._z ? 1 : -1;
+        public static bool operator ==(ArIntVector3 left, ArIntVector3 right)
+            => left.Equals(right);
+        public static bool operator !=(ArIntVector3 left, ArIntVector3 right)
             => !(left == right);
         public static ArIntVector3 operator +(ArIntVector3 left, ArIntVector3 right)
             => new ArIntVector3(left._x + right._x, left._y + right._y, left._z + right._z);
@@ -103,10 +103,8 @@ namespace GraphicLibrary2.Items
         public float DotProduct(ArIntVector3 a)
             => _x * a._x + _y * a._y + _z * a._z;
         public override bool Equals(object? obj)
-        {
-            if (ReferenceEquals(this, obj))
-                return true;
-            else if (!(obj is ArIntVector3))
+        {            
+            if (!(obj is ArIntVector3))
                 return false;
             return Equals((ArIntVector3)obj);
         }
@@ -141,19 +139,19 @@ namespace GraphicLibrary2.Items
             }
             catch
             {
-                result = null;
+                result = default;
                 return false;
             }
         }
 
         public static bool operator <(ArIntVector3 left, ArIntVector3 right)
-            => ReferenceEquals(left, null) ? !ReferenceEquals(right, null) : left.CompareTo(right) < 0;
+            => left.CompareTo(right) < 0;
         public static bool operator <=(ArIntVector3 left, ArIntVector3 right)
-            => ReferenceEquals(left, null) || left.CompareTo(right) <= 0;
+            => left.CompareTo(right) <= 0;
         public static bool operator >(ArIntVector3 left, ArIntVector3 right)
-            => !ReferenceEquals(left, null) && left.CompareTo(right) > 0;
+            => left.CompareTo(right) > 0;
         public static bool operator >=(ArIntVector3 left, ArIntVector3 right)
-            => ReferenceEquals(left, null) ? ReferenceEquals(right, null) : left.CompareTo(right) >= 0;
+            => left.CompareTo(right) >= 0;
         public static ArIntVector3 operator -(ArIntVector3 value)
             => new ArIntVector3(value._x * -1, value._y * -1, value._z * -1);
 

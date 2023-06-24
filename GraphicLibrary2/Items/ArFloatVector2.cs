@@ -67,7 +67,7 @@ namespace GraphicLibrary2.Items
         public bool Equals(ArFloatVector2 other)
             => _x == other._x && _y == other._y;
         public int CompareTo(ArFloatVector2 other)
-            => _x > other._x ? 1 : _x < other._x ? -1 : _y > other._y ? 1 : -1;
+            => Equals(other) ? 0 : _x > other._x ? 1 : _x < other._x ? -1 : _y > other._y ? 1 : -1;
         public static bool operator ==(ArFloatVector2 left, ArFloatVector2 right)
             => left.Equals(right);
         public static bool operator !=(ArFloatVector2 left, ArFloatVector2 right)

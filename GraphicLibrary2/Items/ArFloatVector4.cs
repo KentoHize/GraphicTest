@@ -76,7 +76,7 @@ namespace GraphicLibrary2.Items
         public bool Equals(ArFloatVector4 other)
             => _x == other._x && _y == other._y && _z == other._z && _w == other._w;
         public int CompareTo(ArFloatVector4 other)
-            => _x < other._x ? -1 : _y > other._y ? 1 : _y < other._y ? -1 : _z > other._z ? 1 : _z < other._z ? -1 : _w > other._w ? 1 : -1;
+            => Equals(other) ? 0 : _x < other._x ? -1 : _y > other._y ? 1 : _y < other._y ? -1 : _z > other._z ? 1 : _z < other._z ? -1 : _w > other._w ? 1 : -1;
         public static bool operator ==(ArFloatVector4 left, ArFloatVector4 right)
             => left.Equals(right);
         public static bool operator !=(ArFloatVector4 left, ArFloatVector4 right)
@@ -102,10 +102,8 @@ namespace GraphicLibrary2.Items
         public float DotProduct(ArFloatVector4 a)
             => _x * a._x + _y * a._y + _z * a._z + _w * a._w;
         public override bool Equals(object? obj)
-        {
-            if (ReferenceEquals(this, obj))
-                return true;
-            else if (!(obj is ArFloatVector4))
+        {   
+            if (!(obj is ArFloatVector4))
                 return false;
             return Equals((ArFloatVector4)obj);
         }
