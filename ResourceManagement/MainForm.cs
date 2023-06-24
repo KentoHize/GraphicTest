@@ -1,19 +1,6 @@
-﻿using GraphicLibrary.Items;
-using GraphicLibrary;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Xml.Schema;
+﻿using GraphicLibrary;
+using GraphicLibrary.Items;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
-using SharpDX.Direct2D1.Effects;
 
 namespace ResourceManagement
 {
@@ -123,7 +110,7 @@ namespace ResourceManagement
                 gridv.Add(new ArDirect3DVertex { Position = new ArIntVector3(-5000 + 100 * i, 0, -5000), MaterialIndex = -1, TextureCoordinate = ArFloatVector2.Zero });
                 gridv.Add(new ArDirect3DVertex { Position = new ArIntVector3(-5000 + 100 * i, 0, 5000), MaterialIndex = -1, TextureCoordinate = ArFloatVector2.Zero });
             }
-            
+
             for (int i = 0; i < gridv.Count; i++)
                 gridi.Add(i);
 
@@ -138,12 +125,12 @@ namespace ResourceManagement
             gridi.Clear();
             for (int i = 0; i < 100; i++)
                 for (int j = 0; j < 100; j++)
-                    for(int k = 0; k < 10; k++)
+                    for (int k = 0; k < 10; k++)
                         gridv.Add(new ArDirect3DVertex { Position = new ArIntVector3(-5000 + 100 * i, 100 + 100 * k, -5000 + j * 100), MaterialIndex = -1, TextureCoordinate = ArFloatVector2.Zero });
 
             for (int i = 0; i < gridv.Count; i++)
                 gridi.Add(i);
-            
+
 
             sde.LoadModel("GridPoint", new ArDirect3DModel
             {
@@ -156,7 +143,7 @@ namespace ResourceManagement
             //設置攝影機
             //sde.SetPerspectiveCamera()
             //設置光
-            p1 = new ArIntVector3(100, 100, 0);            
+            p1 = new ArIntVector3(100, 100, 0);
             sde.CreateInstance("TestObject", 0, p1);
             p2 = new ArIntVector3(0, 0, 0);
             sde.CreateInstance("TestObject2", 1, p2);

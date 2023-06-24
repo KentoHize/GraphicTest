@@ -1,14 +1,6 @@
-﻿using SharpDX.Mathematics.Interop;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace GraphicLibrary2.Items
 {
@@ -97,7 +89,7 @@ namespace GraphicLibrary2.Items
         public float DotProduct(ArFloatVector2 a)
             => _x * a._x + _y * a._y;
         public override bool Equals(object? obj)
-        {            
+        {
             if (!(obj is ArFloatVector2))
                 return false;
             return Equals((ArFloatVector2)obj);
@@ -152,6 +144,6 @@ namespace GraphicLibrary2.Items
         public static explicit operator ArFloatVector2(ArFloatVector3 a)
             => new ArFloatVector2(a[0], a[1]);
         public static explicit operator ArFloatVector2(ArFloatVector4 a)
-            => new ArFloatVector2(a[0], a[1]);      
+            => new ArFloatVector2(a[0], a[1]);
     }
 }

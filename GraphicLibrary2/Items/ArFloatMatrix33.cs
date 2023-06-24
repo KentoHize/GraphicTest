@@ -1,8 +1,11 @@
-﻿using System.Text;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
+using System.Text;
 
-namespace GraphicLibrary.Items
+namespace GraphicLibrary2.Items
 {
     //DirectX Shader Compatible Int Vector3
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
     public struct ArFloatMatrix33 : IEquatable<ArFloatMatrix33>
     {
         float _11, _12, _13, _21, _22, _23, _31, _32, _33;
@@ -159,6 +162,17 @@ namespace GraphicLibrary.Items
             => a.Equals(b);
         public static bool operator !=(ArFloatMatrix33 a, ArFloatMatrix33 b)
             => !a.Equals(b);
+
+        public override bool Equals([NotNullWhen(true)] object? obj)
+        {
+            if (!(obj is ArFloatMatrix33))
+                return false;
+            return Equals((ArFloatMatrix33)obj);
+        }
+
+        public override int GetHashCode()
+         => (_11, _12, _13, _21, _22, _23, _31, _32, _33).GetHashCode();
+
         public bool Equals(ArFloatMatrix33 other)
             => _11 == other._11 && _12 == other._12 && _13 == other._13 &&
             _21 == other._21 && _22 == other._22 && _23 == other._23 &&

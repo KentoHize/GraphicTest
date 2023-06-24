@@ -1,23 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GraphicLibrary;
+﻿using GraphicLibrary;
 using GraphicLibrary.Items;
+using SharpDX;
 using SharpDX.Direct3D12;
 using SharpDX.DXGI;
 using Device = SharpDX.Direct3D12.Device;
 using Device11 = SharpDX.Direct3D11.Device;
 using Device12 = SharpDX.Direct3D11.Device11On12;
 using DeviceContext = SharpDX.Direct3D11.DeviceContext;
+using Factory4 = SharpDX.DXGI.Factory4;
 using InfoQueue = SharpDX.Direct3D12.InfoQueue;
 using Resource = SharpDX.Direct3D12.Resource;
 using Resource11 = SharpDX.Direct3D11.Resource;
-using Factory4 = SharpDX.DXGI.Factory4;
-using SharpDX;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 
 namespace DepthBuffer
@@ -118,7 +111,7 @@ namespace DepthBuffer
                 tempSwapChain.Dispose();
             }
             frameIndex = swapChain.CurrentBackBufferIndex;
-            infoQueue = device.QueryInterface<InfoQueue>();            
+            infoQueue = device.QueryInterface<InfoQueue>();
 
             DescriptorHeapDescription rtvHeapDesc = new DescriptorHeapDescription()
             {
@@ -241,8 +234,8 @@ namespace DepthBuffer
         {
             texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.Shared, rd, ResourceStates.Common);
             device11 = Device11.CreateFromDirect3D12(device, SharpDX.Direct3D11.DeviceCreationFlags.BgraSupport, null, null, commandQueue);
-            deviceContext = device11.ImmediateContext;            
-            device12 = device11.QueryInterface<Device12>();            
+            deviceContext = device11.ImmediateContext;
+            device12 = device11.QueryInterface<Device12>();
             SharpDX.Direct3D11.D3D11ResourceFlags d3d11RF = new SharpDX.Direct3D11.D3D11ResourceFlags()
             {
                 BindFlags = (int)SharpDX.Direct3D11.BindFlags.RenderTarget,
@@ -261,21 +254,21 @@ namespace DepthBuffer
             {
                 PixelFormat = new SharpDX.Direct2D1.PixelFormat(Format.Unknown, SharpDX.Direct2D1.AlphaMode.Premultiplied),
                 Type = SharpDX.Direct2D1.RenderTargetType.Hardware,
-                MinLevel = SharpDX.Direct2D1.FeatureLevel.Level_10,                
+                MinLevel = SharpDX.Direct2D1.FeatureLevel.Level_10,
             };
             var d2RenderTarget = new SharpDX.Direct2D1.RenderTarget(d2dFactory, surface,
                 rtp);
             surface.Dispose();
 
             var directWriteFactory = new SharpDX.DirectWrite.Factory();
-            var textFormat = new SharpDX.DirectWrite.TextFormat(directWriteFactory, 
-                "Arial", SharpDX.DirectWrite.FontWeight.Bold, SharpDX.DirectWrite.FontStyle.Normal, 24) 
+            var textFormat = new SharpDX.DirectWrite.TextFormat(directWriteFactory,
+                "Arial", SharpDX.DirectWrite.FontWeight.Bold, SharpDX.DirectWrite.FontStyle.Normal, 24)
             { TextAlignment = SharpDX.DirectWrite.TextAlignment.Leading, ParagraphAlignment = SharpDX.DirectWrite.ParagraphAlignment.Near };
             var textBrush = new SharpDX.Direct2D1.SolidColorBrush(d2RenderTarget, Color4.White);
             directWriteFactory.Dispose();
 
             device12.AcquireWrappedResources(new Resource11[] { resource11 }, 1);
-            d2RenderTarget.BeginDraw();            
+            d2RenderTarget.BeginDraw();
             string s = "現代人常說隔夜菜不健康，但腎臟科醫師江守山表示，經過研究發現，其實米飯比菜更容易壞掉，也更容易產生毒素。對此，江守山也分享自己曾經遇過的病例，一名30幾歲、腎功能不佳的男子，某天因吃到腐壞的米飯，嚴重腹痛、血壓驟降，險些洗腎。\r\n\r\n腎臟科醫師江守山在節目《健康好生活》中表示，上述病例是全家一起誤食到腐敗的米飯，均食物中毒，「大家一起中獎」。而該男子本身腎功能差，雖然未達洗腎程度，但當天因食物中毒、嚴重腹痛，迷走神經太過興奮，導致血壓驟降，全身冒冷汗，出現所謂的「休克型低血壓」，當時收縮壓甚至來到62、舒張壓近40毫米汞柱。\r\n\r\n他表示，腎臟功能差者，若血壓急遽至該男子的數值，可以直接造成腎小管壞死、重創腎功能，嚴重恐要終身洗腎，「所以不要忽視拉肚子這個小病。」\r\n\r\n江守山補充，「國外也發生過很多次，就是都認為飯不會壞，尤其很多廚師都會教說，冰過或放過的老飯去炒，才會粒粒分明和好吃」，但米飯若腐敗其實很容易長出仙人掌桿菌，並產生「可抗熱」的內毒素，因此即便煮熟都還是無法消滅此菌，吃下去照常食物中毒、上吐下瀉，甚至腹部不適、血壓驟降、嚴重傷害腎臟血管，造成腎臟永久性傷害。\r\n\r\n所以江守山也再次提醒，飯絕對不是不會壞，「只是飯看起來比較乾燥，所以看不出來它已經壞掉」，民眾千萬別輕忽「炒飯症候群」食物中毒的風險，嚴重可能會造成腎臟等器官敗壞，慘淪終身洗腎。";
             d2RenderTarget.DrawText(s, textFormat,
                 new SharpDX.Mathematics.Interop.RawRectangleF(0, 0, rd.Width, rd.Height), textBrush);
@@ -301,7 +294,7 @@ namespace DepthBuffer
 
             var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[0].Width, data.Textures[0].Height, 1, 1, 1, 0, ResourceFlags.AllowRenderTarget | ResourceFlags.AllowSimultaneousAccess);
             Resource r = CreateTextToTexture(textureDesc);
-            
+
             var srvDesc = new ShaderResourceViewDescription
             {
                 Shader4ComponentMapping = Ar3DMachine.DefaultComponentMapping,
@@ -310,7 +303,7 @@ namespace DepthBuffer
                 Texture2D = { MipLevels = 1 },
             };
             device.CreateShaderResourceView(texture, srvDesc, cruHandle);
-            cruHandle += cruDescriptorSize;        
+            cruHandle += cruDescriptorSize;
 
             commandList.Close();
             commandQueue.ExecuteCommandList(commandList);
@@ -407,7 +400,7 @@ namespace DepthBuffer
 
             commandList.SetGraphicsRootConstantBufferView(0, constantBuffer[0].GPUVirtualAddress);
             commandList.SetGraphicsRootConstantBufferView(1, constantBuffer[1].GPUVirtualAddress);
-            
+
             commandList.SetDescriptorHeaps(new DescriptorHeap[] { shaderResourceBufferViewHeap });
             commandList.SetGraphicsRootDescriptorTable(2, shaderResourceBufferViewHeap.GPUDescriptorHandleForHeapStart);
 

@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace GraphicLibrary.Items
+﻿namespace GraphicLibrary.Items
 {
     //DirectX Shader Compatible Float Vector4
     public struct ArFloatVector4 : IEquatable<ArFloatVector4>, IFormattable
     {
-        float _x, _y, _z, _w;        
+        float _x, _y, _z, _w;
         public static ArFloatVector4 Zero { get => new ArFloatVector4(); }
         public static ArFloatVector4 One { get => new ArFloatVector4(1, 1, 1, 1); }
         public static ArFloatVector4 UnitW { get => new ArFloatVector4(1, 0, 0, 0); }
         public static ArFloatVector4 UnitX { get => new ArFloatVector4(0, 1, 0, 0); }
-        public static ArFloatVector4 UnitY { get => new ArFloatVector4(0, 0, 1 ,0); }
+        public static ArFloatVector4 UnitY { get => new ArFloatVector4(0, 0, 1, 0); }
         public static ArFloatVector4 UnitZ { get => new ArFloatVector4(0, 0, 0, 1); }
         public ArFloatVector4()
         { }

@@ -3,17 +3,14 @@ using GraphicLibrary.Items;
 using SharpDX;
 using SharpDX.Direct3D12;
 using SharpDX.DXGI;
-using SharpDX.Direct2D1;
-using SharpDX.DirectWrite;
 using System.Runtime.InteropServices;
 using Device = SharpDX.Direct3D12.Device;
 using Factory4 = SharpDX.DXGI.Factory4;
-using InfoQueue = SharpDX.Direct3D12.InfoQueue;
-using Resource = SharpDX.Direct3D12.Resource;
-using InputElement = SharpDX.Direct3D12.InputElement;
 using FillMode = SharpDX.Direct3D12.FillMode;
-using Color = SharpDX.Color;
 using Filter = SharpDX.Direct3D12.Filter;
+using InfoQueue = SharpDX.Direct3D12.InfoQueue;
+using InputElement = SharpDX.Direct3D12.InputElement;
+using Resource = SharpDX.Direct3D12.Resource;
 //using ShaderBytecode = SharpDX.D3DCompiler.ShaderBytecode;
 
 namespace Constant
@@ -66,7 +63,7 @@ namespace Constant
         Resource[] shaderResource;
 
         Resource texture;
-        
+
         public SharpDXEngine()
         {
 #if DEBUG
@@ -121,7 +118,7 @@ namespace Constant
             renderTargets = new Resource[FrameCount];
             for (int n = 0; n < FrameCount; n++)
             {
-                renderTargets[n] = swapChain.GetBackBuffer<Resource>(n);                
+                renderTargets[n] = swapChain.GetBackBuffer<Resource>(n);
                 device.CreateRenderTargetView(renderTargets[n], null, rtvHandle);
                 rtvHandle += rtvDescriptorSize;
             }
@@ -132,8 +129,8 @@ namespace Constant
         {
             var rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout,
              new RootParameter[]
-             {   
-                 new RootParameter(ShaderVisibility.All, new RootConstants(0, 0, 2)),                 
+             {
+                 new RootParameter(ShaderVisibility.All, new RootConstants(0, 0, 2)),
                  new RootParameter(ShaderVisibility.All,
                             new RootDescriptor(1, 0), RootParameterType.ConstantBufferView),
                  new RootParameter(ShaderVisibility.All,
@@ -153,7 +150,7 @@ namespace Constant
 
             InputElement[] inputElementDescs = new InputElement[]
              {
-                    new InputElement("POSITION", 0, Format.R32G32B32_SInt,0,0),                    
+                    new InputElement("POSITION", 0, Format.R32G32B32_SInt,0,0),
                     new InputElement("TEXCOORD", 0, Format.R32G32_Float,12,0),
              };
 
@@ -212,7 +209,7 @@ namespace Constant
             for (int i = 0; i < data.Textures.Length; i++)
             {
                 var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[i].Width, data.Textures[i].Height);
-                texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);                
+                texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
                 var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[i].Width, data.Textures[i].Height), ResourceStates.GenericRead);
                 var handle = GCHandle.Alloc(data.Textures[i].Data, GCHandleType.Pinned);
                 ptr = Marshal.UnsafeAddrOfPinnedArrayElement(data.Textures[i].Data, 0);
@@ -222,7 +219,7 @@ namespace Constant
                 commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
                 var srvDesc = new ShaderResourceViewDescription
                 {
-                    Shader4ComponentMapping =  Ar3DMachine.DefaultComponentMapping,
+                    Shader4ComponentMapping = Ar3DMachine.DefaultComponentMapping,
                     Format = textureDesc.Format,
                     Dimension = ShaderResourceViewDimension.Texture2D,
                     Texture2D = { MipLevels = 1 },
@@ -350,7 +347,7 @@ namespace Constant
             //commandList.SetGraphicsRootDescriptorTable(0, constantBufferViewHeap.GPUDescriptorHandleForHeapStart);            
             commandList.SetGraphicsRoot32BitConstant(0, 255, 0);
             commandList.SetGraphicsRoot32BitConstant(0, 125, 1);
-            
+
             commandList.SetGraphicsRootConstantBufferView(1, constantBuffer[0].GPUVirtualAddress);
             commandList.SetGraphicsRootDescriptorTable(2, constantBufferViewHeap.GPUDescriptorHandleForHeapStart);
             //commandList.SetGraphicsRootShaderResourceView(2, texture.GPUVirtualAddress);
@@ -362,13 +359,13 @@ namespace Constant
             commandList.ClearRenderTargetView(rtvHandle, new Color4(backgroundColor.X, backgroundColor.Y, backgroundColor.Z, backgroundColor.W), 0, null);
 
             for (int i = 0; i < bundles.Length; i++)
-            {             
+            {
                 commandList.ExecuteBundle(bundles[i]);
             }
             commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
 
             //MessageBox.Show(device.DeviceRemovedReason.ToString());
-            
+
             commandList.Close();
             commandQueue.ExecuteCommandList(commandList);
 

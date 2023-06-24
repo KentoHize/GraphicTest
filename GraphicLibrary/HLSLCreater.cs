@@ -1,10 +1,5 @@
-﻿using SharpDX.Direct3D11;
-using SharpDX.Direct3D12;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using SharpDX.Direct3D12;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace GraphicLibrary
 {
@@ -22,9 +17,9 @@ namespace GraphicLibrary
 
             int nameIndex = 0, n = 0;
             StringBuilder sb = new StringBuilder();
-            for(int i = 0; i < rsd.Parameters.Length; i++)
+            for (int i = 0; i < rsd.Parameters.Length; i++)
             {
-                switch(rsd.Parameters[i].ParameterType)
+                switch (rsd.Parameters[i].ParameterType)
                 {
                     case RootParameterType.Constant32Bits:
                         break;
@@ -33,7 +28,7 @@ namespace GraphicLibrary
                     case RootParameterType.ConstantBufferView:
                         sb.AppendLine($"struct cb{n}");
                         sb.AppendLine("{");
-                            //for(int j = 0; j < variables.)
+                        //for(int j = 0; j < variables.)
                         sb.AppendLine("};");
                         if (rsd.Parameters[i].Descriptor.RegisterSpace == 0)
                             sb.AppendLine($"ConstantBuffercb<{n}> : register(b{rsd.Parameters[i].Descriptor.ShaderRegister})");
@@ -58,7 +53,7 @@ namespace GraphicLibrary
         //        case RootParameterType.
         //    }
         //    rp.Descriptor.RegisterSpace
-            
+
         //}
         //string Get
     }

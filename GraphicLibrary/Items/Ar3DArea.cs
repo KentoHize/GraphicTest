@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace GraphicLibrary.Items
+﻿namespace GraphicLibrary.Items
 {
     public class Ar3DArea
     {
@@ -26,7 +18,7 @@ namespace GraphicLibrary.Items
 
         public Ar3DArea()
         {
-            
+
         }
     }
 }

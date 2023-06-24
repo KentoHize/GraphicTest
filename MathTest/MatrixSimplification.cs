@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.Text;
 
 namespace MathTest
 {
@@ -189,14 +181,14 @@ namespace MathTest
         private void btnOutput_Click(object sender, EventArgs e)
         {
             StringBuilder sb = new StringBuilder();
-            for(int i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++)
             {
                 for (int j = 0; j < 4; j++)
                 {
                     sb.AppendFormat("{0}\t", m3[j, i].Text);
                 }
                 sb.AppendLine();
-            }       
+            }
             Clipboard.SetText(sb.ToString());
             MessageBox.Show(sb.ToString());
         }

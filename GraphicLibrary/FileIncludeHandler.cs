@@ -1,10 +1,5 @@
-﻿using SharpDX.D3DCompiler;
-using SharpDX;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SharpDX;
+using SharpDX.D3DCompiler;
 
 namespace GraphicLibrary
 {
@@ -13,7 +8,7 @@ namespace GraphicLibrary
         public static FileIncludeHandler Default { get; } = new FileIncludeHandler();
 
         public Stream Open(IncludeType type, string fileName, Stream parentStream)
-        {   
+        {
             string filePath = fileName;
 
             if (!Path.IsPathRooted(filePath))

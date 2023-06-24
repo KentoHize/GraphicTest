@@ -1,5 +1,5 @@
-using GraphicLibrary.Items;
 using GraphicLibrary;
+using GraphicLibrary.Items;
 
 namespace Constant
 {
@@ -85,11 +85,11 @@ namespace Constant
                 }
             };
             sde.LoadData(data);
-            
+
         }
 
         private void pibMain_Paint(object sender, PaintEventArgs e)
-        {   
+        {
             sde.Render();
         }
     }

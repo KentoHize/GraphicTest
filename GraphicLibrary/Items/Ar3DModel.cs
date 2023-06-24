@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Numerics;
-
-namespace GraphicLibrary.Items
+﻿namespace GraphicLibrary.Items
 {
     public class Ar3DModel : ICloneable
     {
@@ -28,7 +21,7 @@ namespace GraphicLibrary.Items
             Ar3DModel result = new Ar3DModel();
             if (Planes == null)
                 return result;
-            
+
             result.m_planes = (ArPlane[])m_planes.Clone();
             return result;
         }

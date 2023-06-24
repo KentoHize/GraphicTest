@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace GraphicLibrary2.Items
 {
@@ -102,7 +95,7 @@ namespace GraphicLibrary2.Items
         public float DotProduct(ArFloatVector4 a)
             => _x * a._x + _y * a._y + _z * a._z + _w * a._w;
         public override bool Equals(object? obj)
-        {   
+        {
             if (!(obj is ArFloatVector4))
                 return false;
             return Equals((ArFloatVector4)obj);

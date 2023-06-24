@@ -1,24 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GraphicLibrary;
+﻿using GraphicLibrary;
 using GraphicLibrary.Items;
+using SharpDX;
+using SharpDX.Direct3D12;
 using SharpDX.DXGI;
+using System.Drawing.Imaging;
 using Device = SharpDX.Direct3D12.Device;
 using Device11 = SharpDX.Direct3D11.Device;
 using Device12 = SharpDX.Direct3D11.Device11On12;
 using DeviceContext = SharpDX.Direct3D11.DeviceContext;
+using Factory4 = SharpDX.DXGI.Factory4;
 using InfoQueue = SharpDX.Direct3D12.InfoQueue;
 using Resource = SharpDX.Direct3D12.Resource;
 using Resource11 = SharpDX.Direct3D11.Resource;
-using Factory4 = SharpDX.DXGI.Factory4;
-using SharpDX;
-using SharpDX.Direct3D12;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Drawing.Imaging;
 
 namespace CreateSphere
 {
@@ -87,7 +80,7 @@ namespace CreateSphere
                 {ShaderType.VertexShader, new ShaderFileInfo(GLShaderFile, ShaderType.VertexShader) },
                 {ShaderType.PixelShader, new ShaderFileInfo(GLShaderFile, ShaderType.PixelShader) },
                 {ShaderType.GeometryShader, new ShaderFileInfo(GLShaderFile,ShaderType.GeometryShader) },
-                
+
             };
         }
 
@@ -235,7 +228,7 @@ namespace CreateSphere
             shaderResourceBufferViewHeap = device.CreateDescriptorHeap(shaderResourceBufferViewHeapDesc);
             cruHandle = shaderResourceBufferViewHeap.CPUDescriptorHandleForHeapStart;
 
-            var textureUploadHeap = LoadBitmapToUploadHeap(@"C:\Programs\GraphicTest\Texture\Texture\AnnetteSquare.bmp");            
+            var textureUploadHeap = LoadBitmapToUploadHeap(@"C:\Programs\GraphicTest\Texture\Texture\AnnetteSquare.bmp");
             var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, textureUploadHeap.Description.Width, textureUploadHeap.Description.Height);
             texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
             commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(textureUploadHeap, 0), null);

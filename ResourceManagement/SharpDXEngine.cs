@@ -3,17 +3,17 @@ using GraphicLibrary.Items;
 using SharpDX;
 using SharpDX.Direct3D12;
 using SharpDX.DXGI;
+using System.Diagnostics;
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 using Device = SharpDX.Direct3D12.Device;
 using Device11 = SharpDX.Direct3D11.Device;
 using Device12 = SharpDX.Direct3D11.Device11On12;
 using DeviceContext = SharpDX.Direct3D11.DeviceContext;
+using Factory4 = SharpDX.DXGI.Factory4;
 using InfoQueue = SharpDX.Direct3D12.InfoQueue;
 using Resource = SharpDX.Direct3D12.Resource;
 using Resource11 = SharpDX.Direct3D11.Resource;
-using Factory4 = SharpDX.DXGI.Factory4;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
-using System.Drawing.Imaging;
 
 namespace ResourceManagement
 {
@@ -52,10 +52,10 @@ namespace ResourceManagement
         PipelineState computePLState;
 
         GraphicsCommandList commandList;
-        
+
         GraphicsCommandList[] bundles;
         CommandAllocator commandAllocator;
-        
+
         Resource[] renderTargets;
         DescriptorHeap renderTargetViewHeap;
         DescriptorHeap shaderResourceViewHeap;
@@ -82,7 +82,7 @@ namespace ResourceManagement
         IndexBufferView[] indicesBufferView;
         Resource[] verticesBuffer;
         Resource[] indicesBuffer;
-        List<Resource> constantBuffer;        
+        List<Resource> constantBuffer;
         Resource[] shaderResource;
 
         Resource texture;
@@ -97,7 +97,7 @@ namespace ResourceManagement
             InstanceFrameVariables = new Dictionary<int, Resource>();
             ShaderFiles = new Dictionary<ShaderType, ShaderFileInfo>
             {
-                
+
                 {ShaderType.VertexShader, new ShaderFileInfo(GLShaderFile, ShaderType.VertexShader) },
                 {ShaderType.PixelShader, new ShaderFileInfo(GLShaderFile, ShaderType.PixelShader) },
             };
@@ -166,7 +166,7 @@ namespace ResourceManagement
         {
             var rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout,
              new RootParameter[]
-             {   
+             {
                  new RootParameter(ShaderVisibility.All, new RootDescriptor(0, 0), RootParameterType.ConstantBufferView),
                  new RootParameter(ShaderVisibility.All,
                             new DescriptorRange(DescriptorRangeType.ShaderResourceView, 8, 0))
@@ -222,7 +222,7 @@ namespace ResourceManagement
                 SampleDescription = new SampleDescription(1, 0),
                 StreamOutput = new StreamOutputDescription()
             };
-            psoDesc.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;            
+            psoDesc.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
             graphicPLState = device.CreateGraphicsPipelineState(psoDesc);
 
             GraphicsPipelineStateDescription gpsDesc = new GraphicsPipelineStateDescription
@@ -281,7 +281,7 @@ namespace ResourceManagement
             CreatePipleLine();
 
             bundles = new GraphicsCommandList[1];
-            CommandAllocator bundleAllocator = device.CreateCommandAllocator(CommandListType.Bundle);            
+            CommandAllocator bundleAllocator = device.CreateCommandAllocator(CommandListType.Bundle);
             bundles[0] = device.CreateCommandList(0, CommandListType.Bundle, bundleAllocator, graphicPLState);
             bundles[0].SetGraphicsRootSignature(graphicRootSignature);
             bundles[0].PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
@@ -307,9 +307,9 @@ namespace ResourceManagement
         {
             int structSize = Marshal.SizeOf(typeof(T));
             Task[] task = new Task[structArray.Length];
-            for(int i = 0; i < structArray.Length; i++)
+            for (int i = 0; i < structArray.Length; i++)
             {
-                T localstruct = structArray[i];                                
+                T localstruct = structArray[i];
                 task[i] = Task.Factory.StartNew((index) => Marshal.StructureToPtr(localstruct, ptr + (int)index * structSize, true), i);
             }
 
@@ -327,8 +327,8 @@ namespace ResourceManagement
         {
             if (ModelTable.ContainsKey(name))
                 throw new ArgumentException(nameof(name));
-            DirectX12Model d12model = new DirectX12Model();            
-            
+            DirectX12Model d12model = new DirectX12Model();
+
             d12model.IndicesCount = model.Indices.Length;
             d12model.VertexBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None,
                 ResourceDescription.Buffer(model.Vertices.Length * Marshal.SizeOf(typeof(ArDirect3DVertex))), ResourceStates.VertexAndConstantBuffer);
@@ -344,9 +344,9 @@ namespace ResourceManagement
             {
                 BufferLocation = d12model.VertexBuffer.GPUVirtualAddress,
                 StrideInBytes = Marshal.SizeOf(typeof(ArDirect3DVertex)),
-                SizeInBytes = model.Vertices.Length * Marshal.SizeOf(typeof(ArDirect3DVertex)),                
+                SizeInBytes = model.Vertices.Length * Marshal.SizeOf(typeof(ArDirect3DVertex)),
             };
-            d12model.IndexBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, 
+            d12model.IndexBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None,
                 ResourceDescription.Buffer(model.Indices.Length * sizeof(int)), ResourceStates.IndexBuffer);
 
             ptr = d12model.IndexBuffer.Map(0);
@@ -359,7 +359,7 @@ namespace ResourceManagement
                 SizeInBytes = model.Indices.Length * sizeof(int),
                 Format = Format.R32_UInt
             };
-            
+
             d12model.PrimitiveTopology = (SharpDX.Direct3D.PrimitiveTopology)model.PrimitiveTopology;
             ModelTable.Add(name, d12model);
 
@@ -382,7 +382,7 @@ namespace ResourceManagement
 
             ResourceDescription textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, uploadHeap.Description.Width, uploadHeap.Description.Height);
             texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
-            
+
             commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(uploadHeap, 0), null);
             commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
             commandList.DiscardResource(uploadHeap, null);
@@ -405,7 +405,7 @@ namespace ResourceManagement
             //砍Resource
             TextureTable.Clear();
         }
-            
+
 
         Resource LoadBitmapToUploadHeap(string fileName)
         {
@@ -423,25 +423,25 @@ namespace ResourceManagement
 
         public void LoadMaterial(int index, ArMaterial material)
         {
-            
+
         }
 
         public void LoadTexture(int index, SharpDXTextureData data)
-        {   
+        {
             commandAllocator.Reset();
             commandList.Reset(commandAllocator, graphicPLState);
             //shaderResource = new Resource[2];
-            
+
             var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Width, data.Height);
             texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
-         
+
             var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, textureDesc, ResourceStates.CopySource);
 
             var handle = GCHandle.Alloc(data.Data, GCHandleType.Pinned);
-            ptr = Marshal.UnsafeAddrOfPinnedArrayElement(data.Data, 0);            
-            textureUploadHeap.WriteToSubresource(0, null, ptr, 4 * data.Width, data.Data.Length);            
+            ptr = Marshal.UnsafeAddrOfPinnedArrayElement(data.Data, 0);
+            textureUploadHeap.WriteToSubresource(0, null, ptr, 4 * data.Width, data.Data.Length);
             handle.Free();
-            
+
             commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(textureUploadHeap, 0), null);
             commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
             commandList.DiscardResource(textureUploadHeap, null);
@@ -453,7 +453,7 @@ namespace ResourceManagement
 
         public int GetNewInstanceIndex()
         {
-            for(int i = 0; true;  i++)
+            for (int i = 0; true; i++)
             {
                 if (!InstanceFrameVariables.ContainsKey(i))
                     return i;
@@ -462,19 +462,19 @@ namespace ResourceManagement
         }
 
         public int CreateInstance(string name, int index = -1, ArIntVector3? position = null, ArFloatVector3? rotation = null, float scaling = 1, Dictionary<int, int> replaceMaterialIndices = null)
-        {   
+        {
             if (!ModelTable.ContainsKey(name))
                 throw new ArgumentException(nameof(name));
             if (InstanceFrameVariables.ContainsKey(index))
                 throw new ArgumentException(nameof(index));
             if (index == -1)
-                index = GetNewInstanceIndex();           
+                index = GetNewInstanceIndex();
 
             DirectX12FrameVariables d12fv = new DirectX12FrameVariables();
             d12fv.TranslateVector = position ?? ArIntVector3.Zero;
-            d12fv.RotateVector = rotation ?? ArFloatVector3.Zero;            
+            d12fv.RotateVector = rotation ?? ArFloatVector3.Zero;
             d12fv.RotateMatrix = Ar3DMachine.GetRotateMatrix(d12fv.RotateVector);
-            d12fv.Scale = scaling;            
+            d12fv.Scale = scaling;
 
             Resource r = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.Common);
             ptr = r.Map(0);
@@ -483,7 +483,7 @@ namespace ResourceManagement
             //Utilities.Write(ptr + 16, new float[] { d12fv.RotateVector[0], d12fv.RotateVector[1], d12fv.RotateVector[2] }, 0, 3);
             //Utilities.Write(ptr + 28, new float[] { d12fv.Scale }, 0, 1);
             r.Unmap(0);
-            
+
             if (ModelTable[name].PrimitiveTopology != SharpDX.Direct3D.PrimitiveTopology.TriangleList)
             {
                 if (ModelTable[name].PrimitiveTopology == SharpDX.Direct3D.PrimitiveTopology.LineList)
@@ -492,7 +492,7 @@ namespace ResourceManagement
                     bundles[0].PipelineState = graphicPLStatePoint;
                 bundles[0].PrimitiveTopology = ModelTable[name].PrimitiveTopology;
             }
-                
+
             bundles[0].SetGraphicsRootConstantBufferView(0, r.GPUVirtualAddress);
             bundles[0].SetVertexBuffer(0, ModelTable[name].VertexBufferView);
             bundles[0].SetIndexBuffer(ModelTable[name].IndexBufferView);
@@ -502,18 +502,18 @@ namespace ResourceManagement
                 bundles[0].PipelineState = graphicPLState;
                 bundles[0].PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
             }
-            
-            InstanceFrameVariables.Add(index, r);            
+
+            InstanceFrameVariables.Add(index, r);
             return index;
         }
-     
+
         public void SetInstance(int index, ArIntVector3? position = null, ArFloatVector3? rotation = null, float scaling = 1, Dictionary<int, int> replaceMaterialIndices = null)
         {
             if (!InstanceFrameVariables.ContainsKey(index))
                 throw new ArgumentException(nameof(index));
             DirectX12FrameVariables d12fv = new DirectX12FrameVariables();
             d12fv.TranslateVector = position ?? ArIntVector3.Zero;
-            d12fv.RotateVector = rotation ?? ArFloatVector3.Zero;            
+            d12fv.RotateVector = rotation ?? ArFloatVector3.Zero;
             d12fv.RotateMatrix = Ar3DMachine.GetRotateMatrix(d12fv.RotateVector);
             d12fv.Scale = scaling;
             ptr = InstanceFrameVariables[index].Map(0);
@@ -538,7 +538,7 @@ namespace ResourceManagement
         {
             if (!ModelTable.ContainsKey(name))
                 throw new ArgumentException(nameof(name));
-            
+
             //砍Model
             ModelTable.Remove(name);
         }
@@ -548,7 +548,7 @@ namespace ResourceManagement
             //砍Model
             ModelTable.Clear();
         }
-            
+
 
         public void PrepareCreateInstance()
         {
@@ -583,7 +583,7 @@ namespace ResourceManagement
                     Shader4ComponentMapping = D3DXUtilities.DefaultComponentMapping(),
                     Format = TextureTable[i].Description.Format,
                     Dimension = ShaderResourceViewDimension.Texture2D,
-                    Texture2D = { MipLevels = 1 },                    
+                    Texture2D = { MipLevels = 1 },
                 };
                 device.CreateShaderResourceView(TextureTable[i], srvDesc, cruHandle);
                 cruHandle += cruDescriptorSize;
@@ -621,7 +621,7 @@ namespace ResourceManagement
         }
 
         public void Render()
-        {            
+        {
             commandAllocator.Reset();
             commandList.Reset(commandAllocator, graphicPLState);
             commandList.SetGraphicsRootSignature(graphicRootSignature);
@@ -649,7 +649,7 @@ namespace ResourceManagement
             for (int i = 0; i < bundles.Length; i++)
             {
                 commandList.ExecuteBundle(bundles[i]);
-            }   
+            }
             commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
 
             commandList.Close();

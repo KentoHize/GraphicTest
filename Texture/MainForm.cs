@@ -1,10 +1,9 @@
-using System.Diagnostics;
-using System.Runtime.Intrinsics.X86;
 using GraphicLibrary;
 using GraphicLibrary.Items;
+using System.Diagnostics;
 
 namespace Texture
-{ 
+{
 
     public partial class MainForm : Form
     {
@@ -15,7 +14,7 @@ namespace Texture
         public MainForm()
         {
             InitializeComponent();
-            sde = new SharpDXEngine();            
+            sde = new SharpDXEngine();
         }
 
         private void MainForm_Load(object sender, EventArgs e)

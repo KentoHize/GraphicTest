@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
 
 namespace GraphicLibrary.Items
 {
@@ -12,7 +7,7 @@ namespace GraphicLibrary.Items
     {
         public ArIntVector3 Position { get; set; }
         public ArFloatVector4 Color { get; set; }
-      
+
         public static ArColorVertex Empty => new ArColorVertex();
         public static int ByteSize => 28;
         public ArColorVertex()
@@ -30,7 +25,7 @@ namespace GraphicLibrary.Items
         public ArColorVertex(int x, int y, int z, float red, float green, float blue, float alpha)
         {
             Position = new ArIntVector3(x, y, z);
-            Color = new ArFloatVector4(red, green, blue, alpha);           
+            Color = new ArFloatVector4(red, green, blue, alpha);
         }
         public ArColorVertex(int x, int y, int z, ArFloatVector4 color)
             : this(x, y, z, color[0], color[1], color[2], color[3])

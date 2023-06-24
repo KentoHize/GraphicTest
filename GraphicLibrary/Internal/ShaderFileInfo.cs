@@ -20,8 +20,10 @@
             string s = Type.ToString();
             return $"{s[0]}{s.LastOrDefault(char.IsUpper)}".ToLower();
         }
-        public string Profile { 
-            get {
+        public string Profile
+        {
+            get
+            {
                 int v1 = int.Parse(VersionT.ToString()[0].ToString()),
                     v2 = int.Parse(VersionT.ToString()[1].ToString());
 

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace GraphicLibrary.Items
+﻿namespace GraphicLibrary.Items
 {
     public struct ArTextureVertex : IArVertex
     {
@@ -18,7 +12,7 @@ namespace GraphicLibrary.Items
 
         public ArTextureVertex(ArIntVector3 position, ArFloatVector2 textCrood)
             : this(position.X, position.Y, position.Z, textCrood[0], textCrood[1])
-        { }    
+        { }
 
         public ArTextureVertex(int x, int y, int z, float u, float v)
         {

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace GraphicLibrary.Items
+﻿namespace GraphicLibrary.Items
 {
     //DirectX Shader Compatible Float Vector2
     public struct ArFloatVector2 : IEquatable<ArFloatVector2>, IFormattable
@@ -14,7 +8,7 @@ namespace GraphicLibrary.Items
         public static ArFloatVector2 One { get => new ArFloatVector2(1, 1); }
         public static ArFloatVector2 UnitX { get => new ArFloatVector2(1, 0); }
         public static ArFloatVector2 UnitY { get => new ArFloatVector2(0, 1); }
-        
+
         public ArFloatVector2()
         { }
 
@@ -22,7 +16,7 @@ namespace GraphicLibrary.Items
         {
             _x = x;
             _y = y;
-            
+
         }
 
         public float this[int index]
@@ -37,14 +31,14 @@ namespace GraphicLibrary.Items
                         break;
                     case 1:
                         _y = value;
-                        break;                    
+                        break;
                     default:
                         throw new IndexOutOfRangeException(nameof(index));
                 }
             }
         }
         public float X { get => _x; set => _x = value; }
-        public float Y { get => _y; set => _y = value; }        
+        public float Y { get => _y; set => _y = value; }
         public static ArFloatVector2 operator +(ArFloatVector2 a, ArFloatVector2 b)
             => new ArFloatVector2(a._x + b._x, a._y + b._y);
         public static ArFloatVector2 operator -(ArFloatVector2 a, ArFloatVector2 b)

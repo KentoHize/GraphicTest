@@ -1,21 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using GraphicLibrary.Items;
 using SharpDX;
 using SharpDX.Direct3D12;
 using SharpDX.DXGI;
+using System.Drawing.Imaging;
 using Device = SharpDX.Direct3D12.Device;
 using InfoQueue = SharpDX.Direct3D12.InfoQueue;
 using Resource = SharpDX.Direct3D12.Resource;
-using GraphicLibrary.Items;
-using System.Reflection.Metadata;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
-using System.Drawing.Imaging;
 
 namespace GraphicLibrary
 {
@@ -263,8 +253,8 @@ namespace GraphicLibrary
             int width = bitmap.Width;
             int height = bitmap.Height;
             BitmapData data = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, width, height),
-                ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);            
-            var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, width, height), ResourceStates.CopySource);            
+                ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, width, height), ResourceStates.CopySource);
             textureUploadHeap.WriteToSubresource(0, null, data.Scan0, 4 * width, 4 * width * height);
             bitmap.UnlockBits(data);
             bitmap.Dispose();
@@ -276,7 +266,7 @@ namespace GraphicLibrary
             commandAllocator = device.CreateCommandAllocator(CommandListType.Direct);
             commandList = device.CreateCommandList(CommandListType.Direct, commandAllocator, graphicPLState);
             shaderResource = new Resource[ShaderResourceViewCount];
-            for(int i = 0; i < data.Textures.Length; i++)
+            for (int i = 0; i < data.Textures.Length; i++)
             {
                 if (i == 1)
                     continue;
@@ -288,33 +278,33 @@ namespace GraphicLibrary
                 //var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Textures[i].Width, data.Textures[i].Height), ResourceStates.GenericRead);
                 //textureUploadHeap.WriteToSubresource(0, null, ptr, 4 * data.Textures[i].Width, data.Textures[i].Data.Length);
                 //handle.Free();
-                
+
                 commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(textureUploadHeap, 0), null);
-                commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);                
+                commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
                 var srvDesc = new ShaderResourceViewDescription
-                {   
+                {
                     Shader4ComponentMapping = D3DXUtilities.DefaultComponentMapping(),
                     Format = textureDesc.Format,
                     Dimension = ShaderResourceViewDimension.Texture2D,
-                    Texture2D = { MipLevels = 1 },                    
+                    Texture2D = { MipLevels = 1 },
                 };
                 device.CreateShaderResourceView(texture, srvDesc, cruHandle);
                 cruHandle += cruDescriptorSize;
             }
 
             commandList.Close();
-            commandQueue.ExecuteCommandList(commandList);            
+            commandQueue.ExecuteCommandList(commandList);
         }
 
         public void Load(SharpDXData data)
-        {   
+        {
             backgroundColor = data.BackgroundColor;
             verticesBufferView = new VertexBufferView[data.VerticesData.Length];
             verticesBuffer = new Resource[data.VerticesData.Length];
             indicesBufferView = new IndexBufferView[data.VerticesData.Length];
             indicesBuffer = new Resource[data.VerticesData.Length];
-            transformMatrix = new ArFloatMatrix44[data.VerticesData.Length];           
-            bundles = new GraphicsCommandList[data.VerticesData.Length];         
+            transformMatrix = new ArFloatMatrix44[data.VerticesData.Length];
+            bundles = new GraphicsCommandList[data.VerticesData.Length];
 
             for (int i = 0; i < data.VerticesData.Length; i++)
             {
@@ -327,13 +317,13 @@ namespace GraphicLibrary
                     dataSize = ArMixVertex.ByteSize;
 
                 transformMatrix[i] = data.VerticesData[i].TransformMartrix;
-                int verticesBufferSize;                
+                int verticesBufferSize;
                 if (data.VerticesData[i].ColorVertices != null)
                     verticesBufferSize = Utilities.SizeOf(data.VerticesData[i].ColorVertices);
                 else if (data.VerticesData[i].TextureVertices != null)
                     verticesBufferSize = Utilities.SizeOf(data.VerticesData[i].TextureVertices);
                 else
-                    verticesBufferSize = Utilities.SizeOf(data.VerticesData[i].MixVertices);                
+                    verticesBufferSize = Utilities.SizeOf(data.VerticesData[i].MixVertices);
                 verticesBuffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(verticesBufferSize), ResourceStates.GenericRead);
                 IntPtr pVertexDataBegin = verticesBuffer[i].Map(0);
                 if (data.VerticesData[i].ColorVertices != null)
@@ -342,7 +332,7 @@ namespace GraphicLibrary
                     Utilities.Write(pVertexDataBegin, data.VerticesData[i].TextureVertices, 0, data.VerticesData[i].TextureVertices.Length);
                 else
                     Utilities.Write(pVertexDataBegin, data.VerticesData[i].MixVertices, 0, data.VerticesData[i].MixVertices.Length);
-                    
+
                 verticesBuffer[i].Unmap(0);
                 verticesBufferView[i] = new VertexBufferView
                 {
@@ -351,7 +341,7 @@ namespace GraphicLibrary
                     SizeInBytes = verticesBufferSize
                 };
 
-                int indicesBufferSize = Utilities.SizeOf(data.VerticesData[i].Indices);                
+                int indicesBufferSize = Utilities.SizeOf(data.VerticesData[i].Indices);
                 indicesBuffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(indicesBufferSize), ResourceStates.GenericRead);
                 pVertexDataBegin = indicesBuffer[i].Map(0);
                 Utilities.Write(pVertexDataBegin, data.VerticesData[i].Indices, 0, data.VerticesData[i].Indices.Length);
@@ -381,7 +371,7 @@ namespace GraphicLibrary
 
         public void Update()
         {
-            
+
         }
 
         public void Render()
@@ -399,9 +389,9 @@ namespace GraphicLibrary
             CpuDescriptorHandle rtvHandle = renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
             rtvHandle += frameIndex * rtvDescriptorSize;
             commandList.SetRenderTargets(rtvHandle, null);
-            commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);            
+            commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
             commandList.ClearRenderTargetView(rtvHandle, new Color4(backgroundColor.X, backgroundColor.Y, backgroundColor.Z, backgroundColor.W), 0, null);
-                        
+
             for (int i = 0; i < bundles.Length; i++)
             {
                 //ptr = constantBuffer[0].Map(0);
@@ -410,7 +400,7 @@ namespace GraphicLibrary
                 //commandAllocator.Reset();
                 commandList.ExecuteBundle(bundles[i]);
                 //commandList.SetGraphicsRootConstantBufferView()
-            
+
             }
             commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
             commandList.Close();
@@ -421,7 +411,7 @@ namespace GraphicLibrary
             int localFence = fenceValue;
             commandQueue.Signal(fence, localFence);
             fenceValue++;
-            
+
             if (fence.CompletedValue < localFence)
             {
                 fence.SetEventOnCompletion(localFence, fenceEvent.SafeWaitHandle.DangerousGetHandle());

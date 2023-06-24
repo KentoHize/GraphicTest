@@ -1,15 +1,5 @@
-﻿using GraphicLibrary.Items;
-using GraphicLibrary;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Runtime.Intrinsics.X86;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using GraphicLibrary;
+using GraphicLibrary.Items;
 
 
 namespace CreateSphere
@@ -38,7 +28,7 @@ namespace CreateSphere
                 Handle = pictureBox1.Handle
             });
             sde.LoadTextureFile(textureFile, "Annette");
-            
+
 
             var aCube = Ar3DGeometry.GetTextureCube(512);
 

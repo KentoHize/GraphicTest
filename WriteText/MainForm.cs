@@ -1,6 +1,5 @@
 ﻿using GraphicLibrary;
 using GraphicLibrary.Items;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WriteText
 {
@@ -92,13 +91,13 @@ namespace WriteText
                     //}
                 }
             };
-            
+
             timer1.Start();
-            
+
         }
 
         private void timer1_Tick(object sender, EventArgs e)
-        {   
+        {
             sde.LoadData(data);
             rx += 0.1f;
             ry += 0.1f;
@@ -108,7 +107,7 @@ namespace WriteText
                                         new ArFloatVector3(rx, ry, 0),
                                         new ArFloatVector3(1, 1, 1));
             sde.Update();
-            sde.Render();            
+            sde.Render();
         }
     }
 }

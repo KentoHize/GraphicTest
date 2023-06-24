@@ -1,19 +1,13 @@
 ﻿using GraphicLibrary.Items;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Security.Cryptography.X509Certificates;
+using System.Runtime.InteropServices;
 
 
 namespace GraphicLibrary
 {
     public static class Ar3DMachine
-    {   
+    {
 
         //Only Support Windows
         public static byte[] LoadBitmapFromFile(string bitmapFile, out int width, out int height)

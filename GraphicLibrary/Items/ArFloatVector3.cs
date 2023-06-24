@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.InteropServices;
 
 namespace GraphicLibrary.Items
 {
@@ -42,7 +37,7 @@ namespace GraphicLibrary.Items
                         break;
                     case 2:
                         _z = value;
-                        break;                    
+                        break;
                     default:
                         throw new IndexOutOfRangeException(nameof(index));
                 }
@@ -83,7 +78,7 @@ namespace GraphicLibrary.Items
         public string ToString(string? format, IFormatProvider? formatProvider)
             => string.Format(formatProvider, "({0}, {1}, {2})", _x, _y, _z);
         public override int GetHashCode()
-            => (_x,  _y,  _z).GetHashCode();
+            => (_x, _y, _z).GetHashCode();
         public override bool Equals(object obj)
             => obj is ArFloatVector3 && Equals((ArFloatVector3)obj);
     }
