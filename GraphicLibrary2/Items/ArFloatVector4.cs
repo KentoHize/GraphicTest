@@ -4,6 +4,7 @@ using System.ComponentModel.Design;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using System.Threading.Tasks;
 namespace GraphicLibrary2.Items
 {
     //DirectX Compatible Float Vector4
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
     public class ArFloatVector4 : IDisposable, ICloneable, IEqualityOperators<ArFloatVector4, ArFloatVector4, bool>, IComparable<ArFloatVector4>, IEquatable<ArFloatVector4>, IAdditionOperators<ArFloatVector4, ArFloatVector4, ArFloatVector4>,
         ISubtractionOperators<ArFloatVector4, ArFloatVector4, ArFloatVector4>, IMultiplyOperators<ArFloatVector4, ArFloatVector4, float>, IUnaryNegationOperators<ArFloatVector4, ArFloatVector4>,
         IParsable<ArFloatVector4>
@@ -72,13 +74,13 @@ namespace GraphicLibrary2.Items
         public string ToString(string format)
             => $"({_x.ToString(format)}, {_y.ToString(format)}, {_z.ToString(format)}, {_w.ToString(format)})";
         public bool Equals(ArFloatVector4? other)
-            => _x == other._x && _y == other._y && _z == other._z && _w == other._w;
+            => ReferenceEquals(other, null) ? false : _x == other._x && _y == other._y && _z == other._z && _w == other._w;
         public int CompareTo(ArFloatVector4? other)
-            => Equals(other) ? 0 : _x > other._x ? 1 : _x < other._x ? -1 : _y > other._y ? 1 : _y < other._y ? -1 : _z > other._z ? 1 : _z < other._z ? -1 : _w > other._w ? 1 : -1;
+            => ReferenceEquals(other, null) ? 1 : Equals(other) ? 0 : _x > other._x ? 1 : _x < other._x ? -1 : _y > other._y ? 1 : _y < other._y ? -1 : _z > other._z ? 1 : _z < other._z ? -1 : _w > other._w ? 1 : -1;
         public static bool operator ==(ArFloatVector4? left, ArFloatVector4? right)
-            => left.Equals(right);
+            => ReferenceEquals(left, right) ? true : ReferenceEquals(left, null) ? false : left.Equals(right);
         public static bool operator !=(ArFloatVector4? left, ArFloatVector4? right)
-            => !left.Equals(right);
+            => !(left == right);
         public static ArFloatVector4 operator +(ArFloatVector4 left, ArFloatVector4 right)
             => new ArFloatVector4(left._x + right._x, left._y + right._y, left._z + right._z, left._w + right._w);
         public static ArFloatVector4 operator -(ArFloatVector4 left, ArFloatVector4 right)
@@ -99,11 +101,11 @@ namespace GraphicLibrary2.Items
             => left.DotProduct(right);
         public float DotProduct(ArFloatVector4 a)
             => _x * a._x + _y * a._y + _z * a._z + _w * a._w;
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(this, obj))
                 return true;
-            else if (ReferenceEquals(obj, null) || !(obj is ArFloatVector4))
+            else if (!(obj is ArFloatVector4))
                 return false;
             return Equals((ArFloatVector4)obj);
         }

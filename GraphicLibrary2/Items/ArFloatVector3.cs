@@ -4,6 +4,7 @@ using System.ComponentModel.Design;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using System.Threading.Tasks;
 namespace GraphicLibrary2.Items
 {
     //DirectX Compatible Float Vector3
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
     public class ArFloatVector3 : IDisposable, ICloneable, IEqualityOperators<ArFloatVector3, ArFloatVector3, bool>, IComparable<ArFloatVector3>, IEquatable<ArFloatVector3>, IAdditionOperators<ArFloatVector3, ArFloatVector3, ArFloatVector3>,
         ISubtractionOperators<ArFloatVector3, ArFloatVector3, ArFloatVector3>, IMultiplyOperators<ArFloatVector3, ArFloatVector3, float>, IUnaryNegationOperators<ArFloatVector3, ArFloatVector3>,
         IParsable<ArFloatVector3>
@@ -66,13 +68,13 @@ namespace GraphicLibrary2.Items
         public string ToString(string format)
             => $"({_x.ToString(format)}, {_y.ToString(format)}, {_z.ToString(format)})";
         public bool Equals(ArFloatVector3? other)
-            => _x == other._x && _y == other._y && _z == other._z;
+            => ReferenceEquals(other, null) ? false :_x == other._x && _y == other._y && _z == other._z;
         public int CompareTo(ArFloatVector3? other)
-            => Equals(other) ? 0 : _x > other._x ? 1 : _x < other._x ? -1 : _y > other._y ? 1 : _y < other._y ? -1 : _z > other._z ? 1 : -1;
+            => ReferenceEquals(other, null) ? 1 : Equals(other) ? 0 : _x > other._x ? 1 : _x < other._x ? -1 : _y > other._y ? 1 : _y < other._y ? -1 : _z > other._z ? 1 : -1;
         public static bool operator ==(ArFloatVector3? left, ArFloatVector3? right)
-            => left.Equals(right);
+            => ReferenceEquals(left, right) ? true : ReferenceEquals(left, null) ? false : left.Equals(right);
         public static bool operator !=(ArFloatVector3? left, ArFloatVector3? right)
-            => !left.Equals(right);
+            => !(left == right);
         public static ArFloatVector3 operator +(ArFloatVector3 left, ArFloatVector3 right)
             => new ArFloatVector3(left._x + right._x, left._y + right._y, left._z + right._z);
         public static ArFloatVector3 operator -(ArFloatVector3 left, ArFloatVector3 right)
@@ -99,11 +101,11 @@ namespace GraphicLibrary2.Items
                 _x * a._y - _y * a._x);
         public float DotProduct(ArFloatVector3 a)
             => _x * a._x + _y * a._y + _z * a._z;
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(this, obj))
                 return true;
-            else if (ReferenceEquals(obj, null) || !(obj is ArFloatVector3))
+            else if (!(obj is ArFloatVector3))
                 return false;
             return Equals((ArFloatVector3)obj);
         }

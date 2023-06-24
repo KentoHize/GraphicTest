@@ -66,13 +66,13 @@ namespace GraphicLibrary2.Items
         public string ToString(string format)
             => $"({_x.ToString(format)}, {_y.ToString(format)})";
         public bool Equals(ArFloatVector2? other)
-            => _x == other._x && _y == other._y;
+            => ReferenceEquals(other, null) ? false : _x == other._x && _y == other._y;
         public int CompareTo(ArFloatVector2? other)
-            => Equals(other) ? 0 : _x > other._x ? 1 : _x < other._x ? -1 : _y > other._y ? 1 : -1;
+            => ReferenceEquals(other, null) ? 1 : Equals(other) ? 0 : _x > other._x ? 1 : _x < other._x ? -1 : _y > other._y ? 1 : -1;
         public static bool operator ==(ArFloatVector2? left, ArFloatVector2? right)
-           => left.Equals(right);
+            => ReferenceEquals(left, right) ? true : ReferenceEquals(left, null) ? false : left.Equals(right);
         public static bool operator !=(ArFloatVector2? left, ArFloatVector2? right)
-            => !left.Equals(right);
+            => !(left == right);
         public static ArFloatVector2 operator +(ArFloatVector2 left, ArFloatVector2 right)
             => new ArFloatVector2(left._x + right._x, left._y + right._y);
         public static ArFloatVector2 operator -(ArFloatVector2 left, ArFloatVector2 right)
@@ -97,11 +97,11 @@ namespace GraphicLibrary2.Items
             => _x * a._y - _y * a._x;
         public float DotProduct(ArFloatVector2 a)
             => _x * a._x + _y * a._y;
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(this, obj))
                 return true;
-            else if (ReferenceEquals(obj, null) || !(obj is ArFloatVector2))
+            else if (!(obj is ArFloatVector2))
                 return false;
             return Equals((ArFloatVector2)obj);
         }
