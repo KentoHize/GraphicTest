@@ -13,7 +13,7 @@ namespace GraphicLibrary2.Items
 {
     //DirectX Compatible Int Vector3
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    public class ArIntVector3 : IDisposable, ICloneable, IEqualityOperators<ArIntVector3, ArIntVector3, bool>, IComparable<ArIntVector3>, IEquatable<ArIntVector3>, IAdditionOperators<ArIntVector3, ArIntVector3, ArIntVector3>,
+    public struct ArIntVector3 : IDisposable, ICloneable, IEqualityOperators<ArIntVector3, ArIntVector3, bool>, IComparable<ArIntVector3>, IEquatable<ArIntVector3>, IAdditionOperators<ArIntVector3, ArIntVector3, ArIntVector3>,
         ISubtractionOperators<ArIntVector3, ArIntVector3, ArIntVector3>, IMultiplyOperators<ArIntVector3, ArIntVector3, float>, IUnaryNegationOperators<ArIntVector3, ArIntVector3>,
         IParsable<ArIntVector3>
     {

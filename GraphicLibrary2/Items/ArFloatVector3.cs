@@ -13,7 +13,7 @@ namespace GraphicLibrary2.Items
 {
     //DirectX Compatible Float Vector3
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    public class ArFloatVector3 : IDisposable, ICloneable, IEqualityOperators<ArFloatVector3, ArFloatVector3, bool>, IComparable<ArFloatVector3>, IEquatable<ArFloatVector3>, IAdditionOperators<ArFloatVector3, ArFloatVector3, ArFloatVector3>,
+    public struct ArFloatVector3 : IDisposable, ICloneable, IEqualityOperators<ArFloatVector3, ArFloatVector3, bool>, IComparable<ArFloatVector3>, IEquatable<ArFloatVector3>, IAdditionOperators<ArFloatVector3, ArFloatVector3, ArFloatVector3>,
         ISubtractionOperators<ArFloatVector3, ArFloatVector3, ArFloatVector3>, IMultiplyOperators<ArFloatVector3, ArFloatVector3, float>, IUnaryNegationOperators<ArFloatVector3, ArFloatVector3>,
         IParsable<ArFloatVector3>
     {
@@ -67,13 +67,13 @@ namespace GraphicLibrary2.Items
             => ToString("G");
         public string ToString(string format)
             => $"({_x.ToString(format)}, {_y.ToString(format)}, {_z.ToString(format)})";
-        public bool Equals(ArFloatVector3? other)
-            => ReferenceEquals(other, null) ? false :_x == other._x && _y == other._y && _z == other._z;
-        public int CompareTo(ArFloatVector3? other)
-            => ReferenceEquals(other, null) ? 1 : Equals(other) ? 0 : _x > other._x ? 1 : _x < other._x ? -1 : _y > other._y ? 1 : _y < other._y ? -1 : _z > other._z ? 1 : -1;
-        public static bool operator ==(ArFloatVector3? left, ArFloatVector3? right)
-            => ReferenceEquals(left, right) ? true : ReferenceEquals(left, null) ? false : left.Equals(right);
-        public static bool operator !=(ArFloatVector3? left, ArFloatVector3? right)
+        public bool Equals(ArFloatVector3 other)
+            => _x == other._x && _y == other._y && _z == other._z;
+        public int CompareTo(ArFloatVector3 other)
+            => _x > other._x ? 1 : _x < other._x ? -1 : _y > other._y ? 1 : _y < other._y ? -1 : _z > other._z ? 1 : -1;
+        public static bool operator ==(ArFloatVector3 left, ArFloatVector3 right)
+            => left.Equals(right);
+        public static bool operator !=(ArFloatVector3 left, ArFloatVector3 right)
             => !(left == right);
         public static ArFloatVector3 operator +(ArFloatVector3 left, ArFloatVector3 right)
             => new ArFloatVector3(left._x + right._x, left._y + right._y, left._z + right._z);
@@ -140,19 +140,19 @@ namespace GraphicLibrary2.Items
             }
             catch
             {
-                result = null;
+                result = default;
                 return false;
             }
         }
 
         public static bool operator <(ArFloatVector3 left, ArFloatVector3 right)
-            => ReferenceEquals(left, null) ? !ReferenceEquals(right, null) : left.CompareTo(right) < 0;
+            => left.CompareTo(right) < 0;
         public static bool operator <=(ArFloatVector3 left, ArFloatVector3 right)
-            => ReferenceEquals(left, null) || left.CompareTo(right) <= 0;
+            => left.CompareTo(right) <= 0;
         public static bool operator >(ArFloatVector3 left, ArFloatVector3 right)
-            => !ReferenceEquals(left, null) && left.CompareTo(right) > 0;
+            => left.CompareTo(right) > 0;
         public static bool operator >=(ArFloatVector3 left, ArFloatVector3 right)
-            => ReferenceEquals(left, null) ? ReferenceEquals(right, null) : left.CompareTo(right) >= 0;
+            => left.CompareTo(right) >= 0;
         public static ArFloatVector3 operator -(ArFloatVector3 value)
             => new ArFloatVector3(value._x * -1, value._y * -1, value._z * -1);
 

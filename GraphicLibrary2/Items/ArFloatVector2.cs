@@ -14,7 +14,7 @@ namespace GraphicLibrary2.Items
 {
     //DirectX Compatible Float Vector2
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    public class ArFloatVector2 : IDisposable, ICloneable, IEqualityOperators<ArFloatVector2, ArFloatVector2, bool>, IComparable<ArFloatVector2>, IEquatable<ArFloatVector2>, IAdditionOperators<ArFloatVector2, ArFloatVector2, ArFloatVector2>,
+    public struct ArFloatVector2 : IDisposable, ICloneable, IEqualityOperators<ArFloatVector2, ArFloatVector2, bool>, IComparable<ArFloatVector2>, IEquatable<ArFloatVector2>, IAdditionOperators<ArFloatVector2, ArFloatVector2, ArFloatVector2>,
     ISubtractionOperators<ArFloatVector2, ArFloatVector2, ArFloatVector2>, IMultiplyOperators<ArFloatVector2, ArFloatVector2, float>, IUnaryNegationOperators<ArFloatVector2, ArFloatVector2>,
         IParsable<ArFloatVector2>
     {
@@ -58,20 +58,19 @@ namespace GraphicLibrary2.Items
 
         public object Clone()
             => new ArFloatVector2(_x, _y);
-
         public void Dispose()
             => Dispose();
         public override string ToString()
             => ToString("G");
         public string ToString(string format)
             => $"({_x.ToString(format)}, {_y.ToString(format)})";
-        public bool Equals(ArFloatVector2? other)
-            => ReferenceEquals(other, null) ? false : _x == other._x && _y == other._y;
-        public int CompareTo(ArFloatVector2? other)
-            => ReferenceEquals(other, null) ? 1 : Equals(other) ? 0 : _x > other._x ? 1 : _x < other._x ? -1 : _y > other._y ? 1 : -1;
-        public static bool operator ==(ArFloatVector2? left, ArFloatVector2? right)
-            => ReferenceEquals(left, right) ? true : ReferenceEquals(left, null) ? false : left.Equals(right);
-        public static bool operator !=(ArFloatVector2? left, ArFloatVector2? right)
+        public bool Equals(ArFloatVector2 other)
+            => _x == other._x && _y == other._y;
+        public int CompareTo(ArFloatVector2 other)
+            => _x > other._x ? 1 : _x < other._x ? -1 : _y > other._y ? 1 : -1;
+        public static bool operator ==(ArFloatVector2 left, ArFloatVector2 right)
+            => left.Equals(right);
+        public static bool operator !=(ArFloatVector2 left, ArFloatVector2 right)
             => !(left == right);
         public static ArFloatVector2 operator +(ArFloatVector2 left, ArFloatVector2 right)
             => new ArFloatVector2(left._x + right._x, left._y + right._y);
@@ -98,10 +97,8 @@ namespace GraphicLibrary2.Items
         public float DotProduct(ArFloatVector2 a)
             => _x * a._x + _y * a._y;
         public override bool Equals(object? obj)
-        {
-            if (ReferenceEquals(this, obj))
-                return true;
-            else if (!(obj is ArFloatVector2))
+        {            
+            if (!(obj is ArFloatVector2))
                 return false;
             return Equals((ArFloatVector2)obj);
         }
@@ -124,10 +121,10 @@ namespace GraphicLibrary2.Items
             return new ArFloatVector2(float.Parse(n[0]), float.Parse(n[1]));
         }
 
-        public static bool TryParse([NotNullWhen(true)] string? s, [MaybeNullWhen(false)] out ArFloatVector2 result)
+        public static bool TryParse([NotNullWhen(true)] string? s, out ArFloatVector2 result)
             => TryParse(s, null, out result);
 
-        public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out ArFloatVector2 result)
+        public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, out ArFloatVector2 result)
         {
             try
             {
@@ -136,25 +133,25 @@ namespace GraphicLibrary2.Items
             }
             catch
             {
-                result = null;
+                result = default;
                 return false;
             }
         }
 
         public static bool operator <(ArFloatVector2 left, ArFloatVector2 right)
-            => ReferenceEquals(left, null) ? !ReferenceEquals(right, null) : left.CompareTo(right) < 0;
+            => left.CompareTo(right) < 0;
         public static bool operator <=(ArFloatVector2 left, ArFloatVector2 right)
-            => ReferenceEquals(left, null) || left.CompareTo(right) <= 0;
+            => left.CompareTo(right) <= 0;
         public static bool operator >(ArFloatVector2 left, ArFloatVector2 right)
-            => !ReferenceEquals(left, null) && left.CompareTo(right) > 0;
+            => left.CompareTo(right) > 0;
         public static bool operator >=(ArFloatVector2 left, ArFloatVector2 right)
-            => ReferenceEquals(left, null) ? ReferenceEquals(right, null) : left.CompareTo(right) >= 0;
+            => left.CompareTo(right) >= 0;
         public static ArFloatVector2 operator -(ArFloatVector2 value)
             => new ArFloatVector2(value._x * -1, value._y * -1);
 
         public static explicit operator ArFloatVector2(ArFloatVector3 a)
             => new ArFloatVector2(a[0], a[1]);
         public static explicit operator ArFloatVector2(ArFloatVector4 a)
-            => new ArFloatVector2(a[0], a[1]);
+            => new ArFloatVector2(a[0], a[1]);      
     }
 }
