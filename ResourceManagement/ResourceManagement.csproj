@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <Folder Include="Shader\" />
+    <Folder Include="Texture\" />
   </ItemGroup>
 
   <ItemGroup>

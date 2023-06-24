@@ -6,8 +6,11 @@ using SharpDX.DXGI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using Device = SharpDX.Direct3D12.Device;
 using Device11 = SharpDX.Direct3D11.Device;
 using Device12 = SharpDX.Direct3D11.Device11On12;
@@ -32,32 +35,39 @@ namespace GraphicLibrary2
         Adapter4? adapter;
         CommandQueue? commandQueue;
         SwapChain3? swapChain;
-        InfoQueue infoQueue;
+        InfoQueue? infoQueue;
 
-        PipelineState PLStateNormal, PLStatePoint, PLStateLine;
+        PipelineState? PLStateNormal, PLStatePoint, PLStateLine;
 
-        DescriptorHeap renderTargetViewHeap;
+        DescriptorHeap? renderTargetViewHeap;
         int rtvDescriptorSize;
 
         int frameIndex;
 
-        Resource[] renderTargets;
+        Resource[]? renderTargets;
 
+        GraphicsCommandList? commandList, commandListR;        
+        GraphicsCommandList[]? bundles;
+        CommandAllocator? commandAllocator; //普通
+        CommandAllocator? commandAllocatorR; //負責刪除
 
-
-        GraphicsCommandList commandList;
-        GraphicsCommandList[] bundles;
-        CommandAllocator commandAllocator;
-
-        AutoResetEvent fenceEvent;
-        Fence fence;
+        AutoResetEvent? fenceEvent;
+        Fence? fence;
         int fenceValue;
+
+        //internal Dictionary<ShaderType, ShaderFileInfo> ShaderFiles { get; set; }
+        internal Dictionary<int, Resource> TextureTable { get; set; }
+        internal Dictionary<int, Resource> MaterialTable { get; set; }
+        //internal Dictionary<string, DirectX12Model> ModelTable { get; set; }        
+        internal Dictionary<int, Resource> InstanceFrameVariables { get; set; }
 
         public SharpDXEngine()
         {
 #if DEBUG
             DebugInterface.Get().EnableDebugLayer();
 #endif
+            TextureTable = new Dictionary<int, Resource>();
+            MaterialTable = new Dictionary<int, Resource>();
         }
 
         public void SetGrahpicCardAndRenderTarget(SharpDXInitializeSetting setting)
@@ -113,7 +123,70 @@ namespace GraphicLibrary2
             commandList = device.CreateCommandList(CommandListType.Direct, commandAllocator, null);
             commandList.Close();
 
+            commandAllocatorR = device.CreateCommandAllocator(CommandListType.Direct);
+            commandListR = device.CreateCommandList(CommandListType.Direct, commandAllocatorR, null);
+            commandListR.Close();
+
         }
+
+        public void LoadTextureFromBitmapFile(int index, string file)
+        {
+            Resource uploadHeap = LoadBitmapToUploadHeap(file);
+            commandAllocator.Reset();
+            commandList.Reset(commandAllocator, null);
+            ResourceDescription textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, uploadHeap.Description.Width, uploadHeap.Description.Height);
+            Resource texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
+            commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(uploadHeap, 0), null);
+            commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource); 
+            commandList.Close();
+            commandQueue.ExecuteCommandList(commandList);
+            WaitForPreviousFrame();
+            uploadHeap.Dispose();
+            TextureTable[index] = texture;
+        }
+
+        //public void LoadTexture(int index, byte[] data, int width, int height)
+        //{
+        //    commandAllocator.Reset();
+        //    commandList.Reset(commandAllocator, null);
+
+        //    var textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, data.Width, data.Height);
+        //    texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
+
+        //    var textureUploadHeap = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteBack, MemoryPool.L0), HeapFlags.None, textureDesc, ResourceStates.CopySource);
+
+        //    var handle = GCHandle.Alloc(data.Data, GCHandleType.Pinned);
+        //    ptr = Marshal.UnsafeAddrOfPinnedArrayElement(data.Data, 0);
+        //    textureUploadHeap.WriteToSubresource(0, null, ptr, 4 * data.Width, data.Data.Length);
+        //    handle.Free();
+
+        //    commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(textureUploadHeap, 0), null);
+        //    commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
+        //    commandList.DiscardResource(textureUploadHeap, null);
+
+        //    commandList.Close();
+        //    commandQueue.ExecuteCommandList(commandList);
+        //    WaitForPreviousFrame();
+        //    TextureTable[index] = texture;
+        //}
+
+        public bool TextureExist(int index)
+            => TextureTable.ContainsKey(index);
+
+        public void DeleteTexture(int index)
+        {
+            if (!TextureTable.ContainsKey(index))
+                throw new ArgumentException(nameof(index));         
+            TextureTable[index].Dispose();
+            TextureTable.Remove(index);
+        }
+
+        public void ClearTextures()
+        {
+            while (TextureTable.Count != 0)
+                DeleteTexture(TextureTable.First().Key);
+        }
+
         public void LoadGraphicSetting(SharpDXGraphicSetting setting)
         {
 

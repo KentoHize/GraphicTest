@@ -14,7 +14,7 @@ namespace ResourceManagement
         ArIntVector3 p1, p2, p3, p4;
         ArFloatVector3 v1;
 
-        const string textureFolder = @"C:\Programs\GraphicTest\ResourceManagement\Texture\";
+        const string textureFolder = @"C:\Programs\GraphicTest\Resource\Texture\";
         public MainForm()
         {
             sde = new SharpDXEngine();

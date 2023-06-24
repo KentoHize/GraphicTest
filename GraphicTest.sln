@@ -40,6 +40,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphicLibrary2", "GraphicL
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Camera", "Camera\Camera.csproj", "{AF17524E-A9EF-464A-A705-8A1E447E137E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Resource", "Resource\Resource.csproj", "{C8B451D8-3B58-473C-B8A9-8911E5C66874}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -230,6 +232,18 @@ Global
 		{AF17524E-A9EF-464A-A705-8A1E447E137E}.Release|x64.Build.0 = Release|Any CPU
 		{AF17524E-A9EF-464A-A705-8A1E447E137E}.Release|x86.ActiveCfg = Release|Any CPU
 		{AF17524E-A9EF-464A-A705-8A1E447E137E}.Release|x86.Build.0 = Release|Any CPU
+		{C8B451D8-3B58-473C-B8A9-8911E5C66874}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8B451D8-3B58-473C-B8A9-8911E5C66874}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8B451D8-3B58-473C-B8A9-8911E5C66874}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C8B451D8-3B58-473C-B8A9-8911E5C66874}.Debug|x64.Build.0 = Debug|Any CPU
+		{C8B451D8-3B58-473C-B8A9-8911E5C66874}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C8B451D8-3B58-473C-B8A9-8911E5C66874}.Debug|x86.Build.0 = Debug|Any CPU
+		{C8B451D8-3B58-473C-B8A9-8911E5C66874}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8B451D8-3B58-473C-B8A9-8911E5C66874}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8B451D8-3B58-473C-B8A9-8911E5C66874}.Release|x64.ActiveCfg = Release|Any CPU
+		{C8B451D8-3B58-473C-B8A9-8911E5C66874}.Release|x64.Build.0 = Release|Any CPU
+		{C8B451D8-3B58-473C-B8A9-8911E5C66874}.Release|x86.ActiveCfg = Release|Any CPU
+		{C8B451D8-3B58-473C-B8A9-8911E5C66874}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
