@@ -38,6 +38,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphicLibrary2", "GraphicLibrary2\GraphicLibrary2.csproj", "{591E6DB8-E815-42C4-ACF7-C8E734ADBFFA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Camera", "Camera\Camera.csproj", "{AF17524E-A9EF-464A-A705-8A1E447E137E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -216,6 +218,18 @@ Global
 		{591E6DB8-E815-42C4-ACF7-C8E734ADBFFA}.Release|x64.Build.0 = Release|Any CPU
 		{591E6DB8-E815-42C4-ACF7-C8E734ADBFFA}.Release|x86.ActiveCfg = Release|Any CPU
 		{591E6DB8-E815-42C4-ACF7-C8E734ADBFFA}.Release|x86.Build.0 = Release|Any CPU
+		{AF17524E-A9EF-464A-A705-8A1E447E137E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF17524E-A9EF-464A-A705-8A1E447E137E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF17524E-A9EF-464A-A705-8A1E447E137E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AF17524E-A9EF-464A-A705-8A1E447E137E}.Debug|x64.Build.0 = Debug|Any CPU
+		{AF17524E-A9EF-464A-A705-8A1E447E137E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AF17524E-A9EF-464A-A705-8A1E447E137E}.Debug|x86.Build.0 = Debug|Any CPU
+		{AF17524E-A9EF-464A-A705-8A1E447E137E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF17524E-A9EF-464A-A705-8A1E447E137E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF17524E-A9EF-464A-A705-8A1E447E137E}.Release|x64.ActiveCfg = Release|Any CPU
+		{AF17524E-A9EF-464A-A705-8A1E447E137E}.Release|x64.Build.0 = Release|Any CPU
+		{AF17524E-A9EF-464A-A705-8A1E447E137E}.Release|x86.ActiveCfg = Release|Any CPU
+		{AF17524E-A9EF-464A-A705-8A1E447E137E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
