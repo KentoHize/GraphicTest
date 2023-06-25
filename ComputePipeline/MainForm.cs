@@ -28,7 +28,7 @@ namespace ComputePipeline
                 pictureBox1.Handle, pictureBox1.ClientSize.Width, pictureBox1.ClientSize.Height, true, 1));
 
             sde.CreateComputeShader(hlslFile);
-            sde.UploadComputeData();
+            sde.UploadComputeData(new float[] { 3, 5, 7 });
             ComputeResult[] crs = sde.Compute<ComputeResult>(3);
             MessageBox.Show(crs[2].a.ToString());
             timer1.Start();

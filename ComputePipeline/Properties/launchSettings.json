@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ComputePipeline": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

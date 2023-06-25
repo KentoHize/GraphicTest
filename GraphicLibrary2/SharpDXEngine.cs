@@ -49,14 +49,14 @@ namespace GraphicLibrary2
         int frameIndex;
 
         Resource[]? renderTargets;
-        Resource tempResource;
-        Resource loadResource;
+        Resource? tempResource;
+        Resource? loadResource;
+        Resource? constantBuffer;
 
         GraphicsCommandList? commandList, commandList2;
         GraphicsCommandList[]? bundles;
-        CommandAllocator? commandAllocator; //普通
-        CommandAllocator? commandAllocator2; //負責刪除
-        RootSignature computeRS;
+        CommandAllocator? commandAllocator, commandAllocator2; 
+        RootSignature? computeRS;
 
         AutoResetEvent? fenceEvent;
         Fence? fence;
@@ -73,10 +73,11 @@ namespace GraphicLibrary2
         public SharpDXEngine()
         {
 #if DEBUG
-            DebugInterface.Get().EnableDebugLayer();
+            DebugInterface.Get().EnableDebugLayer();            
 #endif
             TextureTable = new Dictionary<int, Resource>();
             MaterialTable = new Dictionary<int, Resource>();
+            InstanceFrameVariables = new Dictionary<int, Resource>();
         }
 
         public void SetGrahpicCardAndRenderTarget(SharpDXInitializeSetting setting)
@@ -209,6 +210,7 @@ namespace GraphicLibrary2
                 new RootParameter[]
                 {
                     //new RootParameter(ShaderVisibility.All, new DescriptorRange(DescriptorRangeType.UnorderedAccessView, 1, 0))
+                    new RootParameter(ShaderVisibility.All, new RootDescriptor(0, 0), RootParameterType.ConstantBufferView),
                     new RootParameter(ShaderVisibility.All, new RootDescriptor(0, 0), RootParameterType.UnorderedAccessView)
                 }
             );
@@ -245,24 +247,27 @@ namespace GraphicLibrary2
         }
 
 
-        public void UploadComputeData()
+        public void UploadComputeData<T>(T[] data) where T : struct
         {
             tempResource = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(1024, ResourceFlags.AllowUnorderedAccess), ResourceStates.Common);
             loadResource = device.CreateCommittedResource(new HeapProperties(HeapType.Readback), HeapFlags.None, ResourceDescription.Buffer(1024), ResourceStates.CopyDestination);
+            constantBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.Common);
+            ptr = constantBuffer.Map(0);
+            Utilities.Write(ptr, data, 0, data.Length);
+            constantBuffer.Unmap(0);
         }
 
-        public T[] Compute<T>(int count) where T: struct
+        public T[] Compute<T>(int count, int threadGroupCountX = 1, int threadGroupCountY = 1, int threadGroupCountZ = 1) where T: struct
         {
             commandAllocator2.Reset();
             commandList2.Reset(commandAllocator2, PLStateCompute);
-            //commandListR.SetComputeRootSignature(computeRS);
-            //commandList.SetComputeRootUnorderedAccessView();
             commandList2.SetComputeRootSignature(computeRS);
             //commandList2.SetDescriptorHeaps(new DescriptorHeap[] { unorderedAccessViewHeap });
             //commandList2.SetComputeRootDescriptorTable(0, unorderedAccessViewHeap.GPUDescriptorHandleForHeapStart);
             commandList2.ResourceBarrierTransition(tempResource, ResourceStates.Common, ResourceStates.UnorderedAccess);
-            commandList2.SetComputeRootUnorderedAccessView(0, tempResource.GPUVirtualAddress);
-            commandList2.Dispatch(1, 1, 1);
+            commandList2.SetComputeRootConstantBufferView(0, constantBuffer.GPUVirtualAddress);
+            commandList2.SetComputeRootUnorderedAccessView(1, tempResource.GPUVirtualAddress);
+            commandList2.Dispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ);
             commandList2.ResourceBarrierTransition(tempResource, ResourceStates.UnorderedAccess, ResourceStates.CopySource);
             commandList2.CopyResource(loadResource, tempResource);
             commandList2.Close();
@@ -273,7 +278,7 @@ namespace GraphicLibrary2
             T[] result = new T[count];
             Utilities.Read(ptr, result, 0, count);
             loadResource.Unmap(0);
-            return result;            
+            return result;
         }
 
         public void Dispose()
@@ -281,12 +286,19 @@ namespace GraphicLibrary2
 
         public void Close()
         {
+            //var dd = device.QueryInterface<DebugDevice>();
+            //dd.ReportLiveDeviceObjects(ReportingLevel.Detail);
+            ////dd.
+
             PLStateNormal?.Dispose();
+            PLStateCompute?.Dispose();
             fence?.Dispose();
             if (renderTargets != null)
                 for (int i = 0; i < renderTargets.Length; i++)
                     renderTargets[i]?.Dispose();
             renderTargetViewHeap?.Dispose();
+            commandList?.Dispose();
+            commandList2?.Dispose();
             commandQueue?.Dispose();
             swapChain?.Dispose();
             //device11?.Dispose();
