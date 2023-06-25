@@ -1,5 +1,27 @@
-
+﻿
 (cos(A+B)+cos(A-B))/2	(cos(A+B+C)-cos(A-B+C)-cos(A+B-C)+cos(A-B-C)-2*sin(A+C)-2*sin(A-C))/4	(-2*cos(A+C)+2*cos(A-C)-sin(A+B+C)+sin(A-B+C)-sin(A+B-C)+sin(A-B-C))/4	0
 (sin(A+B)+sin(A-B))/2	(2*cos(A+C)+2*cos(A-C)+sin(A+B+C)-sin(A-B+C)-sin(A+B-C)+sin(A-B-C))/4	 (cos(A+B+C)-cos(A-B+C)+cos(A+B-C)-cos(A-B-C)-2*sin(A+C)+2*sin(A-C))/4	0
                sin(B)	                                                (sin(B+C)-sin(B-C))/2	                                                 (cos(B+C)+cos(B-C))/2	0
                     0	                                                                    0	                                                                     0	1
+
+
+Compute Shader	Maximum Z	Maximum Threads (X*Y*Z)
+cs_4_x	1	768
+cs_5_0	64	1024
+
+
+参数 值类型
+
+含义 计算公式
+SV_GroupID
+int3 当前线程所在的线程组的ID，取值范围为(0,0,0)到(gX-1,gY-1,gZ-1)。
+无
+SV_GroupThreadID
+
+int3 当前线程在所在线程组内的ID，取值范围为(0,0,0)到(tX-1,tY-1,tZ-1)。
+无
+SV_DispatchThreadID
+
+int3 当前线程在所有线程组中的所有线程里的ID，取值范围为(0,0,0)到(gX*tX-1, gY*tY-1, gZ*tZ-1)。	假设该线程的SV_GroupID=(a, b, c)，SV_GroupThreadID=(i, j, k) 那么SV_DispatchThreadID=(a*tX+i, b*tY+j, c*tZ+k)
+SV_GroupIndex
+int 当前线程在所在线程组内的下标，取值范围为0到tX*tY*tZ-1。	假设该线程的SV_GroupThreadID=(i, j, k) 那么SV_GroupIndex=k*tX*tY+j*tX+i

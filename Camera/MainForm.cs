@@ -18,10 +18,12 @@ namespace Camera
             sde.SetGrahpicCardAndRenderTarget(new SharpDXInitializeSetting(
                 pictureBox1.Handle, pictureBox1.ClientSize.Width, pictureBox1.ClientSize.Height, true, 1));
 
-
             for (int i = 0; i < 8; i++)
                 LoadTexture(i);
 
+
+            sde.CreateComputeShader();
+            sde.Compute();
             //Debug.WriteLine($"Load 8 Picture: {sw.ElapsedMilliseconds}");
 
             //sde.LoadMaterial(0, new ArMaterial

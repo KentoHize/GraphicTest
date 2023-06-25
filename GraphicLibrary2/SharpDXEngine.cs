@@ -5,8 +5,10 @@ using SharpDX.Direct3D12;
 using SharpDX.DXGI;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Resources;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,7 +25,7 @@ using Resource11 = SharpDX.Direct3D11.Resource;
 namespace GraphicLibrary2
 {
     public partial class SharpDXEngine : IDisposable
-    {   
+    {
         public int BufferCount { get; protected set; }
         public string AdapterName => ReferenceEquals(adapter, null) ? "" : adapter.Description2.Description;
         public long SharedMemoryUsage => ReferenceEquals(adapter, null) ? throw new NullReferenceException() : adapter.QueryVideoMemoryInfo(0, MemorySegmentGroup.NonLocal).CurrentUsage;
@@ -37,19 +39,23 @@ namespace GraphicLibrary2
         SwapChain3? swapChain;
         InfoQueue? infoQueue;
 
-        PipelineState? PLStateNormal, PLStatePoint, PLStateLine;
+        PipelineState? PLStateBase, PLStateNormal, PLStatePoint, PLStateLine, PLStateCompute;
 
         DescriptorHeap? renderTargetViewHeap;
         int rtvDescriptorSize;
+        DescriptorHeap? unorderedAccessViewHeap;
+        int csuDescriptorSize;
 
         int frameIndex;
 
         Resource[]? renderTargets;
+        Resource tempResource;
 
-        GraphicsCommandList? commandList, commandListR;        
+        GraphicsCommandList? commandList, commandList2;
         GraphicsCommandList[]? bundles;
         CommandAllocator? commandAllocator; //普通
-        CommandAllocator? commandAllocatorR; //負責刪除
+        CommandAllocator? commandAllocator2; //負責刪除
+        RootSignature computeRS;
 
         AutoResetEvent? fenceEvent;
         Fence? fence;
@@ -74,7 +80,7 @@ namespace GraphicLibrary2
         {
             BufferCount = setting.BufferCount;
             using (Factory4 factory = new Factory4())
-            {   
+            {
                 adapter = setting.AdapterIndex == -1 ? null : new Adapter4(factory.GetAdapter1(setting.AdapterIndex).NativePointer);
                 device = new Device(adapter, (SharpDX.Direct3D.FeatureLevel)setting.FeatureLevel);
                 CommandQueueDescription queueDesc = new CommandQueueDescription(CommandListType.Direct);
@@ -123,9 +129,9 @@ namespace GraphicLibrary2
             commandList = device.CreateCommandList(CommandListType.Direct, commandAllocator, null);
             commandList.Close();
 
-            commandAllocatorR = device.CreateCommandAllocator(CommandListType.Direct);
-            commandListR = device.CreateCommandList(CommandListType.Direct, commandAllocatorR, null);
-            commandListR.Close();
+            commandAllocator2 = device.CreateCommandAllocator(CommandListType.Direct);
+            commandList2 = device.CreateCommandList(CommandListType.Direct, commandAllocator2, null);
+            commandList2.Close();
 
         }
 
@@ -137,12 +143,71 @@ namespace GraphicLibrary2
             ResourceDescription textureDesc = ResourceDescription.Texture2D(Format.B8G8R8A8_UNorm, uploadHeap.Description.Width, uploadHeap.Description.Height);
             Resource texture = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, textureDesc, ResourceStates.CopyDestination);
             commandList.CopyTextureRegion(new TextureCopyLocation(texture, 0), 0, 0, 0, new TextureCopyLocation(uploadHeap, 0), null);
-            commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource); 
+            commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
             commandList.Close();
             commandQueue.ExecuteCommandList(commandList);
             WaitForPreviousFrame();
             uploadHeap.Dispose();
             TextureTable[index] = texture;
+        }
+
+        public void CreateComputeShader()
+        {
+            var cmRootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.None,
+                new RootParameter[]
+                {
+                    new RootParameter(ShaderVisibility.All, new DescriptorRange(DescriptorRangeType.UnorderedAccessView, 1, 0))
+                }
+            );
+            computeRS = device.CreateRootSignature(cmRootSignatureDesc.Serialize());
+            ComputePipelineStateDescription cpsDesc = new ComputePipelineStateDescription
+            {
+                ComputeShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(@"C:\Programs\GraphicTest\Camera\Shader\Light.hlsl", "CS", "cs_5_1", SharpDX.D3DCompiler.ShaderFlags.Debug,
+                SharpDX.D3DCompiler.EffectFlags.None, null, null)),
+                RootSignaturePointer = computeRS
+            };
+
+            PLStateCompute = device.CreateComputePipelineState(cpsDesc);
+
+            DescriptorHeapDescription uavHeapDesc = new DescriptorHeapDescription()
+            {
+                DescriptorCount = 1,
+                Flags = DescriptorHeapFlags.ShaderVisible,
+                Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView
+            };
+            unorderedAccessViewHeap = device.CreateDescriptorHeap(uavHeapDesc);
+            csuDescriptorSize = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
+
+            tempResource = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteCombine, MemoryPool.L0),
+                HeapFlags.None, ResourceDescription.Buffer(16, ResourceFlags.AllowUnorderedAccess), ResourceStates.UnorderedAccess);
+
+            UnorderedAccessViewDescription uavdesc = new UnorderedAccessViewDescription
+            {
+                Format = Format.Unknown,
+                Dimension = UnorderedAccessViewDimension.Buffer,                
+            };
+            uavdesc.Buffer.ElementCount = 1;
+            device.CreateUnorderedAccessView(tempResource, null, uavdesc, unorderedAccessViewHeap.CPUDescriptorHandleForHeapStart);
+
+            //gpsDesc3.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
+            //graphicPLStateLine = device.CreateGraphicsPipelineState(gpsDesc3);
+        }
+
+        public void Compute()
+        {
+            commandAllocator2.Reset();
+            commandList2.Reset(commandAllocator2, PLStateCompute);
+            //commandListR.SetComputeRootSignature(computeRS);
+            //commandList.SetComputeRootUnorderedAccessView();
+            commandList2.SetComputeRootSignature(computeRS);
+            commandList2.SetDescriptorHeaps(new DescriptorHeap[] { unorderedAccessViewHeap });
+            commandList2.SetComputeRootDescriptorTable(0, unorderedAccessViewHeap.GPUDescriptorHandleForHeapStart);
+            commandList2.Dispatch(1, 1, 1);
+            
+            commandList2.Close();
+            commandQueue.ExecuteCommandList(commandList2);
+            WaitForPreviousFrame();
+            Debug.WriteLine("1");
         }
 
         //public void LoadTexture(int index, byte[] data, int width, int height)

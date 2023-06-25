@@ -388,6 +388,7 @@ namespace ResourceManagement
             commandList.Close();
             commandQueue.ExecuteCommandList(commandList);
             WaitForPreviousFrame();
+            uploadHeap.Dispose();
             TextureTable.Add(index, texture);
         }
 
@@ -447,6 +448,8 @@ namespace ResourceManagement
 
             commandList.Close();
             commandQueue.ExecuteCommandList(commandList);
+            WaitForPreviousFrame();
+            textureUploadHeap.Dispose();
             TextureTable.Add(index, texture);
         }
 
