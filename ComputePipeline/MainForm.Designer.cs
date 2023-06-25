@@ -1,4 +1,4 @@
-﻿namespace Camera
+﻿namespace ComputePipeline
 {
     partial class MainForm
     {
@@ -30,7 +30,7 @@
         {
             components = new System.ComponentModel.Container();
             pictureBox1 = new PictureBox();
-            lblMemoryInfo = new Label();
+            lblMemory = new Label();
             timer1 = new System.Windows.Forms.Timer(components);
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
@@ -44,33 +44,27 @@
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
             // 
-            // lblMemoryInfo
+            // lblMemory
             // 
-            lblMemoryInfo.AutoSize = true;
-            lblMemoryInfo.Location = new Point(0, 0);
-            lblMemoryInfo.Name = "lblMemoryInfo";
-            lblMemoryInfo.Size = new Size(16, 19);
-            lblMemoryInfo.TabIndex = 1;
-            lblMemoryInfo.Text = "_";
-            // 
-            // timer1
-            // 
-            timer1.Interval = 33;
-            timer1.Tick += timer1_Tick;
+            lblMemory.AutoSize = true;
+            lblMemory.Location = new Point(0, -1);
+            lblMemory.Name = "lblMemory";
+            lblMemory.Size = new Size(16, 19);
+            lblMemory.TabIndex = 1;
+            lblMemory.Text = "_";
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(9F, 19F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
-            Controls.Add(lblMemoryInfo);
+            Controls.Add(lblMemory);
             Controls.Add(pictureBox1);
             Name = "MainForm";
             Text = "MainForm";
             FormClosing += MainForm_FormClosing;
             Load += MainForm_Load;
             Paint += MainForm_Paint;
-            KeyPress += MainForm_KeyPress;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
             PerformLayout();
@@ -79,7 +73,7 @@
         #endregion
 
         private PictureBox pictureBox1;
-        private Label lblMemoryInfo;
+        private Label lblMemory;
         private System.Windows.Forms.Timer timer1;
     }
 }

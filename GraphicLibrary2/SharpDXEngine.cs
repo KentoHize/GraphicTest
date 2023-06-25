@@ -50,6 +50,7 @@ namespace GraphicLibrary2
 
         Resource[]? renderTargets;
         Resource tempResource;
+        Resource loadResource;
 
         GraphicsCommandList? commandList, commandList2;
         GraphicsCommandList[]? bundles;
@@ -60,6 +61,8 @@ namespace GraphicLibrary2
         AutoResetEvent? fenceEvent;
         Fence? fence;
         int fenceValue;
+
+        IntPtr ptr;
 
         //internal Dictionary<ShaderType, ShaderFileInfo> ShaderFiles { get; set; }
         internal Dictionary<int, Resource> TextureTable { get; set; }
@@ -156,7 +159,8 @@ namespace GraphicLibrary2
             var cmRootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.None,
                 new RootParameter[]
                 {
-                    new RootParameter(ShaderVisibility.All, new DescriptorRange(DescriptorRangeType.UnorderedAccessView, 1, 0))
+                    //new RootParameter(ShaderVisibility.All, new DescriptorRange(DescriptorRangeType.UnorderedAccessView, 1, 0))
+                    new RootParameter(ShaderVisibility.All, new RootDescriptor(0, 0), RootParameterType.UnorderedAccessView)
                 }
             );
             computeRS = device.CreateRootSignature(cmRootSignatureDesc.Serialize());
@@ -169,29 +173,33 @@ namespace GraphicLibrary2
 
             PLStateCompute = device.CreateComputePipelineState(cpsDesc);
 
-            DescriptorHeapDescription uavHeapDesc = new DescriptorHeapDescription()
-            {
-                DescriptorCount = 1,
-                Flags = DescriptorHeapFlags.ShaderVisible,
-                Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView
-            };
-            unorderedAccessViewHeap = device.CreateDescriptorHeap(uavHeapDesc);
-            csuDescriptorSize = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
+            //DescriptorHeapDescription uavHeapDesc = new DescriptorHeapDescription()
+            //{
+            //    DescriptorCount = 1,
+            //    Flags = DescriptorHeapFlags.ShaderVisible,
+            //    Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView
+            //};
+            //unorderedAccessViewHeap = device.CreateDescriptorHeap(uavHeapDesc);
+            //csuDescriptorSize = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
 
-            tempResource = device.CreateCommittedResource(new HeapProperties(CpuPageProperty.WriteCombine, MemoryPool.L0),
-                HeapFlags.None, ResourceDescription.Buffer(16, ResourceFlags.AllowUnorderedAccess), ResourceStates.UnorderedAccess);
+            tempResource = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(16, ResourceFlags.AllowUnorderedAccess), ResourceStates.Common);
+            loadResource = device.CreateCommittedResource(new HeapProperties(HeapType.Readback), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.CopyDestination);
+            //UnorderedAccessViewDescription uavdesc = new UnorderedAccessViewDescription
+            //{
+            //    Format = Format.Unknown,                
+            //    Dimension = UnorderedAccessViewDimension.Buffer,                
+            //};
+            //uavdesc.Buffer.ElementCount = 1;
+            //uavdesc.Buffer.CounterOffsetInBytes = 0;
+            //uavdesc.Buffer.StructureByteStride = 16;
 
-            UnorderedAccessViewDescription uavdesc = new UnorderedAccessViewDescription
-            {
-                Format = Format.Unknown,
-                Dimension = UnorderedAccessViewDimension.Buffer,                
-            };
-            uavdesc.Buffer.ElementCount = 1;
-            device.CreateUnorderedAccessView(tempResource, null, uavdesc, unorderedAccessViewHeap.CPUDescriptorHandleForHeapStart);
+            //device.CreateUnorderedAccessView(tempResource, null, uavdesc, unorderedAccessViewHeap.CPUDescriptorHandleForHeapStart);
 
             //gpsDesc3.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
             //graphicPLStateLine = device.CreateGraphicsPipelineState(gpsDesc3);
         }
+
+        
 
         public void Compute()
         {
@@ -200,14 +208,22 @@ namespace GraphicLibrary2
             //commandListR.SetComputeRootSignature(computeRS);
             //commandList.SetComputeRootUnorderedAccessView();
             commandList2.SetComputeRootSignature(computeRS);
-            commandList2.SetDescriptorHeaps(new DescriptorHeap[] { unorderedAccessViewHeap });
-            commandList2.SetComputeRootDescriptorTable(0, unorderedAccessViewHeap.GPUDescriptorHandleForHeapStart);
+            //commandList2.SetDescriptorHeaps(new DescriptorHeap[] { unorderedAccessViewHeap });
+            //commandList2.SetComputeRootDescriptorTable(0, unorderedAccessViewHeap.GPUDescriptorHandleForHeapStart);
+            commandList2.ResourceBarrierTransition(tempResource, ResourceStates.Common, ResourceStates.UnorderedAccess);
+            commandList2.SetComputeRootUnorderedAccessView(0, tempResource.GPUVirtualAddress);
             commandList2.Dispatch(1, 1, 1);
-            
+            commandList2.ResourceBarrierTransition(tempResource, ResourceStates.UnorderedAccess, ResourceStates.CopySource);
+            commandList2.CopyResource(loadResource, tempResource);
             commandList2.Close();
             commandQueue.ExecuteCommandList(commandList2);
             WaitForPreviousFrame();
-            Debug.WriteLine("1");
+
+            ptr = loadResource.Map(0);
+            ArFloatVector4 v = new ArFloatVector4();
+            Utilities.Read(ptr, ref v);
+            loadResource.Unmap(0);        
+            Debug.WriteLine($"{v.ToString()}");
         }
 
         //public void LoadTexture(int index, byte[] data, int width, int height)

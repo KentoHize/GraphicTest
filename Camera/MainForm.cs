@@ -42,6 +42,7 @@ namespace Camera
             //Render
             //sde.Close();
             timer1.Enabled = true;
+
         }
 
         void MainForm_Paint(object sender, PaintEventArgs e)
@@ -60,13 +61,13 @@ namespace Camera
 
         private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
         {
-            switch(e.KeyChar)
+            switch (e.KeyChar)
             {
                 case '1':
                     if (sde.TextureExist(1))
                         sde.DeleteTexture(1);
                     else
-                        LoadTexture(1);                        
+                        LoadTexture(1);
                     break;
                 case '2':
                     if (sde.TextureExist(2))
@@ -85,7 +86,7 @@ namespace Camera
 
         void LoadTexture(int index)
         {
-            switch(index)
+            switch (index)
             {
                 case 0:
                     sde.LoadTextureFromBitmapFile(0, Path.Combine(Constant.TextureFolder, "AnnetteSquare.bmp"));
@@ -113,5 +114,12 @@ namespace Camera
                     break;
             }
         }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            sde.Close();
+        }
+
+       
     }
 }
