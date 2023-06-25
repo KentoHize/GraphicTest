@@ -154,77 +154,7 @@ namespace GraphicLibrary2
             TextureTable[index] = texture;
         }
 
-        public void CreateComputeShader()
-        {
-            var cmRootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.None,
-                new RootParameter[]
-                {
-                    //new RootParameter(ShaderVisibility.All, new DescriptorRange(DescriptorRangeType.UnorderedAccessView, 1, 0))
-                    new RootParameter(ShaderVisibility.All, new RootDescriptor(0, 0), RootParameterType.UnorderedAccessView)
-                }
-            );
-            computeRS = device.CreateRootSignature(cmRootSignatureDesc.Serialize());
-            ComputePipelineStateDescription cpsDesc = new ComputePipelineStateDescription
-            {
-                ComputeShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(@"C:\Programs\GraphicTest\Camera\Shader\Light.hlsl", "CS", "cs_5_1", SharpDX.D3DCompiler.ShaderFlags.Debug,
-                SharpDX.D3DCompiler.EffectFlags.None, null, null)),
-                RootSignaturePointer = computeRS
-            };
-
-            PLStateCompute = device.CreateComputePipelineState(cpsDesc);
-
-            //DescriptorHeapDescription uavHeapDesc = new DescriptorHeapDescription()
-            //{
-            //    DescriptorCount = 1,
-            //    Flags = DescriptorHeapFlags.ShaderVisible,
-            //    Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView
-            //};
-            //unorderedAccessViewHeap = device.CreateDescriptorHeap(uavHeapDesc);
-            //csuDescriptorSize = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
-
-            tempResource = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(16, ResourceFlags.AllowUnorderedAccess), ResourceStates.Common);
-            loadResource = device.CreateCommittedResource(new HeapProperties(HeapType.Readback), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.CopyDestination);
-            //UnorderedAccessViewDescription uavdesc = new UnorderedAccessViewDescription
-            //{
-            //    Format = Format.Unknown,                
-            //    Dimension = UnorderedAccessViewDimension.Buffer,                
-            //};
-            //uavdesc.Buffer.ElementCount = 1;
-            //uavdesc.Buffer.CounterOffsetInBytes = 0;
-            //uavdesc.Buffer.StructureByteStride = 16;
-
-            //device.CreateUnorderedAccessView(tempResource, null, uavdesc, unorderedAccessViewHeap.CPUDescriptorHandleForHeapStart);
-
-            //gpsDesc3.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
-            //graphicPLStateLine = device.CreateGraphicsPipelineState(gpsDesc3);
-        }
-
-        
-
-        public void Compute()
-        {
-            commandAllocator2.Reset();
-            commandList2.Reset(commandAllocator2, PLStateCompute);
-            //commandListR.SetComputeRootSignature(computeRS);
-            //commandList.SetComputeRootUnorderedAccessView();
-            commandList2.SetComputeRootSignature(computeRS);
-            //commandList2.SetDescriptorHeaps(new DescriptorHeap[] { unorderedAccessViewHeap });
-            //commandList2.SetComputeRootDescriptorTable(0, unorderedAccessViewHeap.GPUDescriptorHandleForHeapStart);
-            commandList2.ResourceBarrierTransition(tempResource, ResourceStates.Common, ResourceStates.UnorderedAccess);
-            commandList2.SetComputeRootUnorderedAccessView(0, tempResource.GPUVirtualAddress);
-            commandList2.Dispatch(1, 1, 1);
-            commandList2.ResourceBarrierTransition(tempResource, ResourceStates.UnorderedAccess, ResourceStates.CopySource);
-            commandList2.CopyResource(loadResource, tempResource);
-            commandList2.Close();
-            commandQueue.ExecuteCommandList(commandList2);
-            WaitForPreviousFrame();
-
-            ptr = loadResource.Map(0);
-            ArFloatVector4 v = new ArFloatVector4();
-            Utilities.Read(ptr, ref v);
-            loadResource.Unmap(0);        
-            Debug.WriteLine($"{v.ToString()}");
-        }
+       
 
         //public void LoadTexture(int index, byte[] data, int width, int height)
         //{
@@ -271,6 +201,79 @@ namespace GraphicLibrary2
         public void LoadGraphicSetting(SharpDXGraphicSetting setting)
         {
 
+        }
+
+        public void CreateComputeShader(string hlslFile)
+        {
+            var cmRootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.None,
+                new RootParameter[]
+                {
+                    //new RootParameter(ShaderVisibility.All, new DescriptorRange(DescriptorRangeType.UnorderedAccessView, 1, 0))
+                    new RootParameter(ShaderVisibility.All, new RootDescriptor(0, 0), RootParameterType.UnorderedAccessView)
+                }
+            );
+            computeRS = device.CreateRootSignature(cmRootSignatureDesc.Serialize());
+            ComputePipelineStateDescription cpsDesc = new ComputePipelineStateDescription
+            {
+                ComputeShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(hlslFile, "CS", "cs_5_1", SharpDX.D3DCompiler.ShaderFlags.Debug,
+                SharpDX.D3DCompiler.EffectFlags.None, null, null)),
+                RootSignaturePointer = computeRS
+            };
+
+            PLStateCompute = device.CreateComputePipelineState(cpsDesc);
+
+            //DescriptorHeapDescription uavHeapDesc = new DescriptorHeapDescription()
+            //{
+            //    DescriptorCount = 1,
+            //    Flags = DescriptorHeapFlags.ShaderVisible,
+            //    Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView
+            //};
+            //unorderedAccessViewHeap = device.CreateDescriptorHeap(uavHeapDesc);
+            //csuDescriptorSize = device.GetDescriptorHandleIncrementSize(DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView);
+
+           
+            //UnorderedAccessViewDescription uavdesc = new UnorderedAccessViewDescription
+            //{
+            //    Format = Format.Unknown,                
+            //    Dimension = UnorderedAccessViewDimension.Buffer,                
+            //};
+            //uavdesc.Buffer.ElementCount = 1;
+            //uavdesc.Buffer.CounterOffsetInBytes = 0;
+            //uavdesc.Buffer.StructureByteStride = 16;
+
+            //device.CreateUnorderedAccessView(tempResource, null, uavdesc, unorderedAccessViewHeap.CPUDescriptorHandleForHeapStart);
+        }
+
+
+        public void UploadComputeData()
+        {
+            tempResource = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(1024, ResourceFlags.AllowUnorderedAccess), ResourceStates.Common);
+            loadResource = device.CreateCommittedResource(new HeapProperties(HeapType.Readback), HeapFlags.None, ResourceDescription.Buffer(1024), ResourceStates.CopyDestination);
+        }
+
+        public T[] Compute<T>(int count) where T: struct
+        {
+            commandAllocator2.Reset();
+            commandList2.Reset(commandAllocator2, PLStateCompute);
+            //commandListR.SetComputeRootSignature(computeRS);
+            //commandList.SetComputeRootUnorderedAccessView();
+            commandList2.SetComputeRootSignature(computeRS);
+            //commandList2.SetDescriptorHeaps(new DescriptorHeap[] { unorderedAccessViewHeap });
+            //commandList2.SetComputeRootDescriptorTable(0, unorderedAccessViewHeap.GPUDescriptorHandleForHeapStart);
+            commandList2.ResourceBarrierTransition(tempResource, ResourceStates.Common, ResourceStates.UnorderedAccess);
+            commandList2.SetComputeRootUnorderedAccessView(0, tempResource.GPUVirtualAddress);
+            commandList2.Dispatch(1, 1, 1);
+            commandList2.ResourceBarrierTransition(tempResource, ResourceStates.UnorderedAccess, ResourceStates.CopySource);
+            commandList2.CopyResource(loadResource, tempResource);
+            commandList2.Close();
+            commandQueue.ExecuteCommandList(commandList2);
+            WaitForPreviousFrame();
+
+            ptr = loadResource.Map(0);
+            T[] result = new T[count];
+            Utilities.Read(ptr, result, 0, count);
+            loadResource.Unmap(0);
+            return result;            
         }
 
         public void Dispose()

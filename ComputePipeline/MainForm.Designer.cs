@@ -53,6 +53,11 @@
             lblMemory.TabIndex = 1;
             lblMemory.Text = "_";
             // 
+            // timer1
+            // 
+            timer1.Interval = 33;
+            timer1.Tick += timer1_Tick;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(9F, 19F);

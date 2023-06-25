@@ -119,7 +119,6 @@ namespace Camera
         {
             sde.Close();
         }
-
        
     }
 }
