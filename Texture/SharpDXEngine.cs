@@ -206,6 +206,20 @@ namespace GraphicLibrary
                 IsMultisampleEnabled = false,
             };
 
+            BlendStateDescription blendStateDescription = new BlendStateDescription
+            {
+                AlphaToCoverageEnable = false,
+                IndependentBlendEnable = false
+            };
+            blendStateDescription.RenderTarget[0].IsBlendEnabled = true;
+            blendStateDescription.RenderTarget[0].SourceBlend = BlendOption.SourceAlpha;
+            blendStateDescription.RenderTarget[0].DestinationBlend = BlendOption.InverseSourceAlpha;
+            blendStateDescription.RenderTarget[0].BlendOperation = BlendOperation.Add;
+            blendStateDescription.RenderTarget[0].SourceAlphaBlend = BlendOption.SourceAlpha;
+            blendStateDescription.RenderTarget[0].DestinationAlphaBlend = BlendOption.DestinationAlpha;
+            blendStateDescription.RenderTarget[0].AlphaBlendOperation = BlendOperation.Add;
+            blendStateDescription.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.All;
+
             GraphicsPipelineStateDescription psoDesc = new GraphicsPipelineStateDescription()
             {
                 InputLayout = new InputLayoutDescription(inputElementDescs),
@@ -222,7 +236,7 @@ namespace GraphicLibrary
                         ShaderFiles[ShaderType.PixelShader].File, ShaderFiles[ShaderType.PixelShader].EntryPoint, ShaderFiles[ShaderType.PixelShader].Profile)),
 #endif
                 RasterizerState = rasterizerStateDesc,
-                BlendState = BlendStateDescription.Default(),
+                BlendState = blendStateDescription,
                 DepthStencilFormat = Format.D32_Float,
                 DepthStencilState = new DepthStencilStateDescription() { IsDepthEnabled = false, IsStencilEnabled = false },
                 SampleMask = int.MaxValue,

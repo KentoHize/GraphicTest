@@ -6,6 +6,8 @@
 };
 ConstantBuffer<b> bb : register(b0);
 
+
+
 struct r
 {
     float4 a;
@@ -13,6 +15,8 @@ struct r
     float4 c;
 };
 RWStructuredBuffer<r> aa : register(u0);
+
+
 	
 [numthreads(3, 1, 1)]
 void CS(uint3 Gid : SV_GroupID,

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Texture": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

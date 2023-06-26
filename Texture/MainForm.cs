@@ -118,7 +118,24 @@ namespace Texture
                             0, 1, 2, 0, 1, 3
                         },
                         TextureIndex = 1
+                    },
+                    new SharpDXBundleData
+                    {
+                        PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
+                        MixVertices = new ArMixVertex[]
+                        {   
+                            new ArMixVertex(400, 400, 0, 0 ,0 ,0 , 0.5f, 1, 0),
+                            new ArMixVertex(-400, -400, 0, 0 ,0 ,0 ,0.5f, 0, 1),
+                            new ArMixVertex(400, -400, 0, 0 ,0 ,0 ,0.5f, 1, 1),
+                            new ArMixVertex(-400, 400, 0, 0 ,0 ,0 ,0.5f, 0, 0),                            
+                        },
+                        Indices = new int[]
+                        {
+                            0, 1, 2, 0, 1, 3
+                        },
+                        TextureIndex = 1
                     }
+
                 }
 
             };
