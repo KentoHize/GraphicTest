@@ -581,6 +581,7 @@ namespace ResourceManagement
         {
             debugBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(4, ResourceFlags.AllowUnorderedAccess), ResourceStates.Common);
             debug2Buffer = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(1024 * 1024 * 4, ResourceFlags.AllowUnorderedAccess), ResourceStates.Common);
+            //debug2Buffer = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(1024 * 1024 * 4, ResourceFlags.AllowUnorderedAccess), ResourceStates.Common);
             //debug2Buffer = device.CreateCommittedResource(new HeapProperties(HeapType.Readback), HeapFlags.None, ResourceDescription.Buffer(1024 * 1024 * 4), ResourceStates.Common);
             debugGetBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Readback), HeapFlags.None, ResourceDescription.Buffer(1024 * 1024 * 4), ResourceStates.CopyDestination);
             //debug3Buffer = new Resource[200];
@@ -715,6 +716,7 @@ namespace ResourceManagement
             debugGetBuffer.Unmap(0);
             for (int i = 0; i < result.Length; i++)
             {
+                if (result[i].pos[0] != 0 || result[i].pos[1] != 0)
                 Debug.WriteLine(result[i].pos.ToString() + "," + result[i].uv.ToString());
             }
            
@@ -722,7 +724,7 @@ namespace ResourceManagement
 
        struct DebugInfo
         {
-            public ArFloatVector3 pos;
+            public ArIntVector3 pos;
             public ArFloatVector2 uv;
         }
 

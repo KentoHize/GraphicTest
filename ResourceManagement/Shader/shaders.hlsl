@@ -73,7 +73,7 @@ float4 PSMain(PSInput input) : SV_TARGET
     DebugInfo d;
     d.pos = input.position;
     d.uv = input.tex;
-    di[d.pos.x * 100 + d.pos.y] = d;//.
+    di[(int) (d.pos.x * 100) + (int) (d.pos.y)] = d; //.
     //di.Append(d);
     
     //di.Store(dii.Load(0) + 4, (int) input.position.y);
