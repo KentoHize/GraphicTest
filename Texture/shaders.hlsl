@@ -34,7 +34,7 @@ PSInput VSMain(int3 position : POSITION, float4 color : COLOR, float2 texCoord :
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
-    
+    printf("1");
     if (input.color.x != 0 || input.color.y != 0 || input.color.z != 0) // detect have color
         return input.color;
     else if(input.color.w != 0 && input.color.w != 1)

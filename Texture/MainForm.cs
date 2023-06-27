@@ -72,21 +72,21 @@ namespace Texture
                             //new ArFloatVector3((float)Math.PI /2, 0, 0),
                             new ArFloatVector3(1, 1, 1))
                     },
-                    new SharpDXBundleData
-                    {
-                        PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.LineList,
-                        ColorVertices = new ArColorVertex[]
-                        {
-                            new ArColorVertex(-200, 0, 0, Color.Gold),
-                            new ArColorVertex(-200, 400, 0, Color.Gold),
-                            new ArColorVertex(-300, 400, 0, Color.Gold),
-                            new ArColorVertex(-300, 0, 0, Color.Gold),
-                        },
-                        Indices = new int[]
-                        {
-                            0, 1, 1, 2, 2, 3
-                        }
-                    },
+                    //new SharpDXBundleData
+                    //{
+                    //    PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.LineList,
+                    //    ColorVertices = new ArColorVertex[]
+                    //    {
+                    //        new ArColorVertex(-200, 0, 0, Color.Gold),
+                    //        new ArColorVertex(-200, 400, 0, Color.Gold),
+                    //        new ArColorVertex(-300, 400, 0, Color.Gold),
+                    //        new ArColorVertex(-300, 0, 0, Color.Gold),
+                    //    },
+                    //    Indices = new int[]
+                    //    {
+                    //        0, 1, 1, 2, 2, 3
+                    //    }
+                    //},
                     new SharpDXBundleData
                     {
                         PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
@@ -123,11 +123,11 @@ namespace Texture
                     {
                         PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
                         MixVertices = new ArMixVertex[]
-                        {   
+                        {
                             new ArMixVertex(400, 400, 0, 0 ,0 ,0 , 0.5f, 1, 0),
                             new ArMixVertex(-400, -400, 0, 0 ,0 ,0 ,0.5f, 0, 1),
                             new ArMixVertex(400, -400, 0, 0 ,0 ,0 ,0.5f, 1, 1),
-                            new ArMixVertex(-400, 400, 0, 0 ,0 ,0 ,0.5f, 0, 0),                            
+                            new ArMixVertex(-400, 400, 0, 0 ,0 ,0 ,0.5f, 0, 0),
                         },
                         Indices = new int[]
                         {
@@ -144,8 +144,26 @@ namespace Texture
             sw.Stop();
             Debug.WriteLine($"Load Data:{sw.ElapsedMilliseconds}");
             sw.Restart();
-            sde.Render();
+
             Debug.WriteLine($"Render:{sw.ElapsedMilliseconds}");
+            timer1.Enabled = true;
+        }
+
+        private void pibMain_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            sde.Render();
+            string[] iq = sde.GetMessageFromInfoQueue();
+            for (int i = 0; i < iq.Length; i++)
+            {
+                lblDebug.Text = lblDebug.Text + iq[i] + "\n";
+            }
+            //lblDebug.Invalidate();
+
         }
     }
 }

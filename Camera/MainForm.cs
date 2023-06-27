@@ -22,8 +22,8 @@ namespace Camera
                 LoadTexture(i);
 
 
-            sde.CreateComputeShader();
-            sde.Compute();
+            //sde.CreateComputeShader();
+            //sde.Compute();
             //Debug.WriteLine($"Load 8 Picture: {sw.ElapsedMilliseconds}");
 
             //sde.LoadMaterial(0, new ArMaterial

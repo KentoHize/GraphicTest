@@ -112,7 +112,7 @@ namespace GraphicLibrary
                 tempSwapChain.Dispose();
             }
             frameIndex = swapChain.CurrentBackBufferIndex;
-            infoQueue = device.QueryInterface<InfoQueue>();
+            infoQueue = device.QueryInterface<InfoQueue>();            
 
             DescriptorHeapDescription rtvHeapDesc = new DescriptorHeapDescription()
             {
@@ -228,7 +228,7 @@ namespace GraphicLibrary
                 VertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
                         ShaderFiles[ShaderType.VertexShader].File, ShaderFiles[ShaderType.VertexShader].EntryPoint, ShaderFiles[ShaderType.VertexShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug)),
                 PixelShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
-                        ShaderFiles[ShaderType.PixelShader].File, ShaderFiles[ShaderType.PixelShader].EntryPoint, ShaderFiles[ShaderType.PixelShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug)),
+                        ShaderFiles[ShaderType.PixelShader].File, ShaderFiles[ShaderType.PixelShader].EntryPoint, ShaderFiles[ShaderType.PixelShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug | SharpDX.D3DCompiler.ShaderFlags.SkipOptimization)),
 #else
                 VertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
                         ShaderFiles[ShaderType.VertexShader].File, ShaderFiles[ShaderType.VertexShader].EntryPoint, ShaderFiles[ShaderType.VertexShader].Profile)),
@@ -390,6 +390,8 @@ namespace GraphicLibrary
 
         public void Render()
         {
+            //infoQueue.MuteDebugOutput = true;
+
             commandAllocator.Reset();
             commandList.Reset(commandAllocator, graphicPLState);
             commandList.SetGraphicsRootSignature(graphicRootSignature);
@@ -433,6 +435,30 @@ namespace GraphicLibrary
             }
 
             frameIndex = swapChain.CurrentBackBufferIndex;
+            //InfoQueue
+            //SharpDX.Direct3D12.DebugDevice a = new DebugDevice();
+            //a.
+            //SharpDX.Direct3D11.
+            //SharpDX.Direct3D11.TracingDevice td =  new SharpDX.Direct3D11.TracingDevice();
+            //SharpDX.Direct3D11
+            //MessageBox.Show(infoQueue.NumStoredMessages.ToString());
+            
+            
+            
+            //infoQueue.GetMessage()
+        }
+
+        public string[] GetMessageFromInfoQueue()
+        {
+            List<string> slist = new List<string>();
+            for (long i = 0; i < infoQueue.NumStoredMessages; i++)
+            {
+                slist.Add(infoQueue.GetMessage(i).Description);
+                //MessageBox.Show(infoQueue.GetMessage(i).Description);
+            }
+            infoQueue.ClearStoredMessages();
+
+            return slist.ToArray();
         }
 
         public void Dispose()
