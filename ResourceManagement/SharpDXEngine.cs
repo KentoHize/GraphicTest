@@ -1,11 +1,13 @@
 ﻿using GraphicLibrary;
 using GraphicLibrary.Items;
 using SharpDX;
+
 using SharpDX.Direct3D12;
 using SharpDX.DXGI;
 using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
+using System.Text;
 using Device = SharpDX.Direct3D12.Device;
 using Device11 = SharpDX.Direct3D11.Device;
 using Device12 = SharpDX.Direct3D11.Device11On12;
@@ -59,6 +61,7 @@ namespace ResourceManagement
         Resource[] renderTargets;
         DescriptorHeap renderTargetViewHeap;
         DescriptorHeap shaderResourceViewHeap;
+        DescriptorHeap unorderedAccessViewHeap;
         int rtvDescriptorSize;
         int cruDescriptorSize;
         CpuDescriptorHandle cruHandle;
@@ -86,6 +89,10 @@ namespace ResourceManagement
         Resource[] shaderResource;
 
         Resource texture;
+        Resource debugBuffer;
+        Resource debug2Buffer;
+        Resource debugGetBuffer;
+        Resource[] debug3Buffer;
 
         public SharpDXEngine()
         {
@@ -167,6 +174,10 @@ namespace ResourceManagement
              new RootParameter[]
              {
                  new RootParameter(ShaderVisibility.All, new RootDescriptor(0, 0), RootParameterType.ConstantBufferView),
+                 
+                 //new RootParameter(ShaderVisibility.All, new DescriptorRange(DescriptorRangeType.UnorderedAccessView, 1, 0)),
+                 new RootParameter(ShaderVisibility.All, new RootDescriptor(0, 0), RootParameterType.UnorderedAccessView),
+                 //new RootParameter(ShaderVisibility.All, new RootDescriptor(1, 0), RootParameterType.UnorderedAccessView),
                  new RootParameter(ShaderVisibility.All,
                             new DescriptorRange(DescriptorRangeType.ShaderResourceView, 8, 0))
              },
@@ -495,6 +506,7 @@ namespace ResourceManagement
                 bundles[0].PrimitiveTopology = ModelTable[name].PrimitiveTopology;
             }
 
+            
             bundles[0].SetGraphicsRootConstantBufferView(0, r.GPUVirtualAddress);
             bundles[0].SetVertexBuffer(0, ModelTable[name].VertexBufferView);
             bundles[0].SetIndexBuffer(ModelTable[name].IndexBufferView);
@@ -567,6 +579,11 @@ namespace ResourceManagement
 
         public void PrepareRender()
         {
+            debugBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(4, ResourceFlags.AllowUnorderedAccess), ResourceStates.Common);
+            debug2Buffer = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(1024 * 1024 * 4, ResourceFlags.AllowUnorderedAccess), ResourceStates.Common);
+            //debug2Buffer = device.CreateCommittedResource(new HeapProperties(HeapType.Readback), HeapFlags.None, ResourceDescription.Buffer(1024 * 1024 * 4), ResourceStates.Common);
+            debugGetBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Readback), HeapFlags.None, ResourceDescription.Buffer(1024 * 1024 * 4), ResourceStates.CopyDestination);
+            //debug3Buffer = new Resource[200];
             //初步計算不需要畫的Model
             DescriptorHeapDescription csuHeapDesc = new DescriptorHeapDescription()
             {
@@ -591,7 +608,34 @@ namespace ResourceManagement
                 cruHandle += cruDescriptorSize;
             }
 
+            //csuHeapDesc = new DescriptorHeapDescription()
+            //{
+            //    DescriptorCount = 1,
+            //    Flags = DescriptorHeapFlags.ShaderVisible,
+            //    Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView
+            //};
+            //unorderedAccessViewHeap = device.CreateDescriptorHeap(csuHeapDesc);
+            //cruHandle = unorderedAccessViewHeap.CPUDescriptorHandleForHeapStart;
+
+            //for (int i = 0; i < 200; i++)
+            //{
+            //    var uavDesc = new UnorderedAccessViewDescription
+            //    {
+            //        Format = Format.Unknown,
+            //        Dimension = UnorderedAccessViewDimension.Buffer
+            //    };
+            //    uavDesc.Buffer.ElementCount = 200;
+            //    uavDesc.Buffer.StructureByteStride = Utilities.SizeOf<DebugInfo>();
+            //    debug3Buffer[i] = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(Utilities.SizeOf<DebugInfo>(), ResourceFlags.AllowUnorderedAccess), ResourceStates.Common);
+            //    device.CreateUnorderedAccessView(debug3Buffer[i], null, uavDesc, cruHandle);
+            //    cruHandle += cruDescriptorSize;
+            //}
+
+
             bundles[0].Close();
+
+            
+            
             WaitForPreviousFrame();
         }
 
@@ -639,7 +683,11 @@ namespace ResourceManagement
             //commandList.SetGraphicsRootConstantBufferView(1, constantBuffer[1].GPUVirtualAddress);
             //commandList.SetGraphicsRootConstantBufferView(0, InstanceFrameVariables[0].TransformMatrix.GPUVirtualAddress);
             commandList.SetDescriptorHeaps(new DescriptorHeap[] { shaderResourceViewHeap });
-            commandList.SetGraphicsRootDescriptorTable(1, shaderResourceViewHeap.GPUDescriptorHandleForHeapStart);
+            commandList.SetGraphicsRootDescriptorTable(2, shaderResourceViewHeap.GPUDescriptorHandleForHeapStart);
+            
+            //commandList.SetGraphicsRootDescriptorTable(1, unorderedAccessViewHeap.GPUDescriptorHandleForHeapStart);
+            commandList.SetGraphicsRootUnorderedAccessView(1, debug2Buffer.GPUVirtualAddress);
+            //commandList.SetGraphicsRootUnorderedAccessView(2, debug2Buffer.GPUVirtualAddress);
             //commandList.SetGraphicsRootDescriptorTable(2, shaderResourceViewHeap.GPUDescriptorHandleForHeapStart);
 
             CpuDescriptorHandle rtvHandle = renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
@@ -653,13 +701,29 @@ namespace ResourceManagement
                 commandList.ExecuteBundle(bundles[i]);
             }
             commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
-
+            commandList.CopyResource(debugGetBuffer, debug2Buffer);
             commandList.Close();
             commandQueue.ExecuteCommandList(commandList);
 
             swapChain.Present(1, 0);
 
             WaitForPreviousFrame();
+
+            ptr = debugGetBuffer.Map(0);
+            DebugInfo[] result = new DebugInfo[1024 * 1024 / Utilities.SizeOf<DebugInfo>()];
+            Utilities.Read(ptr, result, 0, 1024 * 1024 / Utilities.SizeOf<DebugInfo>());
+            debugGetBuffer.Unmap(0);
+            for (int i = 0; i < result.Length; i++)
+            {
+                Debug.WriteLine(result[i].pos.ToString() + "," + result[i].uv.ToString());
+            }
+           
+        }
+
+       struct DebugInfo
+        {
+            public ArFloatVector3 pos;
+            public ArFloatVector2 uv;
         }
 
         public void WaitForPreviousFrame()

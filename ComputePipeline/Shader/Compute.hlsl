@@ -16,6 +16,19 @@ struct r
 };
 RWStructuredBuffer<r> aa : register(u0);
 
+RWByteAddressBuffer di : register(u1);
+
+uint CombineChar(uint char1, uint char2, uint char3, uint char4)
+{
+    return char1 + (char2 << 8) + (char3 << 16) + (char4 << 24);
+}
+
+//shared uint sr[200];
+
+//void StringToUIntArray(uint s[])
+//{
+//    return uint(3);
+//}
 
 	
 [numthreads(3, 1, 1)]
@@ -23,7 +36,25 @@ void CS(uint3 Gid : SV_GroupID,
 	uint3 DTid : SV_DispatchThreadID,
 	uint3 GTid : SV_GroupThreadID,
 	uint GI : SV_GroupIndex)
-{
+{   
+    //uint c = CombineChar('a', 'p', 'p', 'l');
+    //uint StringToUIntArray("aaaaaaaa");
+       
+    //sr[0] = 'a';
+    //sr[1] = 'p';
+    //di.Store(0, CombineChar('a', 'p', 'p', 'l'));
+    //di.Store(4, CombineChar('e', 0, 0, 0));
+  
+    //di.Store(0, CombineChar(sr[0], 'p', 'p', 'l'));
+    //di.Store(4, CombineChar('e', 0, 0, 0));
+    //di.Store(4, 'p');
+    //di.Store(0, 'a' << 24 + 'p' << 16 + 'p' << 8 + 'l');
+    //di.Store(0, 'a' << 4 + 'p');
+    //di.Store()
+    //di.Store(4, 'p');
+    //di.Store(8, 'p');
+    //di.Store(12, 'l');
+    //di.Store(16, 'e');
     //aa[Gid.x].a = float4(1, 1, 1, 1);
     //aa[Gid.x].b = float4(2, 2, 2, 2);
     //aa[Gid.x].c = float4(3, 3, 3, 3);

@@ -56,12 +56,30 @@ PSInput VSMain(int3 position : POSITION, uint texIndex : TEXINDEX, float2 tex : 
 	return result;
 }
 
+uint CombineChar(uint char1, uint char2, uint char3, uint char4)
+{
+    return char1 + (char2 << 8) + (char3 << 16) + (char4 << 24);
+}
+
 float4 PSMain(PSInput input) : SV_TARGET
 {
     //return float4(1, 0, 0, 1);
     //return float4(fv.scale, input.shadow[1], input.shadow[2], 1);
     //return float4(input.shadow[0], input.shadow[1], input.shadow[2], 1);
+    //di.InterlockedCompareStore() = CombineChar('a', 'a', 'a', 'a');    
+    //input.position.x * 
+    //dii.Store(0, dii.Load(0) + 16);
+    ////input.position.z;
+    DebugInfo d;
+    d.pos = input.position;
+    d.uv = input.tex;
+    di[d.pos.x * 100 + d.pos.y] = d;//.
+    //di.Append(d);
     
+    //di.Store(dii.Load(0) + 4, (int) input.position.y);
+    //di.Store(dii.Load(0) + 8, (int) input.position.z);
+    //di.Store(dii.Load(0) + 12, (int) input.texIndex);
+    //di.Store(dii.Load(0), CombineChar(input.position.x, input.position.y, input.position.z, input.texIndex));
     if(input.texIndex == -1)
         return float4(1, 1, 1, 1);
     else
@@ -69,6 +87,8 @@ float4 PSMain(PSInput input) : SV_TARGET
     return textures[input.texIndex].Sample(normal_sampler, input.tex);
     //return float4(input.tex[0], input.tex[1], 0, 1);
 }
+
+
 
 //(cos(fv.rotateVector.x + fv.rotateVector.y) + cos(fv.rotateVector.x - fv.rotateVector.y)) / 2
     //(cos(fv.rotateVector.x + fv.rotateVector.y + fv.rotateVector.z) - cos(fv.rotateVector.x - fv.rotateVector.y + fv.rotateVector.z) - cos(fv.rotateVector.x + fv.rotateVector.y - fv.rotateVector.z) + cos(fv.rotateVector.x - fv.rotateVector.y - fv.rotateVector.z) - 2 * sin(fv.rotateVector.x + fv.rotateVector.z) - 2 * sin(fv.rotateVector.x - fv.rotateVector.z)) / 4

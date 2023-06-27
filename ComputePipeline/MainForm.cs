@@ -1,6 +1,7 @@
 ﻿using GraphicLibrary2;
 using GraphicLibrary2.Items;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace ComputePipeline
 {
@@ -29,8 +30,9 @@ namespace ComputePipeline
 
             sde.CreateComputeShader(hlslFile);
             sde.UploadComputeData(new float[] { 3, 5, 7 });
-            ComputeResult[] crs = sde.Compute<ComputeResult>(3);
-            MessageBox.Show(crs[2].a.ToString());
+            byte[] s = sde.Compute<byte>(5);
+            //ComputeResult[] crs = sde.Compute<ComputeResult>(3);            
+            MessageBox.Show(Encoding.ASCII.GetString(s));
             timer1.Start();
         }
 

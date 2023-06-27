@@ -51,6 +51,7 @@ namespace GraphicLibrary2
         Resource[]? renderTargets;
         Resource? tempResource;
         Resource? loadResource;
+        Resource? debugBuffer;        
         Resource? constantBuffer;
 
         GraphicsCommandList? commandList, commandList2;
@@ -211,7 +212,8 @@ namespace GraphicLibrary2
                 {
                     //new RootParameter(ShaderVisibility.All, new DescriptorRange(DescriptorRangeType.UnorderedAccessView, 1, 0))
                     new RootParameter(ShaderVisibility.All, new RootDescriptor(0, 0), RootParameterType.ConstantBufferView),
-                    new RootParameter(ShaderVisibility.All, new RootDescriptor(0, 0), RootParameterType.UnorderedAccessView)
+                    new RootParameter(ShaderVisibility.All, new RootDescriptor(0, 0), RootParameterType.UnorderedAccessView),
+                    new RootParameter(ShaderVisibility.All, new RootDescriptor(1, 0), RootParameterType.UnorderedAccessView)
                 }
             );
             computeRS = device.CreateRootSignature(cmRootSignatureDesc.Serialize());
@@ -251,6 +253,7 @@ namespace GraphicLibrary2
         {
             tempResource = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(1024, ResourceFlags.AllowUnorderedAccess), ResourceStates.Common);
             loadResource = device.CreateCommittedResource(new HeapProperties(HeapType.Readback), HeapFlags.None, ResourceDescription.Buffer(1024), ResourceStates.CopyDestination);
+            debugBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Default), HeapFlags.None, ResourceDescription.Buffer(1024, ResourceFlags.AllowUnorderedAccess), ResourceStates.Common);
             constantBuffer = device.CreateCommittedResource(new HeapProperties(HeapType.Upload), HeapFlags.None, ResourceDescription.Buffer(256), ResourceStates.Common);
             ptr = constantBuffer.Map(0);
             Utilities.Write(ptr, data, 0, data.Length);
@@ -267,9 +270,11 @@ namespace GraphicLibrary2
             commandList2.ResourceBarrierTransition(tempResource, ResourceStates.Common, ResourceStates.UnorderedAccess);
             commandList2.SetComputeRootConstantBufferView(0, constantBuffer.GPUVirtualAddress);
             commandList2.SetComputeRootUnorderedAccessView(1, tempResource.GPUVirtualAddress);
+            commandList2.SetComputeRootUnorderedAccessView(2, debugBuffer.GPUVirtualAddress);
             commandList2.Dispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ);
             commandList2.ResourceBarrierTransition(tempResource, ResourceStates.UnorderedAccess, ResourceStates.CopySource);
-            commandList2.CopyResource(loadResource, tempResource);
+            //commandList2.CopyResource(loadResource, tempResource);
+            commandList2.CopyResource(loadResource, debugBuffer);
             commandList2.Close();
             commandQueue.ExecuteCommandList(commandList2);
             WaitForPreviousFrame();

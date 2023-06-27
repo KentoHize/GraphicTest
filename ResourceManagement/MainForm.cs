@@ -158,7 +158,7 @@ namespace ResourceManagement
             sde.PrepareRender();
 
             sde.Render();
-            timer1.Start();
+            //timer1.Start();
 
             //var aCube = Ar3DGeometry.GetTextureCube(512);
 
