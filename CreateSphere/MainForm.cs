@@ -10,7 +10,7 @@ namespace CreateSphere
         SharpDXEngine sde;
         SharpDXData data;
         ArFloatVector3 lightDirection;
-        //float rx = 0, ry = 0, rz = 0;
+        float rx = 0, ry = 0, rz = 0;
         const string textureFile = @"C:\Programs\GraphicTest\CreateSphere\Textures\AnnetteSquare.bmp";
         public MainForm()
         {
@@ -22,9 +22,15 @@ namespace CreateSphere
         {
             ArFloatVector3 XNormal = new ArFloatVector3(Normal.X, 0, Normal.Z);
             ArFloatVector3 YNormal = new ArFloatVector3(0, Normal.Y, Normal.Z);
-            double AngleY = Math.Acos(XNormal.DotProduct(Normal) / (XNormal.GetLength() * Normal.GetLength()));
-            double AngleX = Math.Acos(YNormal.DotProduct(Normal) / (YNormal.GetLength() * Normal.GetLength()));
-
+            float dotX = XNormal.DotProduct(Normal);
+            float dotY = YNormal.DotProduct(Normal);
+            
+            double AngleY = Math.Acos(dotX / (XNormal.GetLength() * Normal.GetLength()));
+            double AngleX = Math.Acos(dotY / (YNormal.GetLength() * Normal.GetLength()));
+            if (dotX < 0)
+                AngleY *= -1;
+            if (dotY < 0)
+                AngleX *= -1;
             return Ar3DMachine.GetRotateMatrix(new ArFloatVector3(0, (float)AngleX, (float)AngleY));
             //return Ar3DMachine.ProduceTransformMatrix(ArIntVector3.Zero, new ArFloatVector3((float)AngleX, (float)AngleY, 0), ArFloatVector3.One);
         }
@@ -97,6 +103,25 @@ namespace CreateSphere
                 case 'd':
                     lightDirection[2] += 1f;
                     break;
+
+                case 'u':
+                    rx -= 0.1f;
+                    break;
+                case 'o':
+                    rx += 0.1f;
+                    break;
+                case 'i':
+                    ry += 0.1f;
+                    break;
+                case 'k':
+                    ry -= 0.1f;
+                    break;
+                case 'j':
+                    rz -= 0.1f;
+                    break;
+                case 'l':
+                    rz += 0.1f;
+                    break;
                 default:
                     break;
             }
@@ -119,12 +144,17 @@ namespace CreateSphere
             ArFloatVector3 directionV = lightDirectionVector;
 
             List<ArTextureVertex> vertices3 = new List<ArTextureVertex>();
+            ArFloatMatrix33 tm = Ar3DMachine.GetRotateMatrix(new ArFloatVector3(rx, ry, rz));
+
+            for (int i = 0; i < vertices.Count; i++)
+                vertices[i] = tm * vertices[i];
+
             for (int i = 0; i < vertices.Count; i++)
                 vertices3.Add(new ArTextureVertex((int)vertices[i][0], (int)vertices[i][1], (int)vertices[i][2], 1, 1));
 
-            ArFloatMatrix33 tm = GetTransformMatrixFromNormalToZ(directionV);
+            ArFloatMatrix33 tm2 = GetTransformMatrixFromNormalToZ(directionV);
             for (int i = 0; i < vertices.Count; i++)
-                vertices[i] = tm * vertices[i];
+                vertices[i] = tm2 * vertices[i];
 
             List<ArTextureVertex> vertices2 = new List<ArTextureVertex>();
             for (int i = 0; i < vertices.Count; i++)
@@ -156,7 +186,7 @@ namespace CreateSphere
                         
                     }
             };
-            lblDirection.Text = $"Light Direction:{lightDirection}";
+            lblDirection.Text = $"Rotation:({rx},{ry},{rz})\nLight Direction:{lightDirection}";
             sde.LoadModel(data);
             sde.Render();
         }
