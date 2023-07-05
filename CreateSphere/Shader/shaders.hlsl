@@ -25,7 +25,7 @@ GSInput VSMain(int3 position : POSITION, float2 uv : TEXCOORD)
     float4 p2;
     float4x4 normalTF = float4x4(0.001, 0, 0, 0, 0, 0.001, 0, 0, 0, 0, 0.001, 0, 0, 0, 0, 1);
     //p2 = mul(p, normalTF);
-    p2 = mul(p, tm.transformMatrix);    
+    p2 = mul(p, tm.transformMatrix);
     result.position = p2;    
     //result.position = float4(position[0], position[1], position[2], 1);
     result.uv = uv;
@@ -34,6 +34,9 @@ GSInput VSMain(int3 position : POSITION, float2 uv : TEXCOORD)
 
 float4 PSMain(GSOutput input) : SV_TARGET
 {
+    if(input.uv[0] == 1)
+        return float4(1, 0, 0, 1);        
+    return float4(1, 1, 1, 1);
     return annetteTexture.Sample(normal_sampler, input.uv);
 }
 

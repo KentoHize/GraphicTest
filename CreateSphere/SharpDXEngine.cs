@@ -22,7 +22,7 @@ namespace CreateSphere
         public const int ConstantBufferViewCount = 2;
         public const int ShaderResourceViewCount = 2;
         public const int DefaultComponentMapping = 5876;
-        const string GLShaderFile = @"C:\Programs\GraphicTest\CreateSphere\Shaders\shaders.hlsl";
+        const string GLShaderFile = @"C:\Programs\GraphicTest\CreateSphere\Shader\shaders.hlsl";
         internal Dictionary<ShaderType, ShaderFileInfo> ShaderFiles { get; set; }
 
         Device? device;

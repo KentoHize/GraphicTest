@@ -21,6 +21,8 @@ namespace Camera
             for (int i = 0; i < 8; i++)
                 LoadTexture(i);
 
+            //sde.LoadGraphicSetting();
+
 
             //sde.CreateComputeShader();
             //sde.Compute();

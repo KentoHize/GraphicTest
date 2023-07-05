@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics.X86;
 using System.Text;
 
 namespace GraphicLibrary2.Items
@@ -133,6 +134,13 @@ namespace GraphicLibrary2.Items
             _31 = matrix[2, 0];
             _32 = matrix[2, 1];
             _33 = matrix[2, 2];
+        }
+
+        public static ArFloatMatrix33 Product(ArFloatVector3 a, ArFloatVector3 b)
+        {
+            return new ArFloatMatrix33(a[0] * b[0], a[0] * b[1], a[0] * b[2],
+                a[1] * b[0], a[1] * b[1], a[1] * b[2],
+                a[2] * b[0], a[2] * b[1], a[2] * b[2]);
         }
 
         public static ArFloatVector3 operator *(ArFloatMatrix33 a, ArFloatVector3 b)

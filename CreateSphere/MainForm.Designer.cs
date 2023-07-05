@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             pictureBox1 = new PictureBox();
+            lblDirection = new Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
@@ -41,21 +42,34 @@
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
             // 
+            // lblDirection
+            // 
+            lblDirection.AutoSize = true;
+            lblDirection.Location = new Point(0, 0);
+            lblDirection.Name = "lblDirection";
+            lblDirection.Size = new Size(16, 19);
+            lblDirection.TabIndex = 1;
+            lblDirection.Text = "_";
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(9F, 19F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(lblDirection);
             Controls.Add(pictureBox1);
             Name = "MainForm";
             Text = "MainForm";
             Load += MainForm_Load;
+            KeyPress += MainForm_KeyPress;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
 
         private PictureBox pictureBox1;
+        private Label lblDirection;
     }
 }

@@ -131,6 +131,26 @@ namespace GraphicLibrary.Items
             _32 = matrix[2, 1];
             _33 = matrix[2, 2];
         }
+        public static ArFloatMatrix33 Product(ArFloatVector3 a, ArFloatVector3 b)
+        {
+            return new ArFloatMatrix33(a[0] * b[0], a[0] * b[1], a[0] * b[2],
+                a[1] * b[0], a[1] * b[1], a[1] * b[2],
+                a[2] * b[0], a[2] * b[1], a[2] * b[2]);
+        }
+
+        public static ArFloatMatrix33 operator+ (ArFloatMatrix33 a, ArFloatMatrix33 b)
+        {
+            return new ArFloatMatrix33(a[0, 0] + b[0, 0], a[0, 1] + b[0, 1], a[0, 2] + b[0, 2],
+                a[1, 0] + b[1, 0], a[1, 1] + b[1, 1], a[1, 2] + b[1, 2],
+                a[2, 0] + b[2, 0], a[2, 1] + b[2, 1], a[2, 2] + b[2, 2]);
+        }
+
+        public static ArFloatMatrix33 operator- (ArFloatMatrix33 a, ArFloatMatrix33 b)
+        {
+            return new ArFloatMatrix33(a[0, 0] - b[0, 0], a[0, 1] - b[0, 1], a[0, 2] - b[0, 2],
+                a[1, 0] - b[1, 0], a[1, 1] - b[1, 1], a[1, 2] - b[1, 2],
+                a[2, 0] - b[2, 0], a[2, 1] - b[2, 1], a[2, 2] - b[2, 2]);
+        }
 
         public static ArFloatVector3 operator *(ArFloatMatrix33 a, ArFloatVector3 b)
         {
