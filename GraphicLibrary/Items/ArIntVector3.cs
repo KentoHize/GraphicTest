@@ -76,6 +76,11 @@ namespace GraphicLibrary.Items
             => _x * a._x + _y * a._y + _z * a._z;
         public double GetLength()
             => Math.Sqrt(_x * _x + _y * _y + _z * _z);
+        public ArFloatVector3 Normalize()
+        {
+            double l = GetLength();
+            return new ArFloatVector3((float)(_x / l), (float)(_y / l), (float)(_z / l));
+        }
         public override string ToString()
             => $"({_x}, {_y}, {_z})";
         public bool Equals(ArIntVector3 other)

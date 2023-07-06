@@ -164,10 +164,67 @@ namespace CreateSphere
             LoadModel(lightDirection);
         }
 
-        List<ArIntVector3> ComputeShadowTriangle(List<ArIntVector3> vertices)
+        bool InTriangle(ArIntVector3 trianglePA, ArIntVector3 trianglePB, ArIntVector3 trianglePC, ArIntVector3 point)
+        {
+            //比XY
+            int minX = trianglePA[0];
+            int maxX = trianglePA[0];
+            int minY = trianglePA[1];
+            int maxY = trianglePA[1];
+            if (trianglePB[0] < minX)
+                minX = trianglePB[0];
+            if (trianglePB[0] > maxX)
+                maxX = trianglePB[0];
+            if (trianglePB[1] < minY)
+                minY = trianglePB[1];
+            if (trianglePB[1] > maxY)
+                maxY = trianglePB[1];
+            if (trianglePC[0] < minX)
+                minX = trianglePC[0];
+            if (trianglePC[0] > maxX)
+                maxX = trianglePC[0];
+            if (trianglePC[1] < minY)
+                minY = trianglePC[1];
+            if (trianglePC[1] > maxY)
+                maxY = trianglePC[1];
+            if (point.X > maxX || point.X < minX || point.Y > maxY || point.Y < minY)
+                return false;
+            //不在矩形內
+            return true;
+        }
+
+        List<ArIntVector3> ComputeShadowTriangle(List<ArIntVector3> vertices, ArFloatVector3 lightDirection)
         {
             List<ArIntVector3> result = new List<ArIntVector3>();
-            result.AddRange(Ar3DGeometry.GetTransformedEquilateralTriangle(200));
+            //result.AddRange(Ar3DGeometry.GetTransformedEquilateralTriangle(200));
+            for(int i = 0; i < vertices.Count; i+= 3)
+            {
+                for(int j = 0; j < vertices.Count; j+= 3)
+                {
+                    if (i == j)
+                        continue;
+                    if (vertices[i].Z < vertices[j].Z && vertices[i + 1].Z < vertices[j + 1].Z && vertices[i + 2].Z < vertices[j + 2].Z)
+                        continue;
+                    //如果在Triangle內，將z值算好之後填入
+                    if (InTriangle(vertices[j], vertices[j + 1], vertices[j + 2], vertices[i]) ||
+                        InTriangle(vertices[j], vertices[j + 1], vertices[j + 2], vertices[i + 1]) ||
+                        InTriangle(vertices[j], vertices[j + 1], vertices[j + 2], vertices[i + 2]))
+                    {
+                        ArFloatVector3 normal = (vertices[j] - vertices[j + 1]).CrossProduct(vertices[j] - vertices[j + 2]).Normalize();
+                        double c = vertices[j][0] * normal[0] + vertices[j][1] * normal[1] + vertices[j][2] * normal[2];
+                        //vertices[i][0] * normal[0] + vertices[i][1] * normal[1] + z * normal[2] = c;
+                        int z = (int)((c - vertices[i][0] * normal[0] - vertices[i][1] * normal[1]) / normal[2]);
+                        result.Add(new ArIntVector3(vertices[i][0], vertices[i][1], z));
+                        z = (int)((c - vertices[i + 1][0] * normal[0] - vertices[i + 1][1] * normal[1]) / normal[2]);
+                        result.Add(new ArIntVector3(vertices[i + 1][0], vertices[i + 1][1], z));
+                        z = (int)((c - vertices[i + 2][0] * normal[0] - vertices[i + 2][1] * normal[1]) / normal[2]);
+                        result.Add(new ArIntVector3(vertices[i + 2][0], vertices[i + 2][1], z));
+                    }
+                }                
+            }
+            ArFloatMatrix33 rm = GetTransformMatrixFromNormalToZ(lightDirection * -1);
+            for (int i = 0; i < result.Count; i++)
+                result[i] = (ArIntVector3)(rm * (ArFloatVector3)result[i]);
             return result;
         }
         void LoadModel(ArFloatVector3 lightDirectionVector)
@@ -194,7 +251,7 @@ namespace CreateSphere
                 verticesO[i] = (ArIntVector3)(tm2 * verticesO[i]);
 
             //計算ShadowTriangle
-            List<ArIntVector3> sht = ComputeShadowTriangle(verticesO);
+            List<ArIntVector3> sht = ComputeShadowTriangle(verticesO, directionV);
             List<int> shti = new List<int>();
             for (int i = 0; i < sht.Count; i++)
                 shti.Add(i);
@@ -217,15 +274,17 @@ namespace CreateSphere
             for (int i = 0; i < sht.Count; i++)
                 vertices2.Add(new ArTextureVertex(sht[i][0], sht[i][1], 0, 0, 0));
 
-            data = new SharpDXData
+            if(vertices2.Count > 0)
             {
-                BackgroundColor = Color.Black.ToArFloatVector4(),
-                TransformMartrix = Ar3DMachine.ProduceTransformMatrix(
-                                            new ArIntVector3(0, 0, 0),
-                                            new ArFloatVector3(0, 0, 0),
-                                            new ArFloatVector3(1, 1, 1)),
-                VerticesData = new SharpDXBundleData[]
-                    {
+                data = new SharpDXData
+                {
+                    BackgroundColor = Color.Black.ToArFloatVector4(),
+                    TransformMartrix = Ar3DMachine.ProduceTransformMatrix(
+                                           new ArIntVector3(0, 0, 0),
+                                           new ArFloatVector3(0, 0, 0),
+                                           new ArFloatVector3(1, 1, 1)),
+                    VerticesData = new SharpDXBundleData[]
+                   {
                         new SharpDXBundleData
                         {
                             PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
@@ -238,9 +297,29 @@ namespace CreateSphere
                             TextureVertices = vertices2.ToArray(),
                             Indices = shti.ToArray(),
                         },
-
-                    }
-            };
+                   }
+                };
+            }
+            else
+            {
+                data = new SharpDXData
+                {
+                    BackgroundColor = Color.Black.ToArFloatVector4(),
+                    TransformMartrix = Ar3DMachine.ProduceTransformMatrix(
+                                           new ArIntVector3(0, 0, 0),
+                                           new ArFloatVector3(0, 0, 0),
+                                           new ArFloatVector3(1, 1, 1)),
+                    VerticesData = new SharpDXBundleData[]
+                   {
+                        new SharpDXBundleData
+                        {
+                            PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
+                            TextureVertices = vertices3.ToArray(),
+                            Indices = indices.ToArray(),
+                        },                       
+                   }
+                };
+            }
             lblDirection.Text = $"Rotation:({rx},{ry},{rz})\nLight Direction:{lightDirection}";
             sde.LoadModel(data);
             sde.Render();
