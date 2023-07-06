@@ -30,6 +30,8 @@
         {
             pictureBox1 = new PictureBox();
             lblDirection = new Label();
+            lblDepth = new Label();
+            lblResult = new Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
@@ -51,11 +53,31 @@
             lblDirection.TabIndex = 1;
             lblDirection.Text = "_";
             // 
+            // lblDepth
+            // 
+            lblDepth.AutoSize = true;
+            lblDepth.Location = new Point(86, 265);
+            lblDepth.Name = "lblDepth";
+            lblDepth.Size = new Size(16, 19);
+            lblDepth.TabIndex = 2;
+            lblDepth.Text = "_";
+            // 
+            // lblResult
+            // 
+            lblResult.AutoSize = true;
+            lblResult.Location = new Point(502, 265);
+            lblResult.Name = "lblResult";
+            lblResult.Size = new Size(16, 19);
+            lblResult.TabIndex = 3;
+            lblResult.Text = "_";
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(9F, 19F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(lblResult);
+            Controls.Add(lblDepth);
             Controls.Add(lblDirection);
             Controls.Add(pictureBox1);
             Name = "MainForm";
@@ -71,5 +93,7 @@
 
         private PictureBox pictureBox1;
         private Label lblDirection;
+        private Label lblDepth;
+        private Label lblResult;
     }
 }

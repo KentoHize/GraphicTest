@@ -1,7 +1,7 @@
 ﻿using Accessibility;
 using GraphicLibrary;
 using GraphicLibrary.Items;
-
+using System.Text;
 
 namespace CreateSphere
 {
@@ -10,6 +10,7 @@ namespace CreateSphere
         SharpDXEngine sde;
         SharpDXData data;
         ArFloatVector3 lightDirection;
+        List<ArIntVector3> vertices;
         float rx = 0, ry = 0, rz = 0;
         const string textureFile = @"C:\Programs\GraphicTest\CreateSphere\Textures\AnnetteSquare.bmp";
         public MainForm()
@@ -38,10 +39,6 @@ namespace CreateSphere
                 AngleX *= -1;
             if (Normal[1] < 0)
                 AngleY *= -1;
-            //if (dotX < 0)
-            //    AngleY *= -1;
-            //if (dotY < 0)
-            //    AngleX *= -1;
             return (ArFloatMatrix33)Ar3DMachine.ProduceTransformMatrix(ArIntVector3.Zero, new ArFloatVector3(0, (float)AngleX, (float)AngleY), ArFloatVector3.One, 1);
             //return Ar3DMachine.GetRotateMatrix(new ArFloatVector3(0, (float)AngleX, (float)AngleY));
             //return Ar3DMachine.GetRotateMatrix(new ArFloatVector3((float)AngleX, 0, (float)AngleY));
@@ -90,8 +87,10 @@ namespace CreateSphere
             //sde.LoadModel(data);
             //sde.Render();
             lightDirection = new ArFloatVector3(0, -1, 1);
-            LoadModel(lightDirection);
+            vertices = new List<ArIntVector3>();
+            MainForm_KeyPress(sender, new KeyPressEventArgs(' '));
 
+            lblDepth.Left = 0;
         }
 
         private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
@@ -99,10 +98,10 @@ namespace CreateSphere
             switch (e.KeyChar)
             {
                 case 'q':
-                    lightDirection[0] -= 1f;
+                    lightDirection[2] -= 1f;
                     break;
                 case 'e':
-                    lightDirection[0] += 1f;
+                    lightDirection[2] += 1f;
                     break;
                 case 'w':
                     lightDirection[1] += 1f;
@@ -111,10 +110,10 @@ namespace CreateSphere
                     lightDirection[1] -= 1f;
                     break;
                 case 'a':
-                    lightDirection[2] -= 1f;
+                    lightDirection[0] -= 1f;
                     break;
                 case 'd':
-                    lightDirection[2] += 1f;
+                    lightDirection[0] += 1f;
                     break;
 
                 case 'u':
@@ -141,7 +140,23 @@ namespace CreateSphere
                     rz = 0;
                     lightDirection[0] = 0;
                     lightDirection[1] = 0;
-                    lightDirection[2] = 1;
+                    lightDirection[2] = 5;
+                    vertices.Clear();
+                    Random rnd = new Random();
+                    vertices.AddRange(Ar3DGeometry.GetTransformedEquilateralTriangle(200));
+                    for (int i = 0; i < 8; i++)
+                        vertices.AddRange(Ar3DGeometry.GetTransformedEquilateralTriangle(200, new ArIntVector3(rnd.Next(-400, 400), rnd.Next(-400, 400), rnd.Next(-400, 400)), null));
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < vertices.Count; i++)
+                    {
+                        if (i % 3 == 0)
+                            sb.Append($"T{i / 3}:");
+                        sb.AppendLine($"{vertices[i]}");
+
+                    }
+
+                    lblDepth.Text = sb.ToString();
+                    lblDepth.Top = ClientSize.Height - lblDepth.Height;
                     break;
                 default:
                     break;
@@ -149,18 +164,17 @@ namespace CreateSphere
             LoadModel(lightDirection);
         }
 
+        List<ArIntVector3> ComputeShadowTriangle(List<ArIntVector3> vertices)
+        {
+            List<ArIntVector3> result = new List<ArIntVector3>();
+            result.AddRange(Ar3DGeometry.GetTransformedEquilateralTriangle(200));
+            return result;
+        }
         void LoadModel(ArFloatVector3 lightDirectionVector)
         {
-            List<ArIntVector3> vertices = new List<ArIntVector3>();
-            vertices.AddRange(Ar3DGeometry.GetTransformedEquilateralTriangle(200));
-            vertices.AddRange(Ar3DGeometry.GetTransformedEquilateralTriangle(200, new ArIntVector3(400, 0, 0), null));
-            vertices.AddRange(Ar3DGeometry.GetTransformedEquilateralTriangle(200, new ArIntVector3(400, 400, 0), null));
-            vertices.AddRange(Ar3DGeometry.GetTransformedEquilateralTriangle(200, new ArIntVector3(400, -400, 0), null));
-            vertices.AddRange(Ar3DGeometry.GetTransformedEquilateralTriangle(200, new ArIntVector3(-400, -400, 0), null));
-            vertices.AddRange(Ar3DGeometry.GetTransformedEquilateralTriangle(200, new ArIntVector3(0, -400, 0), null));
-            //vertices.AddRange(Ar3DGeometry.GetTransformedEquilateralTriangle(200, new ArIntVector3(400, 0, 0), new ArFloatVector3(0.5f, 0.5f, 0)));
+            List<ArIntVector3> verticesO = new List<ArIntVector3>(vertices);
             List<int> indices = new List<int>();
-            for(int i = 0; i < vertices.Count; i++)
+            for (int i = 0; i < vertices.Count; i++)
                 indices.Add(i);
 
             ArFloatVector3 planeN = ArFloatVector3.UnitZ;
@@ -170,20 +184,38 @@ namespace CreateSphere
             ArFloatMatrix33 tm = Ar3DMachine.GetRotateMatrix(new ArFloatVector3(rx, ry, rz));
 
             for (int i = 0; i < vertices.Count; i++)
-                vertices[i] = (ArIntVector3)(tm * vertices[i]);
+                verticesO[i] = (ArIntVector3)(tm * verticesO[i]);
 
             for (int i = 0; i < vertices.Count; i++)
-                vertices3.Add(new ArTextureVertex((int)vertices[i][0], (int)vertices[i][1], (int)vertices[i][2], 1, 1));
+                vertices3.Add(new ArTextureVertex((int)verticesO[i][0], (int)verticesO[i][1], (int)verticesO[i][2], (float)i / vertices.Count, (float)i / vertices.Count));
 
             ArFloatMatrix33 tm2 = GetTransformMatrixFromNormalToZ(directionV);
             for (int i = 0; i < vertices.Count; i++)
-                vertices[i] = (ArIntVector3)(tm2 * vertices[i]);
+                verticesO[i] = (ArIntVector3)(tm2 * verticesO[i]);
+
+            //計算ShadowTriangle
+            List<ArIntVector3> sht = ComputeShadowTriangle(verticesO);
+            List<int> shti = new List<int>();
+            for (int i = 0; i < sht.Count; i++)
+                shti.Add(i);
+
+            //顯示
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < sht.Count; i++)
+            {
+                if (i % 3 == 0)
+                    sb.Append($"T{i / 3}:");
+                sb.AppendLine($"{sht[i]}");
+
+            }
+            lblResult.Text = sb.ToString();
+            lblResult.Top = ClientSize.Height - lblResult.Height;
+            lblResult.Left = ClientSize.Width - lblResult.Width;
+            lblResult.Visible = true;
 
             List<ArTextureVertex> vertices2 = new List<ArTextureVertex>();
-            for (int i = 0; i < vertices.Count; i++)
-                vertices2.Add(new ArTextureVertex(vertices[i][0], vertices[i][1], 0));
-           
-            //ArFloatMatrix44 f44 = new ArFloatMatrix44();
+            for (int i = 0; i < sht.Count; i++)
+                vertices2.Add(new ArTextureVertex(sht[i][0], sht[i][1], 0, 0, 0));
 
             data = new SharpDXData
             {
@@ -204,9 +236,9 @@ namespace CreateSphere
                         {
                             PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList,
                             TextureVertices = vertices2.ToArray(),
-                            Indices = indices.ToArray(),
+                            Indices = shti.ToArray(),
                         },
-                        
+
                     }
             };
             lblDirection.Text = $"Rotation:({rx},{ry},{rz})\nLight Direction:{lightDirection}";

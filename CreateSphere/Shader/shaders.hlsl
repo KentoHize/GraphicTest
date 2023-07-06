@@ -34,9 +34,12 @@ GSInput VSMain(int3 position : POSITION, float2 uv : TEXCOORD)
 
 float4 PSMain(GSOutput input) : SV_TARGET
 {
-    if(input.uv[0] == 1)
-        return float4(1, 0, 0, 1);        
-    return float4(1, 1, 1, 1);
+    if(input.uv.x == 0 && input.uv.y == 0)
+        return float4(0, 0, 0, 1);
+    return float4(input.uv.x, input.uv.y, 1, 1);
+    //if(input.uv[0] == 1)
+    //    return float4(1, 0, 0, 1);        
+    //return float4(1, 1, 1, 1);
     return annetteTexture.Sample(normal_sampler, input.uv);
 }
 
