@@ -81,10 +81,10 @@ namespace GraphicLibrary2.Items
 
         public double AngleBetween(ArIntVector3 a)
             => Math.Acos(DotProduct(a) / (GetLength() * a.GetLength()));
-        public ArIntVector3 Normalize()
+        public ArFloatVector3 Normalize()
         {
             double l = GetLength();
-            return new ArIntVector3((int)(_x / l), (int)(_y / l), (int)(_z / l));
+            return new ArFloatVector3((float)(_x / l), (float)(_y / l), (float)(_z / l));
         }
 
         public static float operator *(ArIntVector3 left, ArIntVector3 right)
