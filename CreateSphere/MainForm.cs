@@ -22,16 +22,29 @@ namespace CreateSphere
         {
             ArFloatVector3 XNormal = new ArFloatVector3(Normal.X, 0, Normal.Z);
             ArFloatVector3 YNormal = new ArFloatVector3(0, Normal.Y, Normal.Z);
-            float dotX = XNormal.DotProduct(Normal);
-            float dotY = YNormal.DotProduct(Normal);
-            
-            double AngleY = Math.Acos(dotX / (XNormal.GetLength() * Normal.GetLength()));
-            double AngleX = Math.Acos(dotY / (YNormal.GetLength() * Normal.GetLength()));
-            if (dotX < 0)
-                AngleY *= -1;
-            if (dotY < 0)
+            double cosX = XNormal.DotProduct(Normal) / (XNormal.GetLength() * Normal.GetLength());
+            double cosY = YNormal.DotProduct(Normal) / (YNormal.GetLength() * Normal.GetLength());
+            if (cosX > 1)
+                cosX = 1;
+            else if (cosX < -1)
+                cosX = -1;
+            if (cosY > 1)
+                cosY = 1;
+            else if (cosY < -1)
+                cosY = -1;
+            double AngleY = Math.Acos(cosX);
+            double AngleX = Math.Acos(cosY);
+            if (Normal[0] < 0)
                 AngleX *= -1;
-            return Ar3DMachine.GetRotateMatrix(new ArFloatVector3(0, (float)AngleX, (float)AngleY));
+            if (Normal[1] < 0)
+                AngleY *= -1;
+            //if (dotX < 0)
+            //    AngleY *= -1;
+            //if (dotY < 0)
+            //    AngleX *= -1;
+            return (ArFloatMatrix33)Ar3DMachine.ProduceTransformMatrix(ArIntVector3.Zero, new ArFloatVector3(0, (float)AngleX, (float)AngleY), ArFloatVector3.One, 1);
+            //return Ar3DMachine.GetRotateMatrix(new ArFloatVector3(0, (float)AngleX, (float)AngleY));
+            //return Ar3DMachine.GetRotateMatrix(new ArFloatVector3((float)AngleX, 0, (float)AngleY));
             //return Ar3DMachine.ProduceTransformMatrix(ArIntVector3.Zero, new ArFloatVector3((float)AngleX, (float)AngleY, 0), ArFloatVector3.One);
         }
 
@@ -122,6 +135,14 @@ namespace CreateSphere
                 case 'l':
                     rz += 0.1f;
                     break;
+                case ' ':
+                    rx = 0;
+                    ry = 0;
+                    rz = 0;
+                    lightDirection[0] = 0;
+                    lightDirection[1] = 0;
+                    lightDirection[2] = 1;
+                    break;
                 default:
                     break;
             }
@@ -130,15 +151,17 @@ namespace CreateSphere
 
         void LoadModel(ArFloatVector3 lightDirectionVector)
         {
-            List<ArFloatVector3> vertices = new List<ArFloatVector3>();
-
+            List<ArIntVector3> vertices = new List<ArIntVector3>();
+            vertices.AddRange(Ar3DGeometry.GetTransformedEquilateralTriangle(200));
+            vertices.AddRange(Ar3DGeometry.GetTransformedEquilateralTriangle(200, new ArIntVector3(400, 0, 0), null));
+            vertices.AddRange(Ar3DGeometry.GetTransformedEquilateralTriangle(200, new ArIntVector3(400, 400, 0), null));
+            vertices.AddRange(Ar3DGeometry.GetTransformedEquilateralTriangle(200, new ArIntVector3(400, -400, 0), null));
+            vertices.AddRange(Ar3DGeometry.GetTransformedEquilateralTriangle(200, new ArIntVector3(-400, -400, 0), null));
+            vertices.AddRange(Ar3DGeometry.GetTransformedEquilateralTriangle(200, new ArIntVector3(0, -400, 0), null));
+            //vertices.AddRange(Ar3DGeometry.GetTransformedEquilateralTriangle(200, new ArIntVector3(400, 0, 0), new ArFloatVector3(0.5f, 0.5f, 0)));
             List<int> indices = new List<int>();
-            vertices.Add(new ArFloatVector3(0, 0, 0));
-            vertices.Add(new ArFloatVector3(500, 0, 0));
-            vertices.Add(new ArFloatVector3(250, 500, 0));
-            indices.Add(0);
-            indices.Add(1);
-            indices.Add(2);
+            for(int i = 0; i < vertices.Count; i++)
+                indices.Add(i);
 
             ArFloatVector3 planeN = ArFloatVector3.UnitZ;
             ArFloatVector3 directionV = lightDirectionVector;
@@ -147,18 +170,18 @@ namespace CreateSphere
             ArFloatMatrix33 tm = Ar3DMachine.GetRotateMatrix(new ArFloatVector3(rx, ry, rz));
 
             for (int i = 0; i < vertices.Count; i++)
-                vertices[i] = tm * vertices[i];
+                vertices[i] = (ArIntVector3)(tm * vertices[i]);
 
             for (int i = 0; i < vertices.Count; i++)
                 vertices3.Add(new ArTextureVertex((int)vertices[i][0], (int)vertices[i][1], (int)vertices[i][2], 1, 1));
 
             ArFloatMatrix33 tm2 = GetTransformMatrixFromNormalToZ(directionV);
             for (int i = 0; i < vertices.Count; i++)
-                vertices[i] = tm2 * vertices[i];
+                vertices[i] = (ArIntVector3)(tm2 * vertices[i]);
 
             List<ArTextureVertex> vertices2 = new List<ArTextureVertex>();
             for (int i = 0; i < vertices.Count; i++)
-                vertices2.Add(new ArTextureVertex((int)vertices[i][0], (int)vertices[i][1], 0));
+                vertices2.Add(new ArTextureVertex(vertices[i][0], vertices[i][1], 0));
            
             //ArFloatMatrix44 f44 = new ArFloatMatrix44();
 

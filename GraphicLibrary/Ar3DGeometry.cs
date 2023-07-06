@@ -15,12 +15,31 @@ namespace GraphicLibrary
 
             return new(null, null);
 
+        }  
+
+
+
+        public static ArIntVector3[] GetTransformedEquilateralTriangle(int size, ArIntVector3? translateVector = null, ArFloatVector3? rotateVector = null)
+        {
+            ArIntVector3[] result = new ArIntVector3[3];
+            result[0] = new ArIntVector3(-size / 2, (int)(-size / (2 * Math.Sqrt(3))), 0);
+            result[1] = new ArIntVector3(size / 2, (int)(-size / (2 * Math.Sqrt(3))), 0);
+            result[2] = new ArIntVector3(0, (int)(size / Math.Sqrt(3)), 0);            
+
+            if (rotateVector != null)
+            {
+                ArFloatMatrix33 rm = Ar3DMachine.GetRotateMatrix((ArFloatVector3)rotateVector);
+                for (int i = 0; i < 3; i++)
+                    result[i] = (ArIntVector3)(rm * (ArFloatVector3)result[i]);
+            }
+
+            if (translateVector != null)
+            {
+                for (int i = 0; i < 3; i++)
+                    result[i] = new ArIntVector3(result[i][0] + ((ArIntVector3)translateVector)[0], result[i][1] + ((ArIntVector3)translateVector)[1], result[i][2] + ((ArIntVector3)translateVector)[2]);
+            }
+            return result;
         }
-        //public static (ArTextureVertex[] vertices, int[] indices) GetTextureIcosahedron(int raidus = 1)
-        //{
-
-
-        //}
 
         public static int[] GetTriangleFromPolygon(ArTextureVertex[] vertices)
         {

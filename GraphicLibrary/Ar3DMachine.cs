@@ -53,16 +53,15 @@ namespace GraphicLibrary
                 cosb * sinc,
                 cosb * cosc
             );
-            //wrong?
         }
 
-        public static ArFloatMatrix44 ProduceTransformMatrix(ArIntVector3 translateVector, ArFloatVector3 rotateVector, ArFloatVector3 scaleVector)
+        public static ArFloatMatrix44 ProduceTransformMatrix(ArIntVector3 translateVector, ArFloatVector3 rotateVector, ArFloatVector3 scaleVector, int staticScaleFactor = 1000)
         {
             ArFloatMatrix44 result = ArFloatMatrix44.One;
             //Standard Scale
-            result[0, 0] = result[0, 0] / StaticScaleFactor;
-            result[1, 1] = result[1, 1] / StaticScaleFactor;
-            result[2, 2] = result[2, 2] / StaticScaleFactor;
+            result[0, 0] = result[0, 0] / staticScaleFactor;
+            result[1, 1] = result[1, 1] / staticScaleFactor;
+            result[2, 2] = result[2, 2] / staticScaleFactor;
             ////Scale
             result[0, 0] = result[0, 0] * scaleVector[0];
             result[1, 1] = result[1, 1] * scaleVector[1];

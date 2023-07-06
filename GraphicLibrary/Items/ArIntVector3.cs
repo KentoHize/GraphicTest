@@ -86,5 +86,12 @@ namespace GraphicLibrary.Items
             => (_x, _y, _z).GetHashCode();
         public override bool Equals(object obj)
             => obj is ArIntVector3 && Equals((ArIntVector3)obj);
+
+        public static explicit operator ArIntVector3(ArFloatVector2 a)
+          => new ArIntVector3((int)a[0], (int)a[1], 0);
+        public static explicit operator ArIntVector3(ArFloatVector3 a)
+            => new ArIntVector3((int)a[0], (int)a[1], (int)a[2]);
+        public static explicit operator ArIntVector3(ArFloatVector4 a)
+            => new ArIntVector3((int)a[0], (int)a[1], (int)a[2]);
     }
 }

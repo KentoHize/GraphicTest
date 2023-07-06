@@ -225,5 +225,8 @@ namespace GraphicLibrary.Items
             sb.AppendFormat("{{{0} {1} {2} {3}}}", _41, _42, _43, _44);
             return sb.ToString();
         }
+
+        public static explicit operator ArFloatMatrix33(ArFloatMatrix44 other)
+            => new ArFloatMatrix33(other._11, other._12, other._13, other._21, other._22, other._23, other._31, other._32, other._33);
     }
 }
