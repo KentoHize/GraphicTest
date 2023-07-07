@@ -25,3 +25,34 @@ SV_DispatchThreadID
 int3 当前线程在所有线程组中的所有线程里的ID，取值范围为(0,0,0)到(gX*tX-1, gY*tY-1, gZ*tZ-1)。	假设该线程的SV_GroupID=(a, b, c)，SV_GroupThreadID=(i, j, k) 那么SV_DispatchThreadID=(a*tX+i, b*tY+j, c*tZ+k)
 SV_GroupIndex
 int 当前线程在所在线程组内的下标，取值范围为0到tX*tY*tZ-1。	假设该线程的SV_GroupThreadID=(i, j, k) 那么SV_GroupIndex=k*tX*tY+j*tX+i
+
+struct Material
+{
+    float4 DiffuseAlbedo;
+    float3 FresnelR0;
+    float Shininess;
+    int texturemapIndex
+};
+
+反照率
+折射率
+粗糙度
+Roughness
+
+As a general guideline, here are the Reflect IOR values for some common object types:
+
+water 1.33
+
+plastic 1.45
+
+glass 1.5-1.8
+
+diamond 2.4
+
+compound materials like wood, stone, concrete etc 3-6
+
+metals 20-100
+
+There are two things to note in this example; firstly, these reflections only appear around the edges of the sphere (that’s when its surface is at a grazing angle), and also that they become more visible and sharper as the smoothness of the material goes up.
+
+In the Standard shader there is no direct control over the Fresnel effect. Instead it is indirectly controlled through the smoothness of the material. Smooth surfaces will present a stronger Fresnel, totally rough surfaces will have no Fresnel.

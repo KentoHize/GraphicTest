@@ -36,6 +36,8 @@ namespace ShadowTest
             sde.SetGrahpicCardAndRenderTarget(new SharpDXInitializeSetting(
                 pictureBox1.Handle, pictureBox1.ClientSize.Width, pictureBox1.ClientSize.Height, true, 1));
 
+            
+
             //for (int i = 0; i < 8; i++)
             //    LoadTexture(i);
 

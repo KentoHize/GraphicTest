@@ -151,12 +151,10 @@ namespace GraphicLibrary2
             commandList.ResourceBarrierTransition(texture, ResourceStates.CopyDestination, ResourceStates.PixelShaderResource);
             commandList.Close();
             commandQueue.ExecuteCommandList(commandList);
-            WaitForPreviousFrame();
+            WaitForPreviousFrame(); // Can Fix
             uploadHeap.Dispose();
             TextureTable[index] = texture;
-        }
-
-       
+        }       
 
         //public void LoadTexture(int index, byte[] data, int width, int height)
         //{
@@ -198,6 +196,11 @@ namespace GraphicLibrary2
         {
             while (TextureTable.Count != 0)
                 DeleteTexture(TextureTable.First().Key);
+        }
+
+        public void LoadMaterial()
+        {
+
         }
 
         public void LoadGraphicSetting(SharpDXGraphicSetting setting)
