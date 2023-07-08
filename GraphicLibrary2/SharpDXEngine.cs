@@ -67,7 +67,9 @@ namespace GraphicLibrary2
 
         //internal Dictionary<ShaderType, ShaderFileInfo> ShaderFiles { get; set; }
         internal Dictionary<int, Resource> TextureTable { get; set; }
-        internal Dictionary<int, Resource> MaterialTable { get; set; }
+        internal Dictionary<int, ArMaterial> MaterialTable { get; set; }
+        internal Dictionary<string, ArCamera> CameraList { get; set; }
+        internal Dictionary<int, ArLight> LightList { get; set; }
         //internal Dictionary<string, DirectX12Model> ModelTable { get; set; }        
         internal Dictionary<int, Resource> InstanceFrameVariables { get; set; }
 
@@ -77,7 +79,9 @@ namespace GraphicLibrary2
             DebugInterface.Get().EnableDebugLayer();            
 #endif
             TextureTable = new Dictionary<int, Resource>();
-            MaterialTable = new Dictionary<int, Resource>();
+            MaterialTable = new Dictionary<int, ArMaterial>();
+            CameraList = new Dictionary<string, ArCamera>();
+            LightList = new Dictionary<int, ArLight>();
             InstanceFrameVariables = new Dictionary<int, Resource>();
         }
 
@@ -198,9 +202,67 @@ namespace GraphicLibrary2
                 DeleteTexture(TextureTable.First().Key);
         }
 
-        public void LoadMaterial()
+        public void LoadMaterial(int index, ArMaterial material)
         {
+            MaterialTable[index] = material;
+        }
 
+        public bool MaterialExist(int index)
+            => MaterialTable.ContainsKey(index);
+
+        public void DeleteMaterial(int index)
+        {
+            if (!MaterialTable.ContainsKey(index))
+                throw new ArgumentException(nameof(index));
+            MaterialTable.Remove(index);
+        }
+
+        public void ClearMaterial()
+        {
+            while (MaterialTable.Count != 0)
+                DeleteTexture(MaterialTable.First().Key);
+        }
+
+        public void SetCamera(string name, ArCamera camera)
+        {
+            CameraList[name] = camera;
+        }
+
+        public bool CameraExist(string name)
+            => CameraList.ContainsKey(name);
+
+        public void DeleteCamera(string name)
+        {
+            if (!CameraList.ContainsKey(name))
+                throw new ArgumentException(nameof(name));
+            CameraList.Remove(name);            
+        }
+
+        public void ClearCamera()
+        {
+            while (CameraList.Count != 0)
+                DeleteCamera(CameraList.First().Key);
+        }
+
+        public void SetLight(int index, ArLight light)
+        {
+            LightList[index] = light;
+        }
+
+        public bool LightExist(int index)
+            => LightList.ContainsKey(index);
+
+        public void DeleteLight(int index)
+        {
+            if (!LightList.ContainsKey(index))
+                throw new ArgumentException(nameof(index));
+            LightList.Remove(index);
+        }
+
+        public void ClearLight()
+        {
+            while (LightList.Count != 0)
+                DeleteLight(LightList.First().Key);
         }
 
         public void LoadGraphicSetting(SharpDXGraphicSetting setting)

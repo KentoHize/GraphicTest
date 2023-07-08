@@ -36,6 +36,8 @@ namespace ShadowTest
             sde.SetGrahpicCardAndRenderTarget(new SharpDXInitializeSetting(
                 pictureBox1.Handle, pictureBox1.ClientSize.Width, pictureBox1.ClientSize.Height, true, 1));
 
+            sde.SetCamera("MainCamera", new ArCamera(2000, 2000, 4000));
+            sde.SetLight(0, new ArLight(ArLightType.Directional, ArFloatVector3.One));
             
 
             //for (int i = 0; i < 8; i++)
