@@ -182,12 +182,17 @@ namespace GraphicLibrary2
 
         public void PrepareLoadModel()
         {
+            
+        }
+
+        public void LoadModel()
+        {
 
         }
 
         public void PrepareCreateInstance()
         {
-
+            //CreatePipleLine();
         }
 
         public void PrepareRender()

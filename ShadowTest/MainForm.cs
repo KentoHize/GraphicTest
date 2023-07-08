@@ -47,8 +47,7 @@ namespace ShadowTest
             sde.PrepareCreateInstance();
             sde.PrepareRender();
             sde.Render();
-            
-            
+
 
             timer1.Enabled = true;
         }

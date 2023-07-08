@@ -3,10 +3,12 @@ using SharpDX.DXGI;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using Device = SharpDX.Direct3D12.Device;
 using Device11 = SharpDX.Direct3D11.Device;
 using Device12 = SharpDX.Direct3D11.Device11On12;
@@ -34,6 +36,126 @@ namespace GraphicLibrary2
             bitmap.Dispose();
             return textureUploadHeap;
         }
+
+        void CreatePipleLine()
+        {
+            
+        }
+
+        //var rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout,
+        //     new RootParameter[]
+        //     {
+        //         new RootParameter(ShaderVisibility.All, new RootDescriptor(0, 0), RootParameterType.ConstantBufferView),
+                 
+        //         //new RootParameter(ShaderVisibility.All, new DescriptorRange(DescriptorRangeType.UnorderedAccessView, 1, 0)),
+        //         new RootParameter(ShaderVisibility.All, new RootDescriptor(0, 0), RootParameterType.UnorderedAccessView),
+        //         //new RootParameter(ShaderVisibility.All, new RootDescriptor(1, 0), RootParameterType.UnorderedAccessView),
+        //         new RootParameter(ShaderVisibility.All,
+        //                    new DescriptorRange(DescriptorRangeType.ShaderResourceView, 8, 0))
+        //     },
+        //     new StaticSamplerDescription[]
+        //     {
+        //            new StaticSamplerDescription(ShaderVisibility.All, 0, 0)
+        //            {
+        //                 Filter = Filter.MinimumMinMagMipPoint,
+        //                 AddressUVW = TextureAddressMode.Border,
+        //            }
+        //     });
+        ////rootSignatureDesc.Parameters[0].
+        //graphicRootSignature = device.CreateRootSignature(rootSignatureDesc.Serialize());
+        //    //graphicRootSignature = device.CreateRootSignature(new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout).Serialize());
+
+        //    InputElement[] inputElementDescs = new InputElement[]
+        //     {
+        //            new InputElement("POSITION", 0, Format.R32G32B32_SInt,0,0),
+        //            new InputElement("TEXINDEX", 0, Format.R32_UInt, 12, 0),
+        //            new InputElement("TEXCOORD", 0, Format.R32G32_Float,16,0),
+        //            new InputElement("SHADOWCOORD", 0, Format.R32G32B32_Float,24,0),
+        //     };
+
+        //RasterizerStateDescription rasterizerStateDesc = new RasterizerStateDescription()
+        //{
+        //    CullMode = setting.CullTwoFace ? CullMode.None : CullMode.Front,
+        //    FillMode = FillMode.Solid,
+        //    IsDepthClipEnabled = false,
+        //    IsFrontCounterClockwise = setting.DrawClockwise,
+        //    IsMultisampleEnabled = false,
+        //};
+
+        //GraphicsPipelineStateDescription psoDesc = new GraphicsPipelineStateDescription()
+        //{
+        //    InputLayout = new InputLayoutDescription(inputElementDescs),
+        //    RootSignature = graphicRootSignature,
+        //    VertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
+        //            ShaderFiles[ShaderType.VertexShader].File, ShaderFiles[ShaderType.VertexShader].EntryPoint, ShaderFiles[ShaderType.VertexShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug,
+        //            SharpDX.D3DCompiler.EffectFlags.None, null, FileIncludeHandler.Default)),
+        //    //SharpDX.D3DCompiler.ShaderBytecode.Compile()
+        //    PixelShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
+        //            ShaderFiles[ShaderType.PixelShader].File, ShaderFiles[ShaderType.PixelShader].EntryPoint, ShaderFiles[ShaderType.PixelShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug,
+        //            SharpDX.D3DCompiler.EffectFlags.None, null, FileIncludeHandler.Default)),
+        //    RasterizerState = rasterizerStateDesc,
+        //    BlendState = BlendStateDescription.Default(),
+        //    DepthStencilFormat = Format.D32_Float,
+        //    DepthStencilState = new DepthStencilStateDescription() { IsDepthEnabled = false, IsStencilEnabled = false },
+        //    SampleMask = int.MaxValue,
+        //    PrimitiveTopologyType = PrimitiveTopologyType.Triangle,
+        //    RenderTargetCount = 1,
+        //    Flags = PipelineStateFlags.None,
+        //    SampleDescription = new SampleDescription(1, 0),
+        //    StreamOutput = new StreamOutputDescription()
+        //};
+        //psoDesc.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
+        //    graphicPLState = device.CreateGraphicsPipelineState(psoDesc);
+
+        //    GraphicsPipelineStateDescription gpsDesc = new GraphicsPipelineStateDescription
+        //    {
+        //        InputLayout = new InputLayoutDescription(inputElementDescs),
+        //        RootSignature = graphicRootSignature,
+        //        VertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
+        //                ShaderFiles[ShaderType.VertexShader].File, ShaderFiles[ShaderType.VertexShader].EntryPoint, ShaderFiles[ShaderType.VertexShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug,
+        //                SharpDX.D3DCompiler.EffectFlags.None, null, FileIncludeHandler.Default)),
+        //        //SharpDX.D3DCompiler.ShaderBytecode.Compile()
+        //        PixelShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
+        //                ShaderFiles[ShaderType.PixelShader].File, ShaderFiles[ShaderType.PixelShader].EntryPoint, ShaderFiles[ShaderType.PixelShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug,
+        //                SharpDX.D3DCompiler.EffectFlags.None, null, FileIncludeHandler.Default)),
+        //        RasterizerState = rasterizerStateDesc,
+        //        BlendState = BlendStateDescription.Default(),
+        //        DepthStencilFormat = Format.D32_Float,
+        //        DepthStencilState = new DepthStencilStateDescription() { IsDepthEnabled = false, IsStencilEnabled = false },
+        //        SampleMask = int.MaxValue,
+        //        PrimitiveTopologyType = PrimitiveTopologyType.Point,
+        //        RenderTargetCount = 1,
+        //        Flags = PipelineStateFlags.None,
+        //        SampleDescription = new SampleDescription(1, 0),
+        //        StreamOutput = new StreamOutputDescription()
+        //    };
+        //gpsDesc.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
+        //    graphicPLStatePoint = device.CreateGraphicsPipelineState(gpsDesc);
+
+        //    GraphicsPipelineStateDescription gpsDesc3 = new GraphicsPipelineStateDescription
+        //    {
+        //        InputLayout = new InputLayoutDescription(inputElementDescs),
+        //        RootSignature = graphicRootSignature,
+        //        VertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
+        //                ShaderFiles[ShaderType.VertexShader].File, ShaderFiles[ShaderType.VertexShader].EntryPoint, ShaderFiles[ShaderType.VertexShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug,
+        //                SharpDX.D3DCompiler.EffectFlags.None, null, FileIncludeHandler.Default)),
+        //        //SharpDX.D3DCompiler.ShaderBytecode.Compile()
+        //        PixelShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
+        //                ShaderFiles[ShaderType.PixelShader].File, ShaderFiles[ShaderType.PixelShader].EntryPoint, ShaderFiles[ShaderType.PixelShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug,
+        //                SharpDX.D3DCompiler.EffectFlags.None, null, FileIncludeHandler.Default)),
+        //        RasterizerState = rasterizerStateDesc,
+        //        BlendState = BlendStateDescription.Default(),
+        //        DepthStencilFormat = Format.D32_Float,
+        //        DepthStencilState = new DepthStencilStateDescription() { IsDepthEnabled = false, IsStencilEnabled = false },
+        //        SampleMask = int.MaxValue,
+        //        PrimitiveTopologyType = PrimitiveTopologyType.Line,
+        //        RenderTargetCount = 1,
+        //        Flags = PipelineStateFlags.None,
+        //        SampleDescription = new SampleDescription(1, 0),
+        //        StreamOutput = new StreamOutputDescription()
+        //    };
+        //gpsDesc3.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
+        //    graphicPLStateLine = device.CreateGraphicsPipelineState(gpsDesc3);
 
         void WaitForPreviousFrame()
         {
