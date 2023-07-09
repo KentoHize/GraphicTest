@@ -15,6 +15,7 @@ using DeviceContext = SharpDX.Direct3D11.DeviceContext;
 using Factory4 = SharpDX.DXGI.Factory4;
 using InfoQueue = SharpDX.Direct3D12.InfoQueue;
 using Resource = SharpDX.Direct3D12.Resource;
+using System.Drawing.Drawing2D;
 
 namespace ShaderParameterManager
 {
@@ -37,7 +38,7 @@ namespace ShaderParameterManager
         int rtvDescriptorSize;
         DescriptorHeap? unorderedAccessViewHeap;
         int csuDescriptorSize;
-
+        
         int frameIndex;
         
 
@@ -52,9 +53,13 @@ namespace ShaderParameterManager
         CommandAllocator? commandAllocator, commandAllocator2;
         RootSignature? computeRS, grahpicRS;
 
+        PipelineState graphicPLState, graphicPLStatePoint, graphicPLStateLine, computePLState;
+
         AutoResetEvent? fenceEvent;
         Fence? fence;
         int fenceValue;
+
+        public SharpDXGraphicSetting GraphicSetting { get; protected set; }
 
         IntPtr ptr;
 
@@ -204,7 +209,8 @@ namespace ShaderParameterManager
 
         public void SetGraphicSetting(SharpDXGraphicSetting setting)
         {
-
+            GraphicSetting = setting;
+            //檢查先做
         }
     }
 }

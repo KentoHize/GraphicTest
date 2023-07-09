@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ShaderParameterManager": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    }
+  }
+}

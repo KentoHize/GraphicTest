@@ -1,4 +1,5 @@
-﻿using SharpDX.Direct3D12;
+﻿using GraphicLibrary2;
+using SharpDX.Direct3D12;
 using SharpDX.DXGI;
 using System;
 using System.Collections.Generic;
@@ -40,103 +41,75 @@ namespace ShaderParameterManager
         void CreatePipleLine()
         {
             HLSLShaderRPM rpm = new HLSLShaderRPM(device);
-            rpm.SetParameter("a", TextureTable, RootParameterType.ShaderResourceView);
-            rpm.SetStaticSampler("normal_sampler", new StaticSamplerDescription { ShaderVisibility = ShaderVisibility.All, 
-                ShaderRegister = 0, RegisterSpace = 0, Filter = Filter.MinimumMinMagMipPoint, AddressUVW = TextureAddressMode.Border });
-            
-            //var rsd = rpm.GetRootSignatureDescription();
-            rpm.CreateRootParameterShaderFile(Path.Combine(ShaderFolderLocation, "Param.hlsl"));
+            rpm.SetParameter("textures", TextureTable, ParameterType.ShaderResource, SpecificType.Texture2D);
+            rpm.SetStaticSampler("normal_sampler", new StaticSamplerDescription
+            {
+                ShaderVisibility = ShaderVisibility.All,
+                ShaderRegister = 0,
+                RegisterSpace = 0,
+                Filter = Filter.MinimumMinMagMipPoint,
+                AddressUVW = TextureAddressMode.Border
+            });
 
+            rpm.CreateRootParameterShaderFile(Path.Combine(ShaderFolderLocation, "Param.hlsl"));
             grahpicRS = device.CreateRootSignature(rpm.GetRootSignatureDescription().Serialize());
+
             InputElement[] inputElementDescs = new InputElement[]
             {
-                new InputElement("INDEX", 0, Format.R32_UInt, 0, 0)
+                new InputElement("INDEX", 0, Format.R32_SInt, 0, 0)
             };
+            
+            RasterizerStateDescription rasterizerStateDesc = new RasterizerStateDescription()
+            {
+                CullMode = GraphicSetting.CullTwoFace ? CullMode.None : CullMode.Front,
+                FillMode = (SharpDX.Direct3D12.FillMode)GraphicSetting.FillMode,
+                IsDepthClipEnabled = false,
+                IsFrontCounterClockwise = GraphicSetting.DrawClockwise,
+                IsMultisampleEnabled = GraphicSetting.MultisampleEnabled,
+            };
+
+            BlendStateDescription blendStateDesc = new BlendStateDescription
+            {
+                AlphaToCoverageEnable = false,
+                IndependentBlendEnable = false
+            };
+            blendStateDesc.RenderTarget[0].IsBlendEnabled = GraphicSetting.IsBlendEnabled;
+            blendStateDesc.RenderTarget[0].SourceBlend = BlendOption.SourceAlpha;
+            blendStateDesc.RenderTarget[0].DestinationBlend = BlendOption.InverseSourceAlpha;
+            blendStateDesc.RenderTarget[0].BlendOperation = BlendOperation.Add;
+            blendStateDesc.RenderTarget[0].SourceAlphaBlend = BlendOption.SourceAlpha;
+            blendStateDesc.RenderTarget[0].DestinationAlphaBlend = BlendOption.DestinationAlpha;
+            blendStateDesc.RenderTarget[0].AlphaBlendOperation = BlendOperation.Add;
+            blendStateDesc.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.All;
+
+            GraphicsPipelineStateDescription psoDesc = new GraphicsPipelineStateDescription
+            {
+                InputLayout = new InputLayoutDescription(inputElementDescs),
+                RootSignature = grahpicRS,
+                VertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(Path.Combine(ShaderFolderLocation, "Shader.hlsl"), "VS", "vs_5_1",
+                    SharpDX.D3DCompiler.ShaderFlags.Debug, SharpDX.D3DCompiler.EffectFlags.None, null, FileIncludeHandler.Default)),
+                PixelShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(Path.Combine(ShaderFolderLocation, "Shader.hlsl"), "PS", "ps_5_1",
+                    SharpDX.D3DCompiler.ShaderFlags.Debug, SharpDX.D3DCompiler.EffectFlags.None, null, FileIncludeHandler.Default)),
+                RasterizerState = rasterizerStateDesc,
+                BlendState = blendStateDesc,
+                DepthStencilFormat = Format.D32_Float,
+                DepthStencilState = new DepthStencilStateDescription() { IsDepthEnabled = false, IsStencilEnabled = false },
+                SampleMask = int.MaxValue,
+                PrimitiveTopologyType = PrimitiveTopologyType.Triangle,
+                RenderTargetCount = 1,
+                Flags = PipelineStateFlags.None,
+                SampleDescription = new SampleDescription(1, 0),
+                StreamOutput = new StreamOutputDescription()
+            };
+            psoDesc.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
+            graphicPLState = device.CreateGraphicsPipelineState(psoDesc);
+
+            psoDesc.PrimitiveTopologyType = PrimitiveTopologyType.Point;
+            graphicPLStatePoint = device.CreateGraphicsPipelineState(psoDesc);
+
+            psoDesc.PrimitiveTopologyType = PrimitiveTopologyType.Line;
+            graphicPLStateLine = device.CreateGraphicsPipelineState(psoDesc);
         }
-
-        RasterizerStateDescription rasterizerStateDesc = new RasterizerStateDescription()
-        {
-            CullMode = setting.CullTwoFace ? CullMode.None : CullMode.Front,
-            FillMode = FillMode.Solid,
-            IsDepthClipEnabled = false,
-            IsFrontCounterClockwise = setting.DrawClockwise,
-            IsMultisampleEnabled = false,
-        };
-
-        //GraphicsPipelineStateDescription psoDesc = new GraphicsPipelineStateDescription()
-        //{
-        //    InputLayout = new InputLayoutDescription(inputElementDescs),
-        //    RootSignature = graphicRootSignature,
-        //    VertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
-        //            ShaderFiles[ShaderType.VertexShader].File, ShaderFiles[ShaderType.VertexShader].EntryPoint, ShaderFiles[ShaderType.VertexShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug,
-        //            SharpDX.D3DCompiler.EffectFlags.None, null, FileIncludeHandler.Default)),
-        //    //SharpDX.D3DCompiler.ShaderBytecode.Compile()
-        //    PixelShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
-        //            ShaderFiles[ShaderType.PixelShader].File, ShaderFiles[ShaderType.PixelShader].EntryPoint, ShaderFiles[ShaderType.PixelShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug,
-        //            SharpDX.D3DCompiler.EffectFlags.None, null, FileIncludeHandler.Default)),
-        //    RasterizerState = rasterizerStateDesc,
-        //    BlendState = BlendStateDescription.Default(),
-        //    DepthStencilFormat = Format.D32_Float,
-        //    DepthStencilState = new DepthStencilStateDescription() { IsDepthEnabled = false, IsStencilEnabled = false },
-        //    SampleMask = int.MaxValue,
-        //    PrimitiveTopologyType = PrimitiveTopologyType.Triangle,
-        //    RenderTargetCount = 1,
-        //    Flags = PipelineStateFlags.None,
-        //    SampleDescription = new SampleDescription(1, 0),
-        //    StreamOutput = new StreamOutputDescription()
-        //};
-        //psoDesc.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
-        //    graphicPLState = device.CreateGraphicsPipelineState(psoDesc);
-
-        //    GraphicsPipelineStateDescription gpsDesc = new GraphicsPipelineStateDescription
-        //    {
-        //        InputLayout = new InputLayoutDescription(inputElementDescs),
-        //        RootSignature = graphicRootSignature,
-        //        VertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
-        //                ShaderFiles[ShaderType.VertexShader].File, ShaderFiles[ShaderType.VertexShader].EntryPoint, ShaderFiles[ShaderType.VertexShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug,
-        //                SharpDX.D3DCompiler.EffectFlags.None, null, FileIncludeHandler.Default)),
-        //        //SharpDX.D3DCompiler.ShaderBytecode.Compile()
-        //        PixelShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
-        //                ShaderFiles[ShaderType.PixelShader].File, ShaderFiles[ShaderType.PixelShader].EntryPoint, ShaderFiles[ShaderType.PixelShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug,
-        //                SharpDX.D3DCompiler.EffectFlags.None, null, FileIncludeHandler.Default)),
-        //        RasterizerState = rasterizerStateDesc,
-        //        BlendState = BlendStateDescription.Default(),
-        //        DepthStencilFormat = Format.D32_Float,
-        //        DepthStencilState = new DepthStencilStateDescription() { IsDepthEnabled = false, IsStencilEnabled = false },
-        //        SampleMask = int.MaxValue,
-        //        PrimitiveTopologyType = PrimitiveTopologyType.Point,
-        //        RenderTargetCount = 1,
-        //        Flags = PipelineStateFlags.None,
-        //        SampleDescription = new SampleDescription(1, 0),
-        //        StreamOutput = new StreamOutputDescription()
-        //    };
-        //gpsDesc.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
-        //    graphicPLStatePoint = device.CreateGraphicsPipelineState(gpsDesc);
-
-        //    GraphicsPipelineStateDescription gpsDesc3 = new GraphicsPipelineStateDescription
-        //    {
-        //        InputLayout = new InputLayoutDescription(inputElementDescs),
-        //        RootSignature = graphicRootSignature,
-        //        VertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
-        //                ShaderFiles[ShaderType.VertexShader].File, ShaderFiles[ShaderType.VertexShader].EntryPoint, ShaderFiles[ShaderType.VertexShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug,
-        //                SharpDX.D3DCompiler.EffectFlags.None, null, FileIncludeHandler.Default)),
-        //        //SharpDX.D3DCompiler.ShaderBytecode.Compile()
-        //        PixelShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile(
-        //                ShaderFiles[ShaderType.PixelShader].File, ShaderFiles[ShaderType.PixelShader].EntryPoint, ShaderFiles[ShaderType.PixelShader].Profile, SharpDX.D3DCompiler.ShaderFlags.Debug,
-        //                SharpDX.D3DCompiler.EffectFlags.None, null, FileIncludeHandler.Default)),
-        //        RasterizerState = rasterizerStateDesc,
-        //        BlendState = BlendStateDescription.Default(),
-        //        DepthStencilFormat = Format.D32_Float,
-        //        DepthStencilState = new DepthStencilStateDescription() { IsDepthEnabled = false, IsStencilEnabled = false },
-        //        SampleMask = int.MaxValue,
-        //        PrimitiveTopologyType = PrimitiveTopologyType.Line,
-        //        RenderTargetCount = 1,
-        //        Flags = PipelineStateFlags.None,
-        //        SampleDescription = new SampleDescription(1, 0),
-        //        StreamOutput = new StreamOutputDescription()
-        //    };
-        //gpsDesc3.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
-        //    graphicPLStateLine = device.CreateGraphicsPipelineState(gpsDesc3);
 
         void WaitForPreviousFrame()
         {

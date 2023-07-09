@@ -1,4 +1,4 @@
-﻿
+﻿using GraphicLibrary2;
 using GraphicLibrary2.Items;
 using System;
 using System.Collections.Generic;
@@ -35,7 +35,7 @@ namespace ShaderParameterManager
         {
             sde.SetGrahpicCardAndRenderTarget(new SharpDXInitializeSetting(
                 pictureBox1.Handle, pictureBox1.ClientSize.Width, pictureBox1.ClientSize.Height, true, 1));
-            sde.SetGraphicSetting();
+            sde.SetGraphicSetting(new SharpDXGraphicSetting());
             sde.LoadTextureFromBitmapFile(0, Annette);
 
             sde.SetCamera("MainCamera", new ArCamera(2000, 2000, 4000));

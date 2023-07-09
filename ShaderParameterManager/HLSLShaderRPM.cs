@@ -5,8 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
-using Accessibility;
-using System.Security.Cryptography;
+
 //using SharpDX;
 
 namespace ShaderParameterManager
@@ -19,7 +18,7 @@ namespace ShaderParameterManager
         RootSignatureFlags _RootSignatureFlags;
         int samplerCount;
 
-        public HLSLShaderRPM(Device device, RootSignatureFlags rootSignatureFlags = RootSignatureFlags.None)
+        public HLSLShaderRPM(Device device, RootSignatureFlags rootSignatureFlags = RootSignatureFlags.AllowInputAssemblerInputLayout)
         {
             _Device = device;
             _RootSignatureFlags = rootSignatureFlags;
@@ -28,17 +27,17 @@ namespace ShaderParameterManager
         }
 
         //一個用符 二個用Heap //泛用
-        public void SetParameter<T>(T obj, RootParameterType rpt)
+        public void SetParameter<T>(T obj, ParameterType rpt)
         {
             //rpt = RootParameterType.
         }
 
-        public void SetParameter<T>(T[] objs, RootParameterType rpt)
+        public void SetParameter<T>(T[] objs, ParameterType rpt)
         {
 
         }
 
-        public void SetParameter<TKey, TValue>(string name, IDictionary<TKey, TValue> dics, RootParameterType rpt, bool load = true, ShaderVisibility visibility = ShaderVisibility.All)
+        public void SetParameter<TKey, TValue>(string name, IDictionary<TKey, TValue> dics, ParameterType rpt, SpecificType specificType = SpecificType.NotSet, bool load = true, ShaderVisibility visibility = ShaderVisibility.All)
         {
             _HLSLParameters.Add(new HLSLParameterInfo
             {
@@ -46,6 +45,7 @@ namespace ShaderParameterManager
                 Count = dics.Count,
                 RootParameterType = rpt,
                 Type = typeof(TValue),
+                SpecificType = specificType,
                 Visibility = visibility
             });
         }
@@ -76,17 +76,17 @@ namespace ShaderParameterManager
             {
                 switch (_HLSLParameters[i].RootParameterType)
                 {
-                    case RootParameterType.ConstantBufferView:
+                    case ParameterType.ConstantBuffer:
                         rsd.Parameters[i] = new RootParameter(_HLSLParameters[i].Visibility, new DescriptorRange[] {
                             new DescriptorRange(DescriptorRangeType.ConstantBufferView, _HLSLParameters[i].Count, bCount, 0, 0) });
                         bCount += _HLSLParameters[i].Count;
                         break;
-                    case RootParameterType.ShaderResourceView:
+                    case ParameterType.ShaderResource:
                         rsd.Parameters[i] = new RootParameter(_HLSLParameters[i].Visibility, new DescriptorRange[] {
                             new DescriptorRange(DescriptorRangeType.ShaderResourceView, _HLSLParameters[i].Count, tCount, 0, 0) });
                         tCount += _HLSLParameters[i].Count;
                         break;
-                    case RootParameterType.UnorderedAccessView:
+                    case ParameterType.UnorderedAccess:
                         rsd.Parameters[i] = new RootParameter(_HLSLParameters[i].Visibility, new DescriptorRange[] {
                             new DescriptorRange(DescriptorRangeType.UnorderedAccessView, _HLSLParameters[i].Count, uCount, 0, 0) });
                         uCount += _HLSLParameters[i].Count;
@@ -104,12 +104,8 @@ namespace ShaderParameterManager
             }
 
             return rsd;
-        }
-        
-        //public Stream WriteFile(string file, string s)
-        //{
-
-        //}
+        }        
+      
         public void CreateRootParameterShaderFile(string file)
         {
             using (StreamWriter sw = new StreamWriter(file))
@@ -121,53 +117,61 @@ namespace ShaderParameterManager
 
         public string GetRootParameterHLSL()
         {
-            int bCount = 0, tCount = 0, uCount = 0, i;
+            int i;
+            int countIndex;
+            int[] registerCount = new int[3];
             StringBuilder sb = new StringBuilder();
             string types1 = "", types2 = "";
             for (i = 0; i < _HLSLParameters.Count; i++)
             {
                 switch (_HLSLParameters[i].RootParameterType)
                 {
-                    case RootParameterType.ConstantBufferView:
+                    case ParameterType.ConstantBuffer:
+                        countIndex = 0;
                         types1 = "b";
                         types2 = "ConstantBuffer";
                         break;
-                    case RootParameterType.ShaderResourceView:
+                    case ParameterType.ShaderResource:
+                        countIndex = 1;
                         types1 = "t";
                         types2 = "StructuredBuffer";
                         break;
-                    case RootParameterType.UnorderedAccessView:
+                    case ParameterType.UnorderedAccess:
+                        countIndex = 2;
                         types1 = "u";
                         types2 = "RWStructuredBuffer";
                         break;
                     default:
                         throw new NotImplementedException();
                 }
-                sb.AppendFormat("struct {0}{1}\n", types1, bCount);
-                sb.AppendLine("{");
 
-                if (_HLSLParameters[i].Type == typeof(Resource))
+                if (_HLSLParameters[i].SpecificType != SpecificType.NotSet)
                 {
-                    sb.
+                    sb.AppendLine($"{_HLSLParameters[i].SpecificType} {_HLSLParameters[i].Name} : register({types1}{registerCount[countIndex]});");
                 }
-
-                PropertyInfo[] pis = _HLSLParameters[i].Type.GetProperties();
-                foreach (PropertyInfo pi in pis)
-                {
-                    sb.AppendFormat("\t{0} {1};\n", pi.PropertyType.Name.ToString(), pi.Name);
-                }
-                sb.AppendLine("}");
-                if (_HLSLParameters[i].Count == 1)
-                    sb.AppendFormat("{0}<{1}{2}> {3} : register({4}{5});", types2, types1, bCount, _HLSLParameters[i].Name, types1, bCount);
                 else
-                    sb.AppendFormat("{0}<{1}{2}> {3}[{4} : register({5}{6});", types2, types1, bCount, _HLSLParameters[i].Name, _HLSLParameters[i].Count, types1, bCount);
-                bCount += _HLSLParameters[i].Count;
+                {
+                    sb.AppendLine($"struct {types1}{registerCount[countIndex]}");
+                    sb.AppendLine("{");
+
+                    PropertyInfo[] pis = _HLSLParameters[i].Type.GetProperties();
+                    foreach (PropertyInfo pi in pis)
+                    {
+                        sb.AppendLine($"\t{pi.PropertyType.Name} {pi.Name};");
+                    }
+                    sb.AppendLine("};");
+                    if (_HLSLParameters[i].Count == 1)
+                        sb.AppendLine($"{types2}<{types1}{registerCount[countIndex]}> {_HLSLParameters[i].Name} : register({types1}{registerCount[countIndex]});");
+                    else
+                        sb.AppendLine($"{types2}<{types1}{registerCount[countIndex]}> {_HLSLParameters[i].Name}[{_HLSLParameters[i].Count}] : register({types1}{registerCount[countIndex]});");
+                }
+                registerCount[countIndex] += _HLSLParameters[i].Count;
             }
 
             i = 0;
             foreach (KeyValuePair<string, StaticSamplerDescription> kvp in _Samplers)
             {
-                //rsd.StaticSamplers[i] = kvp.Value;
+                sb.AppendLine($"SamplerState {kvp.Key} : register(s{i});");
                 i++;
             }
 
@@ -175,15 +179,11 @@ namespace ShaderParameterManager
         }
 
     }
-    public enum RootParameterType
+    public enum ParameterType
     {
         Constant32,
-        //    //ShaderResourceViewDT,
-        ShaderResourceView,
-        //   // ConstantBufferViewDT,
-        ConstantBufferView,
-        //    //UnorderedAccessViewDT,
-        UnorderedAccessView,
-        //    Sampler
+        ShaderResource,
+        ConstantBuffer,
+        UnorderedAccess,
     }
 }

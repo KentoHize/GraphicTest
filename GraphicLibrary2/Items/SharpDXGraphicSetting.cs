@@ -4,21 +4,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace GraphicLibrary2
+namespace GraphicLibrary2.Items
 {
     public class SharpDXGraphicSetting
     {
-        
+        public bool CullTwoFace { get; set; }
+        public FillMode FillMode { get; set; }
+        public bool DrawClockwise { get; set; }
+        public bool MultisampleEnabled { get; set; }
+        public bool IsBlendEnabled { get; set; }
+
+        public SharpDXGraphicSetting(bool cullTwoFace = false, FillMode fillMode = FillMode.Solid, 
+            bool drawClockwise = false, bool multisampleEnabled = false, bool isBlendEnabled = true)
+        {
+            CullTwoFace = cullTwoFace;
+            FillMode = fillMode;
+            DrawClockwise = drawClockwise;
+            MultisampleEnabled = multisampleEnabled;
+            IsBlendEnabled = isBlendEnabled;
+        }
     }
 
-    //BufferCount = 2,                    
-    //                ModeDescription = new ModeDescription((int) setting.Viewport.Width, (int) setting.Viewport.Height,
-    //                    new Rational(60, 1), Format.R8G8B8A8_UNorm),
-    //                Usage = Usage.RenderTargetOutput,
-    //                SwapEffect = setting.SwapEffect,
-    //                OutputHandle = setting.Handle,
-    //                SampleDescription = new SampleDescription(1, 0),
-    //                //Flags = SwapChainFlags.
-    //                IsWindowed = true
+    public enum FillMode
+    {
+        Wireframe = 2,
+        Solid = 3
+    }
+
 }
