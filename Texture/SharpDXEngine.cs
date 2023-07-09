@@ -178,7 +178,7 @@ namespace GraphicLibrary
                             OffsetInDescriptorsFromTableStart = ConstantBufferViewCount,
                             DescriptorCount = ShaderResourceViewCount
                         }),
-
+                    //new RootParameter(ShaderVisibility.All, RootParameterType.)
             },
             new StaticSamplerDescription[]
             {

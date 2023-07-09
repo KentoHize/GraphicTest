@@ -6,6 +6,8 @@ using SharpDX.DXGI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Reflection;
 using System.Resources;
@@ -185,7 +187,7 @@ namespace GraphicLibrary2
             
         }
 
-        public void LoadModel()
+        public void LoadModel(string name)
         {
 
         }
@@ -193,6 +195,7 @@ namespace GraphicLibrary2
         public void PrepareCreateInstance()
         {
             //CreatePipleLine();
+            
         }
 
         public void PrepareRender()
@@ -202,7 +205,30 @@ namespace GraphicLibrary2
 
         public void Render(string CameraName = null)
         {
+            //commandAllocator.Reset();
+            //commandList.Reset(commandAllocator, graphicPLState);
+            //commandList.SetGraphicsRootSignature(graphicRootSignature);
 
+            //commandList.SetViewport(viewport);
+            //commandList.SetScissorRectangles(new SharpDX.Mathematics.Interop.RawRectangle(0, 0, (int)viewport.Width, (int)viewport.Height));
+
+            //CpuDescriptorHandle rtvHandle = renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
+            //rtvHandle += frameIndex * rtvDescriptorSize;
+            //commandList.SetRenderTargets(rtvHandle, null);
+
+            //commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
+            //commandList.ClearRenderTargetView(rtvHandle, new Color4(backgroundColor.X, backgroundColor.Y, backgroundColor.Z, backgroundColor.W), 0, null);
+            //commandList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
+            //for (int i = 0; i < bundles.Length; i++)
+            //{
+            //    commandList.ExecuteBundle(bundles[i]);
+            //}
+            //commandList.ResourceBarrierTransition(renderTargets[frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
+            //commandList.CopyResource(debugGetBuffer, debug2Buffer);
+            //commandList.Close();
+            //commandQueue.ExecuteCommandList(commandList);
+
+            //swapChain.Present(1, 0);
         }
 
         public void LoadGraphicSetting(SharpDXGraphicSetting setting)
@@ -252,7 +278,6 @@ namespace GraphicLibrary2
 
             //device.CreateUnorderedAccessView(tempResource, null, uavdesc, unorderedAccessViewHeap.CPUDescriptorHandleForHeapStart);
         }
-
 
         public void UploadComputeData<T>(T[] data) where T : struct
         {
