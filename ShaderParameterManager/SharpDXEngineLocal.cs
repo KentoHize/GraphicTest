@@ -39,48 +39,29 @@ namespace ShaderParameterManager
 
         void CreatePipleLine()
         {
+            HLSLShaderRPM rpm = new HLSLShaderRPM(device);
+            rpm.SetParameter("a", TextureTable, RootParameterType.ShaderResourceView);
+            rpm.SetStaticSampler("normal_sampler", new StaticSamplerDescription { ShaderVisibility = ShaderVisibility.All, 
+                ShaderRegister = 0, RegisterSpace = 0, Filter = Filter.MinimumMinMagMipPoint, AddressUVW = TextureAddressMode.Border });
             
+            //var rsd = rpm.GetRootSignatureDescription();
+            rpm.CreateRootParameterShaderFile(Path.Combine(ShaderFolderLocation, "Param.hlsl"));
+
+            grahpicRS = device.CreateRootSignature(rpm.GetRootSignatureDescription().Serialize());
+            InputElement[] inputElementDescs = new InputElement[]
+            {
+                new InputElement("INDEX", 0, Format.R32_UInt, 0, 0)
+            };
         }
 
-        //var rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout,
-        //     new RootParameter[]
-        //     {
-        //         new RootParameter(ShaderVisibility.All, new RootDescriptor(0, 0), RootParameterType.ConstantBufferView),
-                 
-        //         //new RootParameter(ShaderVisibility.All, new DescriptorRange(DescriptorRangeType.UnorderedAccessView, 1, 0)),
-        //         new RootParameter(ShaderVisibility.All, new RootDescriptor(0, 0), RootParameterType.UnorderedAccessView),
-        //         //new RootParameter(ShaderVisibility.All, new RootDescriptor(1, 0), RootParameterType.UnorderedAccessView),
-        //         new RootParameter(ShaderVisibility.All,
-        //                    new DescriptorRange(DescriptorRangeType.ShaderResourceView, 8, 0))
-        //     },
-        //     new StaticSamplerDescription[]
-        //     {
-        //            new StaticSamplerDescription(ShaderVisibility.All, 0, 0)
-        //            {
-        //                 Filter = Filter.MinimumMinMagMipPoint,
-        //                 AddressUVW = TextureAddressMode.Border,
-        //            }
-        //     });
-        ////rootSignatureDesc.Parameters[0].
-        //graphicRootSignature = device.CreateRootSignature(rootSignatureDesc.Serialize());
-        //    //graphicRootSignature = device.CreateRootSignature(new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout).Serialize());
-
-        //    InputElement[] inputElementDescs = new InputElement[]
-        //     {
-        //            new InputElement("POSITION", 0, Format.R32G32B32_SInt,0,0),
-        //            new InputElement("TEXINDEX", 0, Format.R32_UInt, 12, 0),
-        //            new InputElement("TEXCOORD", 0, Format.R32G32_Float,16,0),
-        //            new InputElement("SHADOWCOORD", 0, Format.R32G32B32_Float,24,0),
-        //     };
-
-        //RasterizerStateDescription rasterizerStateDesc = new RasterizerStateDescription()
-        //{
-        //    CullMode = setting.CullTwoFace ? CullMode.None : CullMode.Front,
-        //    FillMode = FillMode.Solid,
-        //    IsDepthClipEnabled = false,
-        //    IsFrontCounterClockwise = setting.DrawClockwise,
-        //    IsMultisampleEnabled = false,
-        //};
+        RasterizerStateDescription rasterizerStateDesc = new RasterizerStateDescription()
+        {
+            CullMode = setting.CullTwoFace ? CullMode.None : CullMode.Front,
+            FillMode = FillMode.Solid,
+            IsDepthClipEnabled = false,
+            IsFrontCounterClockwise = setting.DrawClockwise,
+            IsMultisampleEnabled = false,
+        };
 
         //GraphicsPipelineStateDescription psoDesc = new GraphicsPipelineStateDescription()
         //{

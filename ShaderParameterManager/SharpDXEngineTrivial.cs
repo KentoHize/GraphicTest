@@ -101,10 +101,7 @@ namespace ShaderParameterManager
            => Close();
 
         public void Close()
-        {
-            //var dd = device.QueryInterface<DebugDevice>();
-            //dd.ReportLiveDeviceObjects(ReportingLevel.Detail);
-            ////dd.
+        {          
 
             PLStateNormal?.Dispose();
             PLStateCompute?.Dispose();

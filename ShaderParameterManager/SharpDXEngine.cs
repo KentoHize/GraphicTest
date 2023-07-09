@@ -21,6 +21,8 @@ namespace ShaderParameterManager
 
     public partial class SharpDXEngine : IDisposable
     {
+        const string ShaderFolderLocation = "C:\\Programs\\GraphicTest\\ShaderParameterManager\\Shader\\";
+
         public int BufferCount { get; protected set; }
 
         Device? device;
@@ -37,6 +39,7 @@ namespace ShaderParameterManager
         int csuDescriptorSize;
 
         int frameIndex;
+        
 
         Resource[]? renderTargets;
         Resource? tempResource;
@@ -47,7 +50,7 @@ namespace ShaderParameterManager
         GraphicsCommandList? commandList, commandList2;
         GraphicsCommandList[]? bundles;
         CommandAllocator? commandAllocator, commandAllocator2;
-        RootSignature? computeRS;
+        RootSignature? computeRS, grahpicRS;
 
         AutoResetEvent? fenceEvent;
         Fence? fence;
@@ -162,7 +165,7 @@ namespace ShaderParameterManager
 
         public void PrepareCreateInstance()
         {
-            //CreatePipleLine();
+            CreatePipleLine();
 
         }
 
@@ -199,7 +202,7 @@ namespace ShaderParameterManager
             //swapChain.Present(1, 0);
         }
 
-        public void LoadGraphicSetting(SharpDXGraphicSetting setting)
+        public void SetGraphicSetting(SharpDXGraphicSetting setting)
         {
 
         }

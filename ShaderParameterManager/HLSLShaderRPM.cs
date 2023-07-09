@@ -15,7 +15,7 @@ namespace ShaderParameterManager
     {
         Device _Device;
         List<HLSLParameterInfo> _HLSLParameters;
-        Dictionary<string, SamplerStateDescription> _Samplers;
+        Dictionary<string, StaticSamplerDescription> _Samplers;
         RootSignatureFlags _RootSignatureFlags;
         int samplerCount;
 
@@ -24,7 +24,7 @@ namespace ShaderParameterManager
             _Device = device;
             _RootSignatureFlags = rootSignatureFlags;
             _HLSLParameters = new List<HLSLParameterInfo>();
-            _Samplers = new Dictionary<string, SamplerStateDescription>();
+            _Samplers = new Dictionary<string, StaticSamplerDescription>();
         }
 
         //一個用符 二個用Heap //泛用
@@ -50,8 +50,8 @@ namespace ShaderParameterManager
             });
         }
 
-        public void SetStaticSampler(string name, SamplerStateDescription ssd)
-        {
+        public void SetStaticSampler(string name, StaticSamplerDescription ssd)
+        {   
             _Samplers[name] = ssd;
         }
 
@@ -97,18 +97,31 @@ namespace ShaderParameterManager
             }
 
             i = 0;
-            foreach (KeyValuePair<string, SamplerStateDescription> kvp in _Samplers)
+            foreach (KeyValuePair<string, StaticSamplerDescription> kvp in _Samplers)
             {
-                rsd.StaticSamplers[i] = new StaticSamplerDescription(kvp.Value, ShaderVisibility.All, i, 0);//All to Pixel
+                rsd.StaticSamplers[i] = kvp.Value;
                 i++;
             }
 
             return rsd;
         }
+        
+        //public Stream WriteFile(string file, string s)
+        //{
+
+        //}
+        public void CreateRootParameterShaderFile(string file)
+        {
+            using (StreamWriter sw = new StreamWriter(file))
+            {
+                sw.Write(GetRootParameterHLSL());
+                sw.Close();
+            }            
+        }
 
         public string GetRootParameterHLSL()
         {
-            return null;
+            return "";
         }
 
     }

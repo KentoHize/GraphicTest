@@ -1,4 +1,4 @@
-﻿using GraphicLibrary2;
+﻿
 using GraphicLibrary2.Items;
 using System;
 using System.Collections.Generic;
@@ -15,6 +15,7 @@ namespace ShaderParameterManager
     public partial class MainForm : Form
     {
         SharpDXEngine sde;
+        string Annette = "C:\\Programs\\GraphicTest\\ShaderParameterManager\\Texture\\AnnetteSquare.bmp";
         public MainForm()
         {
             InitializeComponent();
@@ -34,12 +35,9 @@ namespace ShaderParameterManager
         {
             sde.SetGrahpicCardAndRenderTarget(new SharpDXInitializeSetting(
                 pictureBox1.Handle, pictureBox1.ClientSize.Width, pictureBox1.ClientSize.Height, true, 1));
+            sde.SetGraphicSetting();
+            sde.LoadTextureFromBitmapFile(0, Annette);
 
-            //Load Texture
-            //for (int i = 0; i < 8; i++)
-            //    LoadTexture(i);
-
-            //Load Material
             sde.SetCamera("MainCamera", new ArCamera(2000, 2000, 4000));
             sde.SetLight(0, new ArLight(ArLightType.Directional, ArFloatVector3.One));
             sde.PrepareLoadModel();

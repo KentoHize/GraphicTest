@@ -52,6 +52,10 @@
             lblMemory.TabIndex = 1;
             lblMemory.Text = "_";
             // 
+            // timer1
+            // 
+            timer1.Tick += timer1_Tick;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(9F, 19F);
@@ -61,6 +65,7 @@
             Controls.Add(pictureBox1);
             Name = "MainForm";
             Text = "MainForm";
+            Load += MainForm_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
             PerformLayout();
