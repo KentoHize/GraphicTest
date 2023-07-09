@@ -18,7 +18,7 @@ using InfoQueue = SharpDX.Direct3D12.InfoQueue;
 using Resource = SharpDX.Direct3D12.Resource;
 using Resource11 = SharpDX.Direct3D11.Resource;
 
-namespace GraphicLibrary2
+namespace ShaderParameterManager
 {
     public partial class SharpDXEngine
     {
@@ -39,7 +39,6 @@ namespace GraphicLibrary2
 
         void CreatePipleLine()
         {
-
             
         }
 
