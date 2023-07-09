@@ -121,7 +121,57 @@ namespace ShaderParameterManager
 
         public string GetRootParameterHLSL()
         {
-            return "";
+            int bCount = 0, tCount = 0, uCount = 0, i;
+            StringBuilder sb = new StringBuilder();
+            string types1 = "", types2 = "";
+            for (i = 0; i < _HLSLParameters.Count; i++)
+            {
+                switch (_HLSLParameters[i].RootParameterType)
+                {
+                    case RootParameterType.ConstantBufferView:
+                        types1 = "b";
+                        types2 = "ConstantBuffer";
+                        break;
+                    case RootParameterType.ShaderResourceView:
+                        types1 = "t";
+                        types2 = "StructuredBuffer";
+                        break;
+                    case RootParameterType.UnorderedAccessView:
+                        types1 = "u";
+                        types2 = "RWStructuredBuffer";
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
+                sb.AppendFormat("struct {0}{1}\n", types1, bCount);
+                sb.AppendLine("{");
+
+                if (_HLSLParameters[i].Type == typeof(Resource))
+                {
+                    sb.
+                }
+
+                PropertyInfo[] pis = _HLSLParameters[i].Type.GetProperties();
+                foreach (PropertyInfo pi in pis)
+                {
+                    sb.AppendFormat("\t{0} {1};\n", pi.PropertyType.Name.ToString(), pi.Name);
+                }
+                sb.AppendLine("}");
+                if (_HLSLParameters[i].Count == 1)
+                    sb.AppendFormat("{0}<{1}{2}> {3} : register({4}{5});", types2, types1, bCount, _HLSLParameters[i].Name, types1, bCount);
+                else
+                    sb.AppendFormat("{0}<{1}{2}> {3}[{4} : register({5}{6});", types2, types1, bCount, _HLSLParameters[i].Name, _HLSLParameters[i].Count, types1, bCount);
+                bCount += _HLSLParameters[i].Count;
+            }
+
+            i = 0;
+            foreach (KeyValuePair<string, StaticSamplerDescription> kvp in _Samplers)
+            {
+                //rsd.StaticSamplers[i] = kvp.Value;
+                i++;
+            }
+
+            return sb.ToString();
         }
 
     }
